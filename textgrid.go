@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"io"
+	"strings"
 	"unicode"
 )
 
@@ -148,6 +149,17 @@ func (t *TextGrid) replaceBullets() {
 				t.Set(x+1, y, '\u2022')
 			}
 		}
+	}
+}
+
+func (t *TextGrid) replaceHumanColorCodes() {
+	for y, row := range t.Rows {
+		s := string(row)
+		for k, v := range humanColorCodes {
+			k, v = "c"+k, "c"+v
+			s = strings.Replace(s, k, v, -1)
+		}
+		t.Rows[y] = []rune(s)
 	}
 }
 
