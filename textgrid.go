@@ -139,3 +139,31 @@ func appendSpaces(row []rune, n int) []rune {
 	}
 	return row
 }
+
+func (t *TextGrid) replaceBullets() {
+	for y, row := range t.Rows {
+		for x, _ := range row {
+			if t.IsBullet(x, y) {
+				t.Set(x, y, ' ')
+				t.Set(x+1, y, '\u2022')
+			}
+		}
+	}
+}
+
+func (t *TextGrid) IsBullet(x, y int) bool {
+	ch := t.Get(x, y)
+	return (ch == 'o' || ch == '*') &&
+		t.IsBlankNon0(x+1, y) &&
+		t.IsBlankNon0(x-1, y) &&
+		isAlphNum(t.Get(x+2, y))
+}
+
+func (t *TextGrid) IsBlankNon0(x, y int) bool { return t.Get(x, y) == ' ' }
+
+func isAlphNum(ch rune) bool { return unicode.IsLetter(ch) || unicode.IsDigit(ch) }
+
+func (t *TextGrid) Set(x, y int, ch rune) { t.Rows[y][x] = ch }
+func (t *TextGrid) Get(x, y int) rune     { return t.Rows[y][x] }
+
+type Cell struct{ X, Y int }
