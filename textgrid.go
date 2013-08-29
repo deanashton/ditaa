@@ -2,8 +2,8 @@ package main
 
 import (
 	"bufio"
-	"bytes"
 	"io"
+	"unicode"
 )
 
 const (
@@ -49,7 +49,7 @@ var markupTags = map[string]struct{}{
 var _SPACE = []byte{' '}
 
 type TextGrid struct {
-	Rows [][]byte // FIXME: change to [][]rune and handle UTF-8 input
+	Rows [][]rune
 }
 
 func NewTextGrid() *TextGrid {
@@ -57,10 +57,10 @@ func NewTextGrid() *TextGrid {
 }
 
 func (t *TextGrid) LoadFrom(r io.Reader) error {
-	lines := [][]byte{}
+	lines := [][]rune{}
 	scanner := bufio.NewScanner(r)
 	for scanner.Scan() {
-		line := append([]byte(nil), scanner.Bytes()...)
+		line := []rune(scanner.Text())
 		lines = append(lines, line)
 	}
 	if scanner.Err() != nil {
@@ -69,16 +69,14 @@ func (t *TextGrid) LoadFrom(r io.Reader) error {
 
 	// strip trailing blank lines
 	for i := len(lines) - 1; i >= 0; i-- {
-		tmp := bytes.TrimSpace(lines[i])
-		if len(tmp) != 0 {
+		if !onlyWhitespaces(lines[i]) {
 			lines = lines[:i+1]
 			break
 		}
 	}
 
+	fixTabs(lines, DEFAULT_TAB_SIZE)
 	t.Rows = lines
-
-	t.fixTabs(DEFAULT_TAB_SIZE)
 
 	// make all lines of equal length
 	// add blank outline around the buffer to prevent fill glitch
@@ -91,21 +89,18 @@ func (t *TextGrid) LoadFrom(r io.Reader) error {
 		}
 	}
 
-	newrows := make([][]byte, 0, len(t.Rows)+2*blankBorderSize)
+	newrows := make([][]rune, 0, len(t.Rows)+2*blankBorderSize)
 	for i := 0; i < blankBorderSize; i++ {
-		newrows = append(newrows, bytes.Repeat(_SPACE, maxLen+2*blankBorderSize))
+		newrows = append(newrows, appendSpaces(nil, maxLen+2*blankBorderSize))
 	}
-	border := bytes.Repeat(_SPACE, blankBorderSize)
 	for _, row := range t.Rows {
-		newrow := make([]byte, 0, maxLen+2*blankBorderSize)
-		newrow = append(newrow, border...)
+		newrow := make([]rune, 0, maxLen+2*blankBorderSize)
+		newrow = appendSpaces(newrow, blankBorderSize)
 		newrow = append(newrow, row...)
-		for i := len(newrow); i < cap(newrow); i++ {
-			newrow = append(newrow, ' ')
-		}
+		newrow = appendSpaces(newrow, cap(newrow)-len(newrow))
 	}
 	for i := 0; i < blankBorderSize; i++ {
-		newrows = append(newrows, bytes.Repeat(_SPACE, maxLen+2*blankBorderSize))
+		newrows = append(newrows, appendSpaces(nil, maxLen+2*blankBorderSize))
 	}
 	t.Rows = newrows
 
@@ -115,16 +110,32 @@ func (t *TextGrid) LoadFrom(r io.Reader) error {
 	return nil
 }
 
-func (t *TextGrid) fixTabs(tabSize int) {
-	for y, row := range t.Rows {
-		newrow := make([]byte, 0, len(row))
+func onlyWhitespaces(rs []rune) bool {
+	for _, r := range rs {
+		if !unicode.IsSpace(r) {
+			return false
+		}
+	}
+	return true
+}
+
+func fixTabs(rows [][]rune, tabSize int) {
+	for y, row := range rows {
+		newrow := make([]rune, 0, len(row))
 		for _, c := range row {
 			if c == '\t' {
-				newrow = append(newrow, bytes.Repeat(_SPACE, tabSize-len(newrow)%tabSize)...)
+				newrow = appendSpaces(newrow, tabSize-len(newrow)%tabSize)
 			} else {
 				newrow = append(newrow, c)
 			}
 		}
-		t.Rows[y] = newrow
+		rows[y] = newrow
 	}
+}
+
+func appendSpaces(row []rune, n int) []rune {
+	for i := 0; i < n; i++ {
+		row = append(row, ' ')
+	}
+	return row
 }
