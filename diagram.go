@@ -1,6 +1,8 @@
 package main
 
-type Diagram struct{}
+type Diagram struct {
+	W, H int
+}
 
 /*
 An outline of the inner workings of this very important (and monstrous)
@@ -49,5 +51,12 @@ Finally, the text processing occurs: [pending]
 
 */
 func NewDiagram(grid *TextGrid) *Diagram {
-	return &Diagram{}
+	d := Diagram{}
+	d.W, d.H = len(grid.Rows[0])*CELL_WIDTH, len(grid.Rows)*CELL_HEIGHT
+
+	workGrid := CopyTextGrid(grid)
+	workGrid.replaceTypeOnLine()
+	workGrid.replacePointMarkersOnLine()
+
+	return &d
 }

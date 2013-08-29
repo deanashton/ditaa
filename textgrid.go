@@ -57,6 +57,15 @@ func NewTextGrid() *TextGrid {
 	return &TextGrid{}
 }
 
+func CopyTextGrid(other *TextGrid) *TextGrid {
+	t := TextGrid{}
+	t.Rows = make([][]rune, len(other.Rows))
+	for y, row := range other.Rows {
+		t.Rows[y] = append([]rune(nil), row...)
+	}
+	return &t
+}
+
 func (t *TextGrid) LoadFrom(r io.Reader) error {
 	lines := [][]rune{}
 	scanner := bufio.NewScanner(r)

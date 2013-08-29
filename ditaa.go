@@ -7,6 +7,8 @@ import (
 
 const (
 	DEFAULT_TAB_SIZE = 8
+	CELL_WIDTH       = 10
+	CELL_HEIGHT      = 14
 )
 
 func main() {
