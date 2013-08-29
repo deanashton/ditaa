@@ -5,6 +5,10 @@ import (
 	"os"
 )
 
+const (
+	DEFAULT_TAB_SIZE = 8
+)
+
 func main() {
 	if len(os.Args[1:]) != 2 {
 		fmt.Fprintf(os.Stderr, "USAGE: %0 INFILE OUTFILE.png", os.Args[0])
