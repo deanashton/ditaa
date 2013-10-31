@@ -1638,39 +1638,39 @@ public class TextGrid {
 		// convert tabs to spaces (or remove them if setting is 0)
 
 		recode(rows, (options != null) ? options.getCharacterEncoding() : null);
-		int maxLength = findMaxWidth(rows);
-
-		Iterator<StringBuilder> it = rows.iterator();
-		ArrayList<StringBuilder> newRows = new ArrayList<StringBuilder>();
-
-		StringBuilder topBottomRow = new StringBuilder(StringUtils.repeatString(" ", maxLength + BLANK_BORDER_SIZE * 2));
-		for (int j = 0; j < BLANK_BORDER_SIZE; j++) {
-			newRows.add(topBottomRow);
-		}
-		while (it.hasNext()) {
-			StringBuilder row = it.next();
-
-			if (row.length() < maxLength) {
-				String borderString = StringUtils.repeatString(" ", BLANK_BORDER_SIZE);
-				StringBuilder newRow = new StringBuilder();
-
-				newRow.append(borderString);
-				newRow.append(row);
-				newRow.append(StringUtils.repeatString(" ", maxLength - row.length()));
-				newRow.append(borderString);
-
-				newRows.add(newRow);
-			} else { //TODO: why is the following line like that?
-				newRows.add(new StringBuilder("  ").append(row).append("  "));
-			}
-		}
-		for (int j = 0; j < BLANK_BORDER_SIZE; j++) {
-			newRows.add(topBottomRow);
-		}
-		rows = newRows;
+		rows = padWithSpaces(rows, BLANK_BORDER_SIZE);
 
 		replaceBullets();
 		replaceHumanColorCodes();
+	}
+
+	private static void fillSpacesUpto(StringBuilder s, int targetLength) {
+		if (targetLength < s.length()) {
+			return;
+		}
+		s.append(StringUtils.repeatString(" ", targetLength - s.length()));
+	}
+
+	private static ArrayList<StringBuilder> padWithSpaces(ArrayList<StringBuilder> rows, final int blankBorderSize) {
+		int maxWidth = findMaxWidth(rows);
+		ArrayList<StringBuilder> newRows = new ArrayList<StringBuilder>();
+
+		StringBuilder blankRow = new StringBuilder();
+		fillSpacesUpto(blankRow, maxWidth + blankBorderSize * 2);
+		for (int j = 0; j < blankBorderSize; j++) {
+			newRows.add(blankRow);
+		}
+		for (StringBuilder row : rows) {
+			StringBuilder newRow = new StringBuilder();
+			fillSpacesUpto(newRow, blankBorderSize);
+			newRow.append(row);
+			fillSpacesUpto(newRow, maxWidth + blankBorderSize * 2);
+			newRows.add(newRow);
+		}
+		for (int j = 0; j < blankBorderSize; j++) {
+			newRows.add(blankRow);
+		}
+		return newRows;
 	}
 
 	private static void removeBlankBottomRows(ArrayList<StringBuilder> rows) {
