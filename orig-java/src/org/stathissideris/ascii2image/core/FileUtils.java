@@ -1,6 +1,6 @@
 /*
  * DiTAA - Diagrams Through Ascii Art
- * 
+ *
  * Copyright (C) 2004 Efstathios Sideris
  *
  * This program is free software; you can redistribute it and/or
@@ -16,24 +16,26 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *   
+ *
  */
 package org.stathissideris.ascii2image.core;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
+import java.util.ArrayList;
 
 /**
- * 
+ *
  * @author Efstathios Sideris
  */
 public class FileUtils {
 
-	//private static final 
+	//private static final
 
 	public static String makeTargetPathname(String sourcePathname, String extension, boolean overwrite) {
 		return makeTargetPathname(sourcePathname, extension, "", overwrite);
@@ -121,9 +123,7 @@ public class FileUtils {
 				}
 			}
 			return builder.toString();
-		}
-
-		else {
+		} else {
 			// Create the byte array to hold the data
 			byte[] bytes = new byte[(int) length];
 
@@ -159,5 +159,18 @@ public class FileUtils {
 		System.out.println(makeAlternativePathname("C:\\Files\\papar"));
 		System.out.println(getExtension("pipi.jpeg"));
 		System.out.println(getExtension("pipi"));
+	}
+
+	public static ArrayList<StringBuilder> readLines(String filename, String encoding) throws FileNotFoundException, IOException {
+		InputStream is = "-".equals(filename) ? System.in : new FileInputStream(filename);
+		return splitLines(readFile(is, filename, encoding));
+	}
+
+	public static ArrayList<StringBuilder> splitLines(String text) {
+		ArrayList<StringBuilder> lines = new ArrayList<StringBuilder>();
+		for (String element : text.split("(\r)?\n")) {
+			lines.add(new StringBuilder(element));
+		}
+		return lines;
 	}
 }

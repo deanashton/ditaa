@@ -1,6 +1,6 @@
 /*
  * DiTAA - Diagrams Through Ascii Art
- * 
+ *
  * Copyright (C) 2004 Efstathios Sideris
  *
  * This program is free software; you can redistribute it and/or
@@ -16,15 +16,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *   
+ *
  */
 package org.stathissideris.ascii2image.text;
 
 import java.awt.Color;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -39,7 +37,7 @@ import org.stathissideris.ascii2image.core.FileUtils;
 import org.stathissideris.ascii2image.core.ProcessingOptions;
 
 /**
- * 
+ *
  * @author Efstathios Sideris
  */
 public class TextGrid {
@@ -303,7 +301,7 @@ public class TextGrid {
 
 	/**
 	 * Adds grid to this. Space characters in this grid are replaced with the corresponding contents of grid, otherwise the contents are unchanged.
-	 * 
+	 *
 	 * @param grid
 	 * @return false if the grids are of different size
 	 */
@@ -326,7 +324,7 @@ public class TextGrid {
 	/**
 	 * Replaces letters or numbers that are on horizontal or vertical lines, with the appropriate character that will make the line continuous (| for
 	 * vertical and - for horizontal lines)
-	 * 
+	 *
 	 */
 	public void replaceTypeOnLine() {
 		int width = getWidth();
@@ -440,7 +438,7 @@ public class TextGrid {
 
 	/**
 	 * Replace all occurences of c1 with c2
-	 * 
+	 *
 	 * @param c1
 	 * @param c2
 	 */
@@ -520,7 +518,7 @@ public class TextGrid {
 	/**
 	 * Returns an ArrayList of CellStringPairs that represents all the continuous (non-blank) Strings in the grid. Used on buffers that contain only type,
 	 * in order to find the positions and the contents of the strings.
-	 * 
+	 *
 	 * @return
 	 */
 	public ArrayList<CellStringPair> findStrings() {
@@ -552,7 +550,7 @@ public class TextGrid {
 
 	/**
 	 * This is done in a bit of a messy way, should be impossible to go out of sync with corresponding GridPatternGroup.
-	 * 
+	 *
 	 * @param cell
 	 * @param entryPointId
 	 * @return
@@ -588,7 +586,7 @@ public class TextGrid {
 
 	/**
 	 * true if cell is blank and the east and west cells are not (used to find gaps between words)
-	 * 
+	 *
 	 * @param cell
 	 * @return
 	 */
@@ -652,7 +650,7 @@ public class TextGrid {
 
 		//remove in two stages, because decision of
 		//isBoundary depends on contants of surrounding
-		//cells 
+		//cells
 		Iterator it = toBeRemoved.iterator();
 		while (it.hasNext()) {
 			Cell cell = (Cell) it.next();
@@ -854,7 +852,7 @@ public class TextGrid {
 
 	/**
 	 * Stubs are also considered end of lines
-	 * 
+	 *
 	 * @param cell
 	 * @return
 	 */
@@ -903,16 +901,16 @@ public class TextGrid {
 	}
 
 	/**
-	 * 
+	 *
 	 * A stub looks like that:
-	 * 
+	 *
 	 * <pre>
-	 * 
+	 *
 	 * +- or -+ or + or + or /- or -/ or / (you get the point)
 	 *             |    |                |
-	 * 
+	 *
 	 * </pre>
-	 * 
+	 *
 	 * @param cell
 	 * @return
 	 */
@@ -1007,7 +1005,7 @@ public class TextGrid {
 
 	/**
 	 * true if the cell is not blank but the previous (west) is
-	 * 
+	 *
 	 * @param cell
 	 * @return
 	 */
@@ -1017,7 +1015,7 @@ public class TextGrid {
 
 	/**
 	 * true if the cell is not blank but the next (east) is
-	 * 
+	 *
 	 * @param cell
 	 * @return
 	 */
@@ -1104,7 +1102,7 @@ public class TextGrid {
 
 	/**
 	 * Returns the neighbours of a line-cell that are boundaries (0 to 2 cells are returned)
-	 * 
+	 *
 	 * @param cell
 	 * @return null if the cell is not a line
 	 */
@@ -1465,7 +1463,7 @@ public class TextGrid {
 
 	/**
 	 * Fills all the cells in <code>cells</code> with <code>c</code>
-	 * 
+	 *
 	 * @param cells
 	 * @param c
 	 */
@@ -1478,9 +1476,9 @@ public class TextGrid {
 	}
 
 	/**
-	 * 
+	 *
 	 * Fills the continuous area with if c1 characters with c2, flooding from cell x, y
-	 * 
+	 *
 	 * @param x
 	 * @param y
 	 * @param c1
@@ -1551,9 +1549,9 @@ public class TextGrid {
 	}
 
 	/**
-	 * 
+	 *
 	 * Locates and returns the '*' boundaries that we would encounter if we did a flood-fill at <code>seed</code>.
-	 * 
+	 *
 	 * @param seed
 	 * @return
 	 */
@@ -1614,40 +1612,20 @@ public class TextGrid {
 		return StringUtils.isOneOf(c, dashedLines);
 	}
 
-	public boolean loadFrom(String filename) throws FileNotFoundException, IOException {
-		return loadFrom(filename, null);
+	public void loadFrom(String filename) throws FileNotFoundException, IOException {
+		loadFrom(filename, null);
 	}
 
-	public boolean loadFrom(String filename, ProcessingOptions options) throws IOException {
-
-		String encoding = options == null ? null : options.getCharacterEncoding();
-		ArrayList<StringBuilder> lines = new ArrayList<StringBuilder>();
-		InputStream is;
-		if ("-".equals(filename)) {
-			is = System.in;
-		} else {
-			is = new FileInputStream(filename);
-		}
-		String[] linesArray = FileUtils.readFile(is, filename, encoding).split("(\r)?\n");
-		for (String element : linesArray) {
-			lines.add(new StringBuilder(element));
-		}
-
-		return initialiseWithLines(lines, options);
+	public void loadFrom(String filename, ProcessingOptions options) throws IOException {
+		ArrayList<StringBuilder> lines = FileUtils.readLines(filename, (options == null) ? null : options.getCharacterEncoding());
+		initialiseWithLines(lines, options);
 	}
 
-	public boolean initialiseWithText(String text, ProcessingOptions options) throws UnsupportedEncodingException {
-
-		ArrayList<StringBuilder> lines = new ArrayList<StringBuilder>();
-		String[] linesArray = text.split("(\r)?\n");
-		for (String element : linesArray) {
-			lines.add(new StringBuilder(element));
-		}
-
-		return initialiseWithLines(lines, options);
+	public void initialiseWithText(String text, ProcessingOptions options) throws UnsupportedEncodingException {
+		initialiseWithLines(FileUtils.splitLines(text), options);
 	}
 
-	public boolean initialiseWithLines(ArrayList<StringBuilder> lines, ProcessingOptions options) throws UnsupportedEncodingException {
+	public void initialiseWithLines(ArrayList<StringBuilder> lines, ProcessingOptions options) throws UnsupportedEncodingException {
 
 		//remove blank rows at the bottom
 		boolean done = false;
@@ -1726,8 +1704,6 @@ public class TextGrid {
 
 		replaceBullets();
 		replaceHumanColorCodes();
-
-		return true;
 	}
 
 	private void fixTabs(int tabSize) {

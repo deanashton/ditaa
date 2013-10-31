@@ -180,9 +180,7 @@ public class CommandLineConverter {
 			grid.addToMarkupTags(options.processingOptions.getCustomShapes().keySet());
 		}
 		try {
-			if (!grid.loadFrom(fromFilename, options.processingOptions)) {
-				System.err.println("Cannot open file " + fromFilename + " for reading");
-			}
+			grid.loadFrom(fromFilename, options.processingOptions);
 		} catch (UnsupportedEncodingException e1) {
 			System.err.println("Error: " + e1.getMessage());
 			System.exit(1);

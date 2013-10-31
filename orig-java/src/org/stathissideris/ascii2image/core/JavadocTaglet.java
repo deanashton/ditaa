@@ -1,8 +1,8 @@
-/* 
- * Text Diagram Taglet 
+/*
+ * Text Diagram Taglet
  *
  * Copyright (C) 2006 Nordic Growth Market NGM AB,
- * Mikael Brannstrom. 
+ * Mikael Brannstrom.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -58,7 +58,7 @@ import com.sun.xml.internal.bind.api.impl.NameConverter.Standard;
  * The syntax for the ditaa diagram is described at <a href="http://ditaa.sourceforge.net/">http://ditaa.sourceforge.net/</a>.
  * <p>
  * <b>Note:</b> The overview file needs to be named "overview.html" if it lies in the source path, otherwise it is sufficient that it ends with ".html".
- * 
+ *
  * @author Mikael Brannstrom
  */
 public class JavadocTaglet implements Taglet {
@@ -116,35 +116,43 @@ public class JavadocTaglet implements Taglet {
 		}
 	}
 
+	@Override
 	public boolean inField() {
 		return false; // inline tag
 	}
 
+	@Override
 	public boolean inConstructor() {
 		return false; // inline tag
 	}
 
+	@Override
 	public boolean inMethod() {
 		return false; // inline tag
 	}
 
+	@Override
 	public boolean inOverview() {
 		return false; // inline tag
 	}
 
+	@Override
 	public boolean inPackage() {
 		return false; // inline tag
 	}
 
+	@Override
 	public boolean inType() {
 		return false; // inline tag
 	}
 
 	/** This tag is an inline tag. */
+	@Override
 	public boolean isInlineTag() {
 		return true;
 	}
 
+	@Override
 	public String getName() {
 		return NAME;
 	}
@@ -152,6 +160,7 @@ public class JavadocTaglet implements Taglet {
 	/**
 	 * Generates the diagram image and returns an img html tag that references to the image.
 	 */
+	@Override
 	public String toString(Tag tag) {
 		String text = tag.text().trim();
 		String figureName, figureText;
@@ -200,13 +209,14 @@ public class JavadocTaglet implements Taglet {
 	/**
 	 * Returns null since this is an inline tag.
 	 */
+	@Override
 	public String toString(Tag[] tag) {
 		return null; // should return null, this is an inline tag
 	}
 
 	/**
 	 * Returns the path of the output file given the source file and the diagram name.
-	 * 
+	 *
 	 * @param srcFile
 	 *                the source file which contains the tag
 	 * @param name
@@ -254,7 +264,7 @@ public class JavadocTaglet implements Taglet {
 
 	/**
 	 * Returns the relative path of a (source) file. The path is relative to one of the source dirs specified to the standard doclet.
-	 * 
+	 *
 	 * @returns the relative path. If a relative path could not be found null is returned.
 	 */
 	private String getRelativePath(File file) {
@@ -280,7 +290,7 @@ public class JavadocTaglet implements Taglet {
 
 	/**
 	 * Generates the image from the specified text to the output file.
-	 * 
+	 *
 	 * @param text
 	 *                the ascii art text.
 	 * @param outputFile
@@ -290,9 +300,7 @@ public class JavadocTaglet implements Taglet {
 		ConversionOptions options = new ConversionOptions();
 		TextGrid textGrid = new TextGrid();
 		try {
-			if (!textGrid.initialiseWithText(text, null)) {
-				error("Cannot initialize text grid");
-			}
+			textGrid.initialiseWithText(text, null);
 		} catch (UnsupportedEncodingException e1) {
 			error("Cannot initialize text grid");
 		}
@@ -319,7 +327,7 @@ public class JavadocTaglet implements Taglet {
 
 	/**
 	 * Register this Taglet.
-	 * 
+	 *
 	 * @param tagletMap
 	 *                the map to register this tag to.
 	 */
