@@ -1,6 +1,6 @@
 /*
  * DiTAA - Diagrams Through Ascii Art
- * 
+ *
  * Copyright (C) 2004 Efstathios Sideris
  *
  * This program is free software; you can redistribute it and/or
@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *   
+ *
  */
 package org.stathissideris.ascii2image.text;
 
@@ -26,7 +26,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 /**
- * 
+ *
  * @author Efstathios Sideris
  */
 public class CellSet implements Iterable<TextGrid.Cell> {
@@ -40,7 +40,7 @@ public class CellSet implements Iterable<TextGrid.Cell> {
 	public static final int TYPE_HAS_CLOSED_AREA = 3;
 	public static final int TYPE_UNDETERMINED = 4;
 
-	Set<TextGrid.Cell> internalSet = new HashSet<TextGrid.Cell>();
+	private Set<TextGrid.Cell> internalSet = new HashSet<TextGrid.Cell>();
 
 	private int type = TYPE_UNDETERMINED;
 	private boolean typeIsValid = false;
@@ -120,7 +120,7 @@ public class CellSet implements Iterable<TextGrid.Cell> {
 
 	/**
 	 * Deep copy
-	 * 
+	 *
 	 * @param set
 	 * @return
 	 */
@@ -245,22 +245,22 @@ public class CellSet implements Iterable<TextGrid.Cell> {
 		return TYPE_CLOSED;
 
 		//		boolean hasMoved = false;
-		//		
+		//
 		//		CellSet workSet;
 		//		workSet = new CellSet(this);
 		//
 		//		TextGrid.Cell start = (TextGrid.Cell) get(0);
-		//		
+		//
 		//		workSet.remove(start);
 		//		TextGrid.Cell cell = workSet.findCellNextTo(start);
-		//		
+		//
 		//		while(true && cell != null){
-		//			
+		//
 		//			hasMoved = true;
 		//			workSet.remove(cell);
-		//			
+		//
 		//			CellSet setOfNeighbours = workSet.findCellsNextTo(cell);
-		//			
+		//
 		//			if(setOfNeighbours.isEmpty()) break;
 		//
 		//			TextGrid.Cell c = null;
@@ -350,7 +350,7 @@ public class CellSet implements Iterable<TextGrid.Cell> {
 	//			TextGrid.Cell cCell = it.next();
 	//			if(cCell.equals(cell)) return true;
 	//		}
-	//		return false;		
+	//		return false;
 	//	}
 
 	public void addSet(CellSet set) {
@@ -412,7 +412,7 @@ public class CellSet implements Iterable<TextGrid.Cell> {
 
 	/**
 	 * Returns the first cell that is found to be next to <code>cell</code>.
-	 * 
+	 *
 	 * @param cell
 	 * @return
 	 */
@@ -429,7 +429,7 @@ public class CellSet implements Iterable<TextGrid.Cell> {
 
 	/**
 	 * Returns all the cells that are found to be next to <code>cell</code>.
-	 * 
+	 *
 	 * @param cell
 	 * @return
 	 */
@@ -566,7 +566,7 @@ public class CellSet implements Iterable<TextGrid.Cell> {
 
 	/**
 	 * Takes into account character info from the grid
-	 * 
+	 *
 	 * @return ArrayList of distinct BoundarySetS
 	 */
 	public ArrayList<CellSet> breakIntoDistinctBoundaries(TextGrid grid) {
@@ -579,7 +579,7 @@ public class CellSet implements Iterable<TextGrid.Cell> {
 	}
 
 	/**
-	 * 
+	 *
 	 * @return ArrayList of distinct BoundarySetS
 	 */
 	public ArrayList<CellSet> breakIntoDistinctBoundaries() {
@@ -608,9 +608,9 @@ public class CellSet implements Iterable<TextGrid.Cell> {
 	}
 
 	/**
-	 * 
+	 *
 	 * Breaks that:
-	 * 
+	 *
 	 * <pre>
 	 *  +-----+
 	 *  |     |
@@ -618,20 +618,20 @@ public class CellSet implements Iterable<TextGrid.Cell> {
 	 *  |     |
 	 *  +-----+
 	 * </pre>
-	 * 
+	 *
 	 * into the following 3:
-	 * 
+	 *
 	 * <pre>
 	 *  +-----+
 	 *  |     |
 	 *  +     +
 	 *  |     |
 	 *  +-----+
-	 * 
+	 *
 	 *     ---
 	 *         -------------------
 	 * </pre>
-	 * 
+	 *
 	 * @param grid
 	 * @return a list of boundaries that are either open or closed but not mixed and they are equivalent to the <code>this</code>
 	 */

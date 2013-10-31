@@ -1,6 +1,6 @@
 /*
  * DiTAA - Diagrams Through Ascii Art
- * 
+ *
  * Copyright (C) 2004 Efstathios Sideris
  *
  * This program is free software; you can redistribute it and/or
@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *   
+ *
  */
 package org.stathissideris.ascii2image.graphics;
 
@@ -48,7 +48,7 @@ import org.stathissideris.ascii2image.core.ShapeAreaComparator;
 import org.stathissideris.ascii2image.text.TextGrid;
 
 /**
- * 
+ *
  * @author Efstathios Sideris
  */
 public class BitmapRenderer {
@@ -58,8 +58,8 @@ public class BitmapRenderer {
 
 	private static final String IDREGEX = "^.+_vfill$";
 
-	Stroke normalStroke;
-	Stroke dashStroke;
+	private Stroke normalStroke;
+	private Stroke dashStroke;
 
 	public static void main(String[] args) throws Exception {
 
@@ -173,14 +173,14 @@ public class BitmapRenderer {
 				}
 				Kernel myKernel = new Kernel(blurRadius, blurRadius, elements);
 
-				//if EDGE_NO_OP is not selected, EDGE_ZERO_FILL is the default which creates a black border 
+				//if EDGE_NO_OP is not selected, EDGE_ZERO_FILL is the default which creates a black border
 				ConvolveOp simpleBlur = new ConvolveOp(myKernel, ConvolveOp.EDGE_NO_OP, null);
 
 				BufferedImage destination = new BufferedImage(image.getWidth(), image.getHeight(), image.getType());
 
 				simpleBlur.filter(image, destination);
 
-				//destination = destination.getSubimage(blurRadius/2, blurRadius/2, image.getWidth(), image.getHeight()); 
+				//destination = destination.getSubimage(blurRadius/2, blurRadius/2, image.getWidth(), image.getHeight());
 				g2 = (Graphics2D) destination.getGraphics();
 				g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, antialiasSetting);
 				renderedImage = destination;
@@ -200,7 +200,7 @@ public class BitmapRenderer {
 
 		dashStroke = new BasicStroke(strokeWeight, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND, 0, new float[] { dashInterval }, 0);
 
-		//TODO: at this stage we should draw the open shapes first in order to make sure they are at the bottom (this is useful for the {mo} shape) 
+		//TODO: at this stage we should draw the open shapes first in order to make sure they are at the bottom (this is useful for the {mo} shape)
 
 		//find storage shapes
 		ArrayList<DiagramShape> storageShapes = new ArrayList<DiagramShape>();
@@ -369,7 +369,7 @@ public class BitmapRenderer {
 			g2.drawLine(bounds.x, bounds.y + bounds.height, bounds.x + bounds.width, bounds.y + bounds.height);
 			g2.drawLine(bounds.x, bounds.y, bounds.x, bounds.y + bounds.height);
 
-			//			g2.drawRect(bounds.x, bounds.y, bounds.width, bounds.height); //looks different!			
+			//			g2.drawRect(bounds.x, bounds.y, bounds.width, bounds.height); //looks different!
 		}
 
 		//TODO: custom shape distintion relies on filename extension. Make this more intelligent

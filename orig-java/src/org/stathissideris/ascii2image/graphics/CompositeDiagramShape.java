@@ -1,6 +1,6 @@
 /*
  * DiTAA - Diagrams Through Ascii Art
- * 
+ *
  * Copyright (C) 2004 Efstathios Sideris
  *
  * This program is free software; you can redistribute it and/or
@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *   
+ *
  */
 package org.stathissideris.ascii2image.graphics;
 
@@ -29,7 +29,7 @@ import org.stathissideris.ascii2image.text.CellSet;
 import org.stathissideris.ascii2image.text.TextGrid;
 
 /**
- * 
+ *
  * @author Efstathios Sideris
  */
 public class CompositeDiagramShape extends DiagramComponent {
@@ -37,13 +37,6 @@ public class CompositeDiagramShape extends DiagramComponent {
 	private static final boolean DEBUG = false;
 
 	private ArrayList<DiagramShape> shapes = new ArrayList<DiagramShape>();
-
-	public static void main(String[] args) {
-	}
-
-	public static DiagramComponent createFromBoundaryCells(final TextGrid grid, final CellSet boundaryCells, final int cellWidth, final int cellHeight) {
-		return createOpenFromBoundaryCells(grid, boundaryCells, cellWidth, cellHeight, false);
-	}
 
 	public static DiagramComponent createOpenFromBoundaryCells(final TextGrid grid, final CellSet boundaryCells, final int cellWidth, final int cellHeight,
 			boolean allRound) {
@@ -153,7 +146,7 @@ public class CompositeDiagramShape extends DiagramComponent {
 
 	/**
 	 * Returns a new diagram component with the lines of this CompositeDiagramShape connected. It can a composite or simple shape
-	 * 
+	 *
 	 * @return
 	 */
 	public DiagramComponent connectLines() {
@@ -215,7 +208,7 @@ public class CompositeDiagramShape extends DiagramComponent {
 		}
 	}
 
-	public void addToShapes(DiagramShape shape) {
+	private void addToShapes(DiagramShape shape) {
 		shapes.add(shape);
 	}
 

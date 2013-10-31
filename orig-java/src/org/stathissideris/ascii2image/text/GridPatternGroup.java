@@ -1,6 +1,6 @@
 /*
  * DiTAA - Diagrams Through Ascii Art
- * 
+ *
  * Copyright (C) 2004 Efstathios Sideris
  *
  * This program is free software; you can redistribute it and/or
@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *   
+ *
  */
 package org.stathissideris.ascii2image.text;
 
@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 /**
- * 
+ *
  * @author Efstathios Sideris
  */
 public class GridPatternGroup extends ArrayList<GridPattern> {

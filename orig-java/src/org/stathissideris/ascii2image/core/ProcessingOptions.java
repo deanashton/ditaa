@@ -38,21 +38,6 @@ public class ProcessingOptions {
 	private boolean performSeparationOfCommonEdges = true;
 	private boolean allCornersAreRound = false;
 
-	public static final int USE_TAGS = 0;
-	public static final int RENDER_TAGS = 1;
-	public static final int IGNORE_TAGS = 2;
-	private int tagProcessingMode = USE_TAGS;
-
-	public static final int USE_COLOR_CODES = 0;
-	public static final int RENDER_COLOR_CODES = 1;
-	public static final int IGNORE_COLOR_CODES = 2;
-	private int colorCodesProcessingMode = USE_COLOR_CODES;
-
-	public static final int FORMAT_JPEG = 0;
-	public static final int FORMAT_PNG = 1;
-	public static final int FORMAT_GIF = 2;
-	private int exportFormat = FORMAT_PNG;
-
 	public static final int DEFAULT_TAB_SIZE = 8;
 	private int tabSize = DEFAULT_TAB_SIZE;
 
@@ -71,29 +56,8 @@ public class ProcessingOptions {
 	/**
 	 * @return
 	 */
-	public int getColorCodesProcessingMode() {
-		return colorCodesProcessingMode;
-	}
-
-	/**
-	 * @return
-	 */
-	public int getExportFormat() {
-		return exportFormat;
-	}
-
-	/**
-	 * @return
-	 */
 	public boolean performSeparationOfCommonEdges() {
 		return performSeparationOfCommonEdges;
-	}
-
-	/**
-	 * @return
-	 */
-	public int getTagProcessingMode() {
-		return tagProcessingMode;
 	}
 
 	/**
@@ -104,31 +68,10 @@ public class ProcessingOptions {
 	}
 
 	/**
-	 * @param i
-	 */
-	public void setColorCodesProcessingMode(int i) {
-		colorCodesProcessingMode = i;
-	}
-
-	/**
-	 * @param i
-	 */
-	public void setExportFormat(int i) {
-		exportFormat = i;
-	}
-
-	/**
 	 * @param b
 	 */
 	public void setPerformSeparationOfCommonEdges(boolean b) {
 		performSeparationOfCommonEdges = b;
-	}
-
-	/**
-	 * @param i
-	 */
-	public void setTagProcessingMode(int i) {
-		tagProcessingMode = i;
 	}
 
 	/**

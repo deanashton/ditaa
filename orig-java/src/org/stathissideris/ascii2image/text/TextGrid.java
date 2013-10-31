@@ -1134,9 +1134,7 @@ public class TextGrid {
 		return nextCells;
 	}
 
-	public CellSet followCorner(Cell cell) {
-		return followCorner(cell, null);
-	}
+
 
 	public CellSet followCorner(Cell cell, Cell blocked) {
 		if (!isCorner(cell)) {
@@ -1157,10 +1155,6 @@ public class TextGrid {
 		return null;
 	}
 
-	public CellSet followCorner1(Cell cell) {
-		return followCorner1(cell, null);
-	}
-
 	public CellSet followCorner1(Cell cell, Cell blocked) {
 		if (!isCorner1(cell)) {
 			return null;
@@ -1173,10 +1167,6 @@ public class TextGrid {
 			result.add(cell.getEast());
 		}
 		return result;
-	}
-
-	public CellSet followCorner2(Cell cell) {
-		return followCorner2(cell, null);
 	}
 
 	public CellSet followCorner2(Cell cell, Cell blocked) {
@@ -1193,10 +1183,6 @@ public class TextGrid {
 		return result;
 	}
 
-	public CellSet followCorner3(Cell cell) {
-		return followCorner3(cell, null);
-	}
-
 	public CellSet followCorner3(Cell cell, Cell blocked) {
 		if (!isCorner3(cell)) {
 			return null;
@@ -1209,10 +1195,6 @@ public class TextGrid {
 			result.add(cell.getWest());
 		}
 		return result;
-	}
-
-	public CellSet followCorner4(Cell cell) {
-		return followCorner4(cell, null);
 	}
 
 	public CellSet followCorner4(Cell cell, Cell blocked) {
@@ -1877,21 +1859,17 @@ public class TextGrid {
 			return x << 16 | y;
 		}
 
-		public boolean isNextTo(int x2, int y2) {
-			if (Math.abs(x2 - x) == 1 && y2 == y) {
+		public boolean isNextTo(Cell other) {
+			if (other == null) {
+				throw new IllegalArgumentException("cell cannot be null");
+			}
+			if (Math.abs(other.x - x) == 1 && other.y == y) {
 				return true;
 			}
-			if (Math.abs(y2 - y) == 1 && x2 == x) {
+			if (Math.abs(other.y - y) == 1 && other.x == x) {
 				return true;
 			}
 			return false; // also for diagonals
-		}
-
-		public boolean isNextTo(Cell cell) {
-			if (cell == null) {
-				throw new IllegalArgumentException("cell cannot be null");
-			}
-			return this.isNextTo(cell.x, cell.y);
 		}
 
 		@Override

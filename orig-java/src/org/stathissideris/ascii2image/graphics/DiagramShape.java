@@ -1,6 +1,6 @@
 /*
  * DiTAA - Diagrams Through Ascii Art
- * 
+ *
  * Copyright (C) 2004 Efstathios Sideris
  *
  * This program is free software; you can redistribute it and/or
@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *   
+ *
  */
 package org.stathissideris.ascii2image.graphics;
 
@@ -33,7 +33,7 @@ import org.stathissideris.ascii2image.core.RenderingOptions;
 import org.stathissideris.ascii2image.text.TextGrid;
 
 /**
- * 
+ *
  * @author Efstathios Sideris
  */
 public class DiagramShape extends DiagramComponent {
@@ -53,7 +53,7 @@ public class DiagramShape extends DiagramComponent {
 	public static final int TYPE_CUSTOM = 9999;
 
 	/** The slope of side lines on trapezoids (mo, tr) and parallelograms (io). */
-	public static final float SHAPE_SLOPE = 8;
+	private static final float SHAPE_SLOPE = 8;
 
 	protected int type = TYPE_SIMPLE;
 
@@ -65,7 +65,7 @@ public class DiagramShape extends DiagramComponent {
 
 	protected ArrayList<ShapePoint> points = new ArrayList<ShapePoint>();
 
-	CustomShapeDefinition definition = null;
+	private CustomShapeDefinition definition = null;
 
 	public static void main(String[] args) {
 	}
@@ -228,7 +228,7 @@ public class DiagramShape extends DiagramComponent {
 
 	/**
 	 * Crude way to determine which of the two shapes is smaller, based just on their bounding boxes. Used in markup assignment precendence.
-	 * 
+	 *
 	 * @param other
 	 * @return
 	 */
@@ -385,7 +385,7 @@ public class DiagramShape extends DiagramComponent {
 		return path;
 	}
 
-	public GeneralPath makeMarkerPath(Diagram diagram) {
+	private GeneralPath makeMarkerPath(Diagram diagram) {
 		if (points.size() != 1) {
 			return null;
 		}
@@ -490,7 +490,7 @@ public class DiagramShape extends DiagramComponent {
 				}
 				/*} else {
 					entryPoint = getCellEdgeProjectionPointBetween(next, point, diagram);
-					path.lineTo(entryPoint.x, entryPoint.y);										
+					path.lineTo(entryPoint.x, entryPoint.y);
 				}*/
 			}
 		}
@@ -526,9 +526,9 @@ public class DiagramShape extends DiagramComponent {
 
 	/**
 	 * Finds the point that represents the intersection between the cell edge that contains pointInCell and the line connecting pointInCell and otherPoint.
-	 * 
+	 *
 	 * Returns C, if A is point in cell and B is otherPoint:
-	 * 
+	 *
 	 * <pre>
 	 *     Cell
 	 *    +-----+
@@ -537,12 +537,12 @@ public class DiagramShape extends DiagramComponent {
 	 *    |     |
 	 *    +-----+
 	 * </pre>
-	 * 
+	 *
 	 * @param pointInCell
 	 * @param otherPoint
 	 * @return
 	 */
-	public ShapePoint getCellEdgePointBetween(ShapePoint pointInCell, ShapePoint otherPoint, Diagram diagram) {
+	private ShapePoint getCellEdgePointBetween(ShapePoint pointInCell, ShapePoint otherPoint, Diagram diagram) {
 		if (pointInCell == null || otherPoint == null || diagram == null) {
 			throw new IllegalArgumentException("None of the parameters can be null");
 		}
@@ -576,9 +576,9 @@ public class DiagramShape extends DiagramComponent {
 	}
 
 	/**
-	 * 
+	 *
 	 * Returns C, if A is point in cell and B is otherPoint:
-	 * 
+	 *
 	 * <pre>
 	 *     Cell
 	 *    +-----+
@@ -587,14 +587,14 @@ public class DiagramShape extends DiagramComponent {
 	 *    |     |
 	 *    +-----+
 	 * </pre>
-	 * 
+	 *
 	 * @param pointInCell
 	 * @param otherPoint
 	 * @param diagram
 	 * @return
 	 */
 
-	public ShapePoint getCellEdgeProjectionPointBetween(ShapePoint pointInCell, ShapePoint otherPoint, Diagram diagram) {
+	private ShapePoint getCellEdgeProjectionPointBetween(ShapePoint pointInCell, ShapePoint otherPoint, Diagram diagram) {
 		if (pointInCell == null || otherPoint == null || diagram == null) {
 			throw new IllegalArgumentException("None of the parameters can be null");
 		}
@@ -733,7 +733,7 @@ public class DiagramShape extends DiagramComponent {
 	/**
 	 * Given the end of a line, the next point and a Diagram, it returns the cell that may contain intersections or arrowheads to which the line's end
 	 * should be connected
-	 * 
+	 *
 	 * @param linesEnd
 	 * @param nextPoint
 	 * @param diagram
@@ -803,7 +803,7 @@ public class DiagramShape extends DiagramComponent {
 		float cpOffsetX = bounds.width / 6;
 		float cpOffsetYTop = diagram.getCellHeight() / 2;
 		float cpOffsetYBottom = 10 * diagram.getCellHeight() / 14;
-		//float cpOffsetYBottom = cpOffsetYTop; 
+		//float cpOffsetYBottom = cpOffsetYTop;
 
 		GeneralPath path = new GeneralPath();
 
@@ -963,7 +963,7 @@ public class DiagramShape extends DiagramComponent {
 
 	/**
 	 * See http://mathworld.wolfram.com/PolygonArea.html
-	 * 
+	 *
 	 * @return the overall area of the shape
 	 */
 	public double calculateArea() {

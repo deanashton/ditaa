@@ -1,6 +1,6 @@
 /*
  * DiTAA - Diagrams Through Ascii Art
- * 
+ *
  * Copyright (C) 2004 Efstathios Sideris
  *
  * This program is free software; you can redistribute it and/or
@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *   
+ *
  */
 package org.stathissideris.ascii2image.core;
 
@@ -34,7 +34,7 @@ import org.stathissideris.ascii2image.graphics.CustomShapeDefinition;
 import org.xml.sax.SAXException;
 
 /**
- * 
+ *
  * @author Efstathios Sideris
  */
 public class ConversionOptions {
@@ -53,7 +53,7 @@ public class ConversionOptions {
 	/**
 	 * Parse a color from a 6- or 8-digit hex string. For example, FF0000 is red. If eight digits, last two digits are alpha.
 	 */
-	public static Color parseColor(String hexString) {
+	private static Color parseColor(String hexString) {
 		if (hexString.length() == 6) {
 			return new Color(Integer.parseInt(hexString, 16));
 		} else if (hexString.length() == 8) {
@@ -138,50 +138,3 @@ public class ConversionOptions {
 	}
 }
 
-// may be supported at a later date:
-//String exportFormat = (String) cmdLine.getOptionValue("format");
-//if(exportFormat != null){
-//	exportFormat = exportFormat.toLowerCase();
-//	if(exportFormat == "jpeg" || exportFormat == "jpg"){
-//		processingOptions.setExportFormat(ProcessingOptions.FORMAT_JPEG);
-//	} else if(exportFormat == "png"){
-//		processingOptions.setExportFormat(ProcessingOptions.FORMAT_PNG);
-//	} else if(exportFormat == "gif"){
-//		processingOptions.setExportFormat(ProcessingOptions.FORMAT_GIF);
-//	}
-//}
-//
-//String colorCodeMode = (String) cmdLine.getOptionValue("color-codes");
-//if(colorCodeMode != null){
-//	if(colorCodeMode.equals("use"))
-//		processingOptions.setColorCodesProcessingMode(ProcessingOptions.USE_COLOR_CODES);
-//	else if(colorCodeMode.equals("ignore"))
-//		processingOptions.setColorCodesProcessingMode(ProcessingOptions.IGNORE_COLOR_CODES);
-//	else if(colorCodeMode.equals("render"))
-//		processingOptions.setColorCodesProcessingMode(ProcessingOptions.RENDER_COLOR_CODES);
-//}
-//
-//String tagsMode = (String) cmdLine.getOptionValue("tags");
-//if(tagsMode != null){
-//	if(tagsMode.equals("use"))
-//		processingOptions.setTagProcessingMode(ProcessingOptions.USE_TAGS);
-//	else if(tagsMode.equals("ignore"))
-//		processingOptions.setTagProcessingMode(ProcessingOptions.IGNORE_TAGS);
-//	else if(tagsMode.equals("render"))
-//		processingOptions.setTagProcessingMode(ProcessingOptions.RENDER_TAGS);
-//}
-//
-//
-//String markupMode = (String) cmdLine.getOptionValue("markup");
-//if(markupMode != null){
-//	if(markupMode.equals("use")){
-//		processingOptions.setColorCodesProcessingMode(ProcessingOptions.USE_COLOR_CODES);
-//		processingOptions.setTagProcessingMode(ProcessingOptions.USE_TAGS);
-//	} else if(markupMode.equals("ignore")){
-//		processingOptions.setColorCodesProcessingMode(ProcessingOptions.IGNORE_COLOR_CODES);
-//		processingOptions.setTagProcessingMode(ProcessingOptions.IGNORE_TAGS);
-//	} else if(markupMode.equals("render")){
-//		processingOptions.setColorCodesProcessingMode(ProcessingOptions.RENDER_COLOR_CODES);
-//		processingOptions.setTagProcessingMode(ProcessingOptions.RENDER_TAGS);
-//	}
-//}
