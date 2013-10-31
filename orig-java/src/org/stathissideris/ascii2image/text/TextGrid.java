@@ -43,6 +43,7 @@ import org.stathissideris.ascii2image.core.ProcessingOptions;
 public class TextGrid {
 
 	private static final boolean DEBUG = false;
+	private static final int BLANK_BORDER_SIZE = 2;
 
 	private ArrayList<StringBuilder> rows;
 
@@ -1648,9 +1649,6 @@ public class TextGrid {
 		// add blank outline around the buffer to prevent fill glitch
 		// convert tabs to spaces (or remove them if setting is 0)
 
-		int blankBorderSize = 2;
-
-
 		String encoding = null;
 		if (options != null) {
 			encoding = options.getCharacterEncoding();
@@ -1661,17 +1659,16 @@ public class TextGrid {
 
 		Iterator<StringBuilder> it = rows.iterator();
 		ArrayList<StringBuilder> newRows = new ArrayList<StringBuilder>();
-		//TODO: make the following depend on blankBorderSize
 
-		StringBuilder topBottomRow = new StringBuilder(StringUtils.repeatString(" ", maxLength + blankBorderSize * 2));
-
-		newRows.add(topBottomRow);
-		newRows.add(topBottomRow);
+		StringBuilder topBottomRow = new StringBuilder(StringUtils.repeatString(" ", maxLength + BLANK_BORDER_SIZE * 2));
+		for (int j = 0; j < BLANK_BORDER_SIZE; j++) {
+			newRows.add(topBottomRow);
+		}
 		while (it.hasNext()) {
 			StringBuilder row = it.next();
 
 			if (row.length() < maxLength) {
-				String borderString = StringUtils.repeatString(" ", blankBorderSize);
+				String borderString = StringUtils.repeatString(" ", BLANK_BORDER_SIZE);
 				StringBuilder newRow = new StringBuilder();
 
 				newRow.append(borderString);
@@ -1684,9 +1681,9 @@ public class TextGrid {
 				newRows.add(new StringBuilder("  ").append(row).append("  "));
 			}
 		}
-		//TODO: make the following depend on blankBorderSize
-		newRows.add(topBottomRow);
-		newRows.add(topBottomRow);
+		for (int j = 0; j < BLANK_BORDER_SIZE; j++) {
+			newRows.add(topBottomRow);
+		}
 		rows = newRows;
 
 		replaceBullets();
