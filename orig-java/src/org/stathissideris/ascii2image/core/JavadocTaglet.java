@@ -37,6 +37,8 @@ import org.stathissideris.ascii2image.graphics.BitmapRenderer;
 import org.stathissideris.ascii2image.graphics.Diagram;
 import org.stathissideris.ascii2image.text.TextGrid;
 
+import com.sun.javadoc.Tag;
+import com.sun.tools.doclets.Taglet;
 import com.sun.xml.internal.bind.api.impl.NameConverter.Standard;
 
 /**
