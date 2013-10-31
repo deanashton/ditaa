@@ -978,11 +978,7 @@ public class TextGrid {
 	//	25CB white circle
 	//	25BA black right-pointing pointer
 
-	public boolean isBullet(int x, int y) {
-		return isBullet(new Cell(x, y));
-	}
-
-	public boolean isBullet(Cell cell) {
+	private boolean isBullet(Cell cell) {
 		char c = get(cell);
 		if ((c == 'o' || c == '*') && isBlank(cell.getEast()) && isBlank(cell.getWest()) && Character.isLetterOrDigit(get(cell.getEast().getEast()))) {
 			return true;
@@ -990,7 +986,7 @@ public class TextGrid {
 		return false;
 	}
 
-	public void replaceBullets() {
+	private void replaceBullets() {
 		int width = getWidth();
 		int height = getHeight();
 		for (int yi = 0; yi < height; yi++) {
@@ -1882,16 +1878,13 @@ public class TextGrid {
 		}
 
 		public boolean isNextTo(int x2, int y2) {
-			if (Math.abs(x2 - x) == 1 && Math.abs(y2 - y) == 1) {
-				return false;
-			}
 			if (Math.abs(x2 - x) == 1 && y2 == y) {
 				return true;
 			}
 			if (Math.abs(y2 - y) == 1 && x2 == x) {
 				return true;
 			}
-			return false;
+			return false; // also for diagonals
 		}
 
 		public boolean isNextTo(Cell cell) {
