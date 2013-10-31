@@ -1628,33 +1628,16 @@ public class TextGrid {
 
 	public void initialiseWithLines(ArrayList<StringBuilder> lines, ProcessingOptions options) throws UnsupportedEncodingException {
 
-		//remove blank rows at the bottom
-		boolean done = false;
-		int i;
-		for (i = lines.size() - 1; !done; i--) {
-			StringBuilder row = lines.get(i);
-			if (!StringUtils.isBlank(row.toString())) {
-				done = true;
-			}
-		}
-		rows = new ArrayList<StringBuilder>(lines.subList(0, i + 2));
+		rows = new ArrayList<StringBuilder>(lines);
 
-		if (options != null) {
-			fixTabs(options.getTabSize());
-		} else {
-			fixTabs(ProcessingOptions.DEFAULT_TAB_SIZE);
-		}
+		removeBlankBottomRows(rows);
+		fixTabs(rows, (options != null) ? options.getTabSize() : ProcessingOptions.DEFAULT_TAB_SIZE);
 
 		// make all lines of equal length
 		// add blank outline around the buffer to prevent fill glitch
 		// convert tabs to spaces (or remove them if setting is 0)
 
-		String encoding = null;
-		if (options != null) {
-			encoding = options.getCharacterEncoding();
-		}
-
-		recode(this.rows, encoding);
+		recode(rows, (options != null) ? options.getCharacterEncoding() : null);
 		int maxLength = findMaxWidth(rows);
 
 		Iterator<StringBuilder> it = rows.iterator();
@@ -1690,6 +1673,17 @@ public class TextGrid {
 		replaceHumanColorCodes();
 	}
 
+	private static void removeBlankBottomRows(ArrayList<StringBuilder> rows) {
+		for (int i = rows.size() - 1; i >= 0; i--) {
+			StringBuilder row = rows.get(i);
+			if (!StringUtils.isBlank(row.toString())) {
+				break;
+			}
+			rows.subList(i, i + 1).clear();
+		}
+		rows.trimToSize();
+	}
+
 	private static int findMaxWidth(ArrayList<StringBuilder> rows) {
 		int maxLength = 0;
 		for (StringBuilder row : rows) {
@@ -1710,31 +1704,25 @@ public class TextGrid {
 		}
 	}
 
-	private void fixTabs(int tabSize) {
-
-		int rowIndex = 0;
-		Iterator<StringBuilder> it = rows.iterator();
-
-		while (it.hasNext()) {
-			String row = it.next().toString();
+	private static void fixTabs(ArrayList<StringBuilder> rows, int tabSize) {
+		for (int rowIndex = 0; rowIndex < rows.size(); rowIndex++) {
+			String row = rows.get(rowIndex).toString();
 			StringBuilder newRow = new StringBuilder();
 
 			char[] chars = row.toCharArray();
 			for (char c : chars) {
-				if (c == '\t') {
-					int spacesLeft = tabSize - newRow.length() % tabSize;
-					if (DEBUG) {
-						System.out.println("Found tab. Spaces left: " + spacesLeft);
-					}
-					String spaces = StringUtils.repeatString(" ", spacesLeft);
-					newRow.append(spaces);
-				} else {
-					String character = Character.toString(c);
-					newRow.append(character);
+				if (c != '\t') {
+					newRow.append(Character.toString(c));
+					continue;
 				}
+
+				int spacesLeft = tabSize - newRow.length() % tabSize;
+				if (DEBUG) {
+					System.out.println("Found tab. Spaces left: " + spacesLeft);
+				}
+				newRow.append(StringUtils.repeatString(" ", spacesLeft));
 			}
 			rows.set(rowIndex, newRow);
-			rowIndex++;
 		}
 	}
 
