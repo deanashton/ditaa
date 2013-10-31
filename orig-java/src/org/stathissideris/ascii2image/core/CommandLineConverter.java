@@ -144,11 +144,6 @@ public class CommandLineConverter {
 			System.exit(2);
 		}
 
-		TextGrid grid = new TextGrid();
-		if (options.processingOptions.getCustomShapes() != null) {
-			grid.addToMarkupTags(options.processingOptions.getCustomShapes().keySet());
-		}
-
 		// "-" means stdin / stdout
 		String fromFilename = args[0];
 		boolean stdIn = "-".equals(fromFilename);
@@ -180,6 +175,10 @@ public class CommandLineConverter {
 			System.out.println("Reading " + (stdIn ? "standard input" : "file: " + fromFilename));
 		}
 
+		TextGrid grid = new TextGrid();
+		if (options.processingOptions.getCustomShapes() != null) {
+			grid.addToMarkupTags(options.processingOptions.getCustomShapes().keySet());
+		}
 		try {
 			if (!grid.loadFrom(fromFilename, options.processingOptions)) {
 				System.err.println("Cannot open file " + fromFilename + " for reading");
