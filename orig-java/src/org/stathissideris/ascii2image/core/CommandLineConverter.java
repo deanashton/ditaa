@@ -21,7 +21,6 @@
 package org.stathissideris.ascii2image.core;
 
 import java.awt.image.RenderedImage;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;

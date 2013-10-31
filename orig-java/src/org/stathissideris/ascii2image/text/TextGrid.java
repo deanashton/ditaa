@@ -1134,8 +1134,6 @@ public class TextGrid {
 		return nextCells;
 	}
 
-
-
 	public CellSet followCorner(Cell cell, Cell blocked) {
 		if (!isCorner(cell)) {
 			return null;
