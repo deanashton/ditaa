@@ -21,9 +21,6 @@
 package org.stathissideris.ascii2image.core;
 
 import java.awt.Color;
-import java.util.HashMap;
-
-import org.stathissideris.ascii2image.graphics.CustomShapeDefinition;
 
 /**
  * 
@@ -31,18 +28,16 @@ import org.stathissideris.ascii2image.graphics.CustomShapeDefinition;
  */
 public class RenderingOptions {
 
-	private HashMap<String, CustomShapeDefinition> customShapes;
-	
 	private boolean dropShadows = true;
 	private boolean renderDebugLines = false;
 	private boolean antialias = true;
-    private boolean fixedSlope = false;
+	private boolean fixedSlope = false;
 
 	private int cellWidth = 10;
 	private int cellHeight = 14;
-	
+
 	private float scale = 1;
-	
+
 	private Color backgroundColor = Color.white;
 
 	public int getCellHeight() {
@@ -94,26 +89,27 @@ public class RenderingOptions {
 	public void setBackgroundColor(Color backgroundColor) {
 		this.backgroundColor = backgroundColor;
 	}
-	
+
 	public boolean needsTransparency() {
 		return backgroundColor.getAlpha() < 255;
 	}
 
 	/**
-     * Should the sides of trapezoids and parallelograms have fixed width (false, default)
-     * or fixed slope (true)?
-     * @return true for fixed slope, false for fixed width
-     */
-    public boolean isFixedSlope() {
-        return fixedSlope;
-    }
+	 * Should the sides of trapezoids and parallelograms have fixed width (false, default) or fixed slope (true)?
+	 * 
+	 * @return true for fixed slope, false for fixed width
+	 */
+	public boolean isFixedSlope() {
+		return fixedSlope;
+	}
 
-    /**
-     * Should the sides of trapezoids and parallelograms have fixed width (false, default)
-     * or fixed slope (true)?
-     * @param b true for fixed slope, false for fixed width
-     */
-    public void setFixedSlope(boolean b) {
-        this.fixedSlope = b;
-    }
+	/**
+	 * Should the sides of trapezoids and parallelograms have fixed width (false, default) or fixed slope (true)?
+	 * 
+	 * @param b
+	 *                true for fixed slope, false for fixed width
+	 */
+	public void setFixedSlope(boolean b) {
+		fixedSlope = b;
+	}
 }

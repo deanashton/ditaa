@@ -32,34 +32,34 @@ import org.stathissideris.ascii2image.text.TextGrid;
  */
 public class PerformanceTester {
 
-	public static void main(String[] args){
-		
+	public static void main(String[] args) {
+
 		String inputFilename = "tests/text/ditaa_bug.txt";
 		ConversionOptions options = new ConversionOptions();
 
 		int iterations = 30;
-		
+
 		try {
 			long a = java.lang.System.currentTimeMillis();
-			
-			for(int i = 0; i < iterations; i++) {
-				System.out.println("iteration "+i);
-				
+
+			for (int i = 0; i < iterations; i++) {
+				System.out.println("iteration " + i);
+
 				TextGrid grid = new TextGrid();
 				grid.loadFrom(inputFilename);
 				new Diagram(grid, options);
 			}
-			
+
 			long b = java.lang.System.currentTimeMillis();
-			
-			System.out.println((b-a) + "msec for " + iterations + " iterations on "+inputFilename);
-			
+
+			System.out.println(b - a + "msec for " + iterations + " iterations on " + inputFilename);
+
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
+
 		System.out.println("Tests completed");
 	}
 }

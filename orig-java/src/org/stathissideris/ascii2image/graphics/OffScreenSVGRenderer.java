@@ -40,64 +40,73 @@ import org.w3c.dom.svg.SVGDocument;
 import org.w3c.dom.svg.SVGElement;
 
 public class OffScreenSVGRenderer {
-		
+
 	private static final boolean DEBUG = false;
-	
+
 	public BufferedImage renderXMLToImage(String xmlContent, int width, int height) throws IOException {
 		return renderXMLToImage(xmlContent, width, height, false, null, null);
 	}
-	
-	public BufferedImage renderXMLToImage(String xmlContent, int width, int height, boolean stretch, String idRegex, Color replacementColor) throws IOException {
+
+	public BufferedImage renderXMLToImage(String xmlContent, int width, int height, boolean stretch, String idRegex, Color replacementColor)
+			throws IOException {
 		// the following is necessary so that batik knows how to resolve URI fragments
 		// (#myLinearGradient). Otherwise the resolution fails and you cannot render.
-		
+
 		String uri = "file:/fake.svg";
-		
+
 		SAXSVGDocumentFactory df = new SAXSVGDocumentFactory("org.apache.xerces.parsers.SAXParser");
 		SVGDocument document = df.createSVGDocument(uri, new StringReader(xmlContent));
-		if(idRegex != null && replacementColor != null)
+		if (idRegex != null && replacementColor != null) {
 			replaceFill(document, idRegex, replacementColor);
-		return renderToImage(document, width, height, stretch);		
+		}
+		return renderToImage(document, width, height, stretch);
 	}
-	
+
 	public BufferedImage renderToImage(String uri, int width, int height) throws IOException {
 		return renderToImage(uri, width, height, false, null, null);
 	}
-	
+
 	public BufferedImage renderToImage(String uri, int width, int height, boolean stretch, String idRegex, Color replacementColor) throws IOException {
 		SAXSVGDocumentFactory df = new SAXSVGDocumentFactory("org.apache.xerces.parsers.SAXParser");
 		SVGDocument document = df.createSVGDocument(uri);
-		if(idRegex != null && replacementColor != null)
+		if (idRegex != null && replacementColor != null) {
 			replaceFill(document, idRegex, replacementColor);
+		}
 		return renderToImage(document, width, height, stretch);
 	}
-	
-	public BufferedImage renderToImage(SVGDocument document, int width, int height){
+
+	public BufferedImage renderToImage(SVGDocument document, int width, int height) {
 		return renderToImage(document, width, height, false);
 	}
-	
-	public void replaceFill(SVGDocument document, String idRegex, Color color){
-		String colorCode = String.format("#%02x%02x%02x", color.getRed(), color.getGreen(), color.getBlue()); 
-		
-		if(DEBUG) System.out.println("color code: "+colorCode);
-		
+
+	public void replaceFill(SVGDocument document, String idRegex, Color color) {
+		String colorCode = String.format("#%02x%02x%02x", color.getRed(), color.getGreen(), color.getBlue());
+
+		if (DEBUG) {
+			System.out.println("color code: " + colorCode);
+		}
+
 		NodeList children = document.getElementsByTagName("*");
-		for(int i = 0; i < children.getLength(); i++){
-			if(children.item(i) instanceof SVGElement){
+		for (int i = 0; i < children.getLength(); i++) {
+			if (children.item(i) instanceof SVGElement) {
 				SVGElement element = (SVGElement) children.item(i);
-				if(element.getId().matches(idRegex)){
-					if(DEBUG) System.out.println("child>>> "+element+", "+element.getId());
+				if (element.getId().matches(idRegex)) {
+					if (DEBUG) {
+						System.out.println("child>>> " + element + ", " + element.getId());
+					}
 					String style = element.getAttributeNS(null, "style");
-					style = style.replaceFirst("fill:#[a-zA-z0-9]+", "fill:"+colorCode);
-					if(DEBUG) System.out.println(style);
+					style = style.replaceFirst("fill:#[a-zA-z0-9]+", "fill:" + colorCode);
+					if (DEBUG) {
+						System.out.println(style);
+					}
 					element.setAttributeNS(null, "style", style);
 				}
 			}
 		}
 	}
-	
-	public BufferedImage renderToImage(SVGDocument document, int width, int height, boolean stretch){
-		
+
+	public BufferedImage renderToImage(SVGDocument document, int width, int height, boolean stretch) {
+
 		ImageRendererFactory rendererFactory;
 		rendererFactory = new ConcreteImageRendererFactory();
 		ImageRenderer renderer = rendererFactory.createStaticImageRenderer();
@@ -108,25 +117,25 @@ public class OffScreenSVGRenderer {
 		GraphicsNode rootNode = builder.build(ctx, document);
 
 		renderer.setTree(rootNode);
-		
-		float docWidth  = (float) ctx.getDocumentSize().getWidth();
+
+		float docWidth = (float) ctx.getDocumentSize().getWidth();
 		float docHeight = (float) ctx.getDocumentSize().getHeight();
-		
-		float xscale = width/docWidth;
-		float yscale = height/docHeight;
-		if(!stretch){
+
+		float xscale = width / docWidth;
+		float yscale = height / docHeight;
+		if (!stretch) {
 			float scale = Math.min(xscale, yscale);
 			xscale = scale;
 			yscale = scale;
 		}
-		
-		AffineTransform px  = AffineTransform.getScaleInstance(xscale, yscale);
-		
-		double tx = -0 + (width/xscale - docWidth)/2;
-		double ty = -0 + (height/yscale - docHeight)/2;
+
+		AffineTransform px = AffineTransform.getScaleInstance(xscale, yscale);
+
+		double tx = -0 + (width / xscale - docWidth) / 2;
+		double ty = -0 + (height / yscale - docHeight) / 2;
 		px.translate(tx, ty);
 		//cgn.setViewingTransform(px);
-		
+
 		renderer.updateOffScreen(width, height);
 		renderer.setTree(rootNode);
 		renderer.setTransform(px);

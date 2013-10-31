@@ -34,13 +34,18 @@ public class Shape3DOrderingComparator implements Comparator<DiagramShape> {
 	 * Puts diagram shapes in pseudo-3d order starting from back to front
 	 * 
 	 */
-	public int compare(DiagramShape shape1, DiagramShape shape2) {		
+	@Override
+	public int compare(DiagramShape shape1, DiagramShape shape2) {
 		double y1 = shape1.makeIntoPath().getBounds().getCenterY();
 		double y2 = shape2.makeIntoPath().getBounds().getCenterY();
-		
-		if(y1 > y2) return -1;
-		if(y1 < y2) return 1;
-		
+
+		if (y1 > y2) {
+			return -1;
+		}
+		if (y1 < y2) {
+			return 1;
+		}
+
 		return 0;
 	}
 

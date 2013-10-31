@@ -22,7 +22,6 @@ package org.stathissideris.ascii2image.graphics;
 
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.Rectangle;
 import java.awt.geom.Rectangle2D;
 
 /**
@@ -32,7 +31,7 @@ import java.awt.geom.Rectangle2D;
 public class DiagramText extends DiagramComponent {
 
 	public static final Color DEFAULT_COLOR = Color.black;
-	
+
 	private String text;
 	private Font font;
 	private int xPos, yPos;
@@ -41,39 +40,42 @@ public class DiagramText extends DiagramComponent {
 	private boolean hasOutline = false;
 	private Color outlineColor = Color.white;
 
-	public DiagramText(int x, int y, String text, Font font){
-		if(text == null) throw new IllegalArgumentException("DiagramText cannot be initialised with a null string");
-		if(font == null) throw new IllegalArgumentException("DiagramText cannot be initialised with a null font");
+	public DiagramText(int x, int y, String text, Font font) {
+		if (text == null) {
+			throw new IllegalArgumentException("DiagramText cannot be initialised with a null string");
+		}
+		if (font == null) {
+			throw new IllegalArgumentException("DiagramText cannot be initialised with a null font");
+		}
 
-		this.xPos = x;
-		this.yPos = y;
+		xPos = x;
+		yPos = y;
 		this.text = text;
 		this.font = font;
 	}
 
-	public void centerInBounds(Rectangle2D bounds){
+	public void centerInBounds(Rectangle2D bounds) {
 		centerHorizontallyBetween((int) bounds.getMinX(), (int) bounds.getMaxX());
 		centerVerticallyBetween((int) bounds.getMinY(), (int) bounds.getMaxY());
 	}
 
-	public void centerHorizontallyBetween(int minX, int maxX){
+	public void centerHorizontallyBetween(int minX, int maxX) {
 		int width = FontMeasurer.instance().getWidthFor(text, font);
 		int center = Math.abs(maxX - minX) / 2;
 		xPos += Math.abs(center - width / 2);
-		
+
 	}
 
-	public void centerVerticallyBetween(int minY, int maxY){
+	public void centerVerticallyBetween(int minY, int maxY) {
 		int zHeight = FontMeasurer.instance().getZHeight(font);
 		int center = Math.abs(maxY - minY) / 2;
 		yPos -= Math.abs(center - zHeight / 2);
 	}
 
-	public void alignRightEdgeTo(int x){
+	public void alignRightEdgeTo(int x) {
 		int width = FontMeasurer.instance().getWidthFor(text, font);
 		xPos = x - width;
 	}
-
 
 	/**
 	 * @return
@@ -145,18 +147,15 @@ public class DiagramText extends DiagramComponent {
 		yPos = i;
 	}
 
-	public Rectangle2D getBounds(){
+	public Rectangle2D getBounds() {
 		Rectangle2D bounds = FontMeasurer.instance().getBoundsFor(text, font);
-		bounds.setRect(
-			bounds.getMinX() + xPos,
-			bounds.getMinY() + yPos,
-			bounds.getWidth(),
-			bounds.getHeight());
+		bounds.setRect(bounds.getMinX() + xPos, bounds.getMinY() + yPos, bounds.getWidth(), bounds.getHeight());
 		return bounds;
 	}
-	
-	public String toString(){
-		return "DiagramText, at ("+xPos+", "+yPos+"), within "+getBounds()+" '"+text+"', "+color+" "+font;
+
+	@Override
+	public String toString() {
+		return "DiagramText, at (" + xPos + ", " + yPos + "), within " + getBounds() + " '" + text + "', " + color + " " + font;
 	}
 
 	/**
@@ -189,5 +188,4 @@ public class DiagramText extends DiagramComponent {
 		this.outlineColor = outlineColor;
 	}
 
-	
 }

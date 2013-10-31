@@ -26,12 +26,12 @@ import org.stathissideris.ascii2image.graphics.CustomShapeDefinition;
 
 /**
  * @author Efstathios Sideris
- *
+ * 
  */
 public class ProcessingOptions {
 
 	private HashMap<String, CustomShapeDefinition> customShapes = new HashMap<String, CustomShapeDefinition>();
-	
+
 	private boolean beVerbose = false;
 	private boolean printDebugOutput = false;
 	private boolean overwriteFiles = false;
@@ -58,9 +58,9 @@ public class ProcessingOptions {
 
 	private String inputFilename;
 	private String outputFilename;
-	
+
 	private String characterEncoding = null;
-	
+
 	/**
 	 * @return
 	 */
@@ -89,7 +89,7 @@ public class ProcessingOptions {
 		return performSeparationOfCommonEdges;
 	}
 
-    /**
+	/**
 	 * @return
 	 */
 	public int getTagProcessingMode() {
@@ -124,7 +124,7 @@ public class ProcessingOptions {
 		performSeparationOfCommonEdges = b;
 	}
 
-    /**
+	/**
 	 * @param i
 	 */
 	public void setTagProcessingMode(int i) {
@@ -234,11 +234,9 @@ public class ProcessingOptions {
 	public void putAllInCustomShapes(HashMap<String, CustomShapeDefinition> customShapes) {
 		this.customShapes.putAll(customShapes);
 	}
-	
-	public CustomShapeDefinition getFromCustomShapes(String tagName){
+
+	public CustomShapeDefinition getFromCustomShapes(String tagName) {
 		return customShapes.get(tagName);
 	}
-	
-	
 
 }

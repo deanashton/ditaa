@@ -34,13 +34,18 @@ public class ShapeAreaComparator implements Comparator<DiagramShape> {
 	 * Puts diagram shapes in order or area starting from largest to smallest
 	 * 
 	 */
+	@Override
 	public int compare(DiagramShape shape1, DiagramShape shape2) {
 		double y1 = shape1.calculateArea();
 		double y2 = shape2.calculateArea();
-		
-		if(y1 > y2) return -1;
-		if(y1 < y2) return 1;
-		
+
+		if (y1 > y2) {
+			return -1;
+		}
+		if (y1 < y2) {
+			return 1;
+		}
+
 		return 0;
 	}
 

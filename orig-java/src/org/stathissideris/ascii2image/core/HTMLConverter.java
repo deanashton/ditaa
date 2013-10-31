@@ -53,15 +53,9 @@ public class HTMLConverter extends HTMLEditorKit {
 
 	private static final String TAG_CLASS = "textdiagram";
 	private static final String testDir = "tests/html-converter/";
-	
-	
-	public static void main(String[] args){		
-		new HTMLConverter().convertHTMLFile(
-			testDir + "index.html", 
-			testDir + "index2.html", 
-			"ditaa_diagram", 
-			"images", 
-			null);
+
+	public static void main(String[] args) {
+		new HTMLConverter().convertHTMLFile(testDir + "index.html", testDir + "index2.html", "ditaa_diagram", "images", null);
 	}
 
 	/**
@@ -69,21 +63,17 @@ public class HTMLConverter extends HTMLEditorKit {
 	 * @param filename
 	 * @param targetFilename
 	 * @param imageBaseFilename
-	 * @param imageDirName relative to the location of the target HTML document
+	 * @param imageDirName
+	 *                relative to the location of the target HTML document
 	 * @param options
 	 * @return
 	 */
-	public boolean convertHTMLFile(
-			String filename,
-			String targetFilename,
-			String imageBaseFilename,
-			String imageDirName,
-			ConversionOptions options){
-		
-		if(options == null){
+	public boolean convertHTMLFile(String filename, String targetFilename, String imageBaseFilename, String imageDirName, ConversionOptions options) {
+
+		if (options == null) {
 			options = new ConversionOptions();
 		}
-				
+
 		BufferedReader in = null;
 		try {
 			in = new BufferedReader(new FileReader(filename));
@@ -92,12 +82,12 @@ public class HTMLConverter extends HTMLEditorKit {
 			System.err.println("Error: cannot read file " + filename);
 			return false;
 		}
-		
+
 		String htmlText = "";
-		
+
 		try {
-			while(in.ready()){
-				htmlText += in.readLine()+"\n";
+			while (in.ready()) {
+				htmlText += in.readLine() + "\n";
 			}
 			in.close();
 		} catch (IOException e1) {
@@ -105,27 +95,24 @@ public class HTMLConverter extends HTMLEditorKit {
 			System.err.println("Error while reading file " + filename);
 			return false;
 		}
-		
-		System.out.print("Convering HTML file ("+filename+" -> "+targetFilename+")... ");
-		
+
+		System.out.print("Convering HTML file (" + filename + " -> " + targetFilename + ")... ");
+
 		Source source = new Source(htmlText);
 		OutputDocument outputDocument = new OutputDocument(source);
-		
+
 		int index = 1;
 		HashMap<String, String> diagramList = new HashMap<String, String>();
-		for(Element element : source.getAllElements("pre")) {
+		for (Element element : source.getAllElements("pre")) {
 			StartTag tag = element.getStartTag();
 			Attribute classAttr = tag.getAttributes().get("class");
-			if(classAttr != null
-					&& classAttr.hasValue()
-					&& classAttr.getValue().equals(TAG_CLASS)) {
-				
+			if (classAttr != null && classAttr.hasValue() && classAttr.getValue().equals(TAG_CLASS)) {
+
 				String baseFilename = imageBaseFilename;
-				
+
 				String URL;
 				Attribute nameAttr = tag.getAttributes().get("id");
-				if(nameAttr != null
-						&& nameAttr.hasValue()) {
+				if (nameAttr != null && nameAttr.hasValue()) {
 					baseFilename = makeFilenameFromTagName(nameAttr.getValue());
 					URL = imageDirName + "/" + baseFilename + ".png";
 				} else {
@@ -133,18 +120,19 @@ public class HTMLConverter extends HTMLEditorKit {
 					index++;
 				}
 
-				outputDocument.replace(element, "<img src=\""+URL+"\" />");
+				outputDocument.replace(element, "<img src=\"" + URL + "\" />");
 				diagramList.put(URL, element.getContent().toString());
 			}
 		}
-		
-		if(diagramList.isEmpty()){
-			System.out.println("\nHTML document does not contain any " +				"<pre> tags with their class attribute set to \""+TAG_CLASS+"\". Nothing to do.");
-			
+
+		if (diagramList.isEmpty()) {
+			System.out.println("\nHTML document does not contain any " + "<pre> tags with their class attribute set to \"" + TAG_CLASS
+					+ "\". Nothing to do.");
+
 			//TODO: should return the method with appropriate exit code instead
 			System.exit(0);
 		}
-		
+
 		FileWriter out;
 		try {
 			out = new FileWriter(targetFilename);
@@ -154,37 +142,36 @@ public class HTMLConverter extends HTMLEditorKit {
 		} catch (IOException e2) {
 			System.err.println("Error while writing to file " + targetFilename);
 			return false;
-		} 
+		}
 
-		
 		System.out.println("done");
-		
-		
+
 		System.out.println("Generating diagrams... ");
-		
+
 		File imageDir = new File(new File(targetFilename).getParent() + File.separator + imageDirName);
-		if(!imageDir.exists()){
-			if(!imageDir.mkdir()){
+		if (!imageDir.exists()) {
+			if (!imageDir.mkdir()) {
 				System.err.println("Could not create directory " + imageDirName);
 				return false;
 			}
 		}
-		
-		for(String URL : diagramList.keySet()) {
-			String text = (String) diagramList.get(URL);
+
+		for (String URL : diagramList.keySet()) {
+			String text = diagramList.get(URL);
 			String imageFilename = new File(targetFilename).getParent() + File.separator + URL;
-			if(new File(imageFilename).exists() && !options.processingOptions.overwriteFiles()){
-				System.out.println("Error: Cannot overwrite file "+URL+", file already exists." +					" Use the --overwrite option if you would like to allow file overwrite.");
+			if (new File(imageFilename).exists() && !options.processingOptions.overwriteFiles()) {
+				System.out.println("Error: Cannot overwrite file " + URL + ", file already exists."
+						+ " Use the --overwrite option if you would like to allow file overwrite.");
 				continue;
 			}
-	
+
 			TextGrid grid = new TextGrid();
 			grid.addToMarkupTags(options.processingOptions.getCustomShapes().keySet());
 
 			try {
 				grid.initialiseWithText(text, options.processingOptions);
 			} catch (UnsupportedEncodingException e1) {
-				System.err.println("Error: "+e1.getMessage());
+				System.err.println("Error: " + e1.getMessage());
 				System.exit(1);
 			}
 
@@ -196,27 +183,27 @@ public class HTMLConverter extends HTMLEditorKit {
 				ImageIO.write(image, "png", file);
 			} catch (IOException e) {
 				//e.printStackTrace();
-				System.err.println("Error: Cannot write to file "+filename+" -- skipping");
+				System.err.println("Error: Cannot write to file " + filename + " -- skipping");
 				continue;
 			}
-			
-			System.out.println("\t"+imageFilename);
+
+			System.out.println("\t" + imageFilename);
 		}
-		
+
 		System.out.println("\n...done");
-		
+
 		return true;
 	}
-	
+
 	/*
 	private static String relativizePath(String base, String path) {
 		return new File(base).toURI().relativize(new File(path).toURI()).getPath();
 	}
 	*/
-	
-	private String makeFilenameFromTagName(String tagName){
+
+	private String makeFilenameFromTagName(String tagName) {
 		tagName = tagName.replace(' ', '_');
 		return tagName;
 	}
-	
+
 }

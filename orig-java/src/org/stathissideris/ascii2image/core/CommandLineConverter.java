@@ -46,100 +46,89 @@ import org.stathissideris.ascii2image.text.TextGrid;
  * @author Efstathios Sideris
  */
 public class CommandLineConverter {
-		
+
 	private static String notice = "ditaa version 0.9, Copyright (C) 2004--2009  Efstathios (Stathis) Sideris";
-	
-	private static String[] markupModeAllowedValues = {"use", "ignore", "render"};
-	
-	public static void main(String[] args){
-		
+
+	public static void main(String[] args) {
+
 		long startTime = System.currentTimeMillis();
-		
+
 		Options cmdLnOptions = new Options();
-		cmdLnOptions.addOption(
-				OptionBuilder.withLongOpt("help")
-				.withDescription( "Prints usage help." )
-				.create() );
+		cmdLnOptions.addOption(OptionBuilder.withLongOpt("help").withDescription("Prints usage help.").create());
 		cmdLnOptions.addOption("v", "verbose", false, "Makes ditaa more verbose.");
-		cmdLnOptions.addOption("o", "overwrite", false, "If the filename of the destination image already exists, an alternative name is chosen. If the overwrite option is selected, the image file is instead overwriten.");
+		cmdLnOptions.addOption(
+				"o",
+				"overwrite",
+				false,
+				"If the filename of the destination image already exists, an alternative name is chosen. If the overwrite option is selected, the image file is instead overwriten.");
 		cmdLnOptions.addOption("S", "no-shadows", false, "Turns off the drop-shadow effect.");
 		cmdLnOptions.addOption("A", "no-antialias", false, "Turns anti-aliasing off.");
 		cmdLnOptions.addOption("W", "fixed-slope", false, "Makes sides of parallelograms and trapezoids fixed slope instead of fixed width.");
 		cmdLnOptions.addOption("d", "debug", false, "Renders the debug grid over the resulting image.");
 		cmdLnOptions.addOption("r", "round-corners", false, "Causes all corners to be rendered as round corners.");
 		cmdLnOptions.addOption("E", "no-separation", false, "Prevents the separation of common edges of shapes.");
-		cmdLnOptions.addOption("h", "html", false, "In this case the input is an HTML file. The contents of the <pre class=\"textdiagram\"> tags are rendered as diagrams and saved in the images directory and a new HTML file is produced with the appropriate <img> tags.");
+		cmdLnOptions.addOption(
+				"h",
+				"html",
+				false,
+				"In this case the input is an HTML file. The contents of the <pre class=\"textdiagram\"> tags are rendered as diagrams and saved in the images directory and a new HTML file is produced with the appropriate <img> tags.");
 		cmdLnOptions.addOption("T", "transparent", false, "Causes the diagram to be rendered on a transparent background. Overrides --background.");
-		
-		cmdLnOptions.addOption(
-				OptionBuilder.withLongOpt("encoding")
-				.withDescription("The encoding of the input file.")
-				.hasArg()
-				.withArgName("ENCODING")
-				.create('e')
-				);
 
-		cmdLnOptions.addOption(
-				OptionBuilder.withLongOpt("scale")
-				.withDescription("A natural number that determines the size of the rendered image. The units are fractions of the default size (2.5 renders 1.5 times bigger than the default).")
-				.hasArg()
-				.withArgName("SCALE")
-				.create('s')
-				);
+		cmdLnOptions.addOption(OptionBuilder.withLongOpt("encoding").withDescription("The encoding of the input file.").hasArg()
+				.withArgName("ENCODING").create('e'));
 
-		cmdLnOptions.addOption(
-				OptionBuilder.withLongOpt("tabs")
-				.withDescription("Tabs are normally interpreted as 8 spaces but it is possible to change that using this option. It is not advisable to use tabs in your diagrams.")
-				.hasArg()
-				.withArgName("TABS")
-				.create('t')
-				);
-		
-		cmdLnOptions.addOption(
-				OptionBuilder.withLongOpt("background")
-				.withDescription("The background colour of the image. The format should be a six-digit hexadecimal number (as in HTML, FF0000 for red). Pass an eight-digit hex to define transparency. This is overridden by --transparent.")
-				.hasArg()
-				.withArgName("BACKGROUND")
-				.create('b')
-				);
-		
-//TODO: uncomment this for next version:
-//		cmdLnOptions.addOption(
-//				OptionBuilder.withLongOpt("config")
-//				.withDescription( "The shape configuration file." )
-//				.hasArg()
-//				.withArgName("CONFIG_FILE")
-//				.create('c') );
-		
+		cmdLnOptions.addOption(OptionBuilder
+				.withLongOpt("scale")
+				.withDescription(
+						"A natural number that determines the size of the rendered image. The units are fractions of the default size (2.5 renders 1.5 times bigger than the default).")
+				.hasArg().withArgName("SCALE").create('s'));
+
+		cmdLnOptions.addOption(OptionBuilder
+				.withLongOpt("tabs")
+				.withDescription(
+						"Tabs are normally interpreted as 8 spaces but it is possible to change that using this option. It is not advisable to use tabs in your diagrams.")
+				.hasArg().withArgName("TABS").create('t'));
+
+		cmdLnOptions.addOption(OptionBuilder
+				.withLongOpt("background")
+				.withDescription(
+						"The background colour of the image. The format should be a six-digit hexadecimal number (as in HTML, FF0000 for red). Pass an eight-digit hex to define transparency. This is overridden by --transparent.")
+				.hasArg().withArgName("BACKGROUND").create('b'));
+
+		//TODO: uncomment this for next version:
+		//		cmdLnOptions.addOption(
+		//				OptionBuilder.withLongOpt("config")
+		//				.withDescription( "The shape configuration file." )
+		//				.hasArg()
+		//				.withArgName("CONFIG_FILE")
+		//				.create('c') );
+
 		CommandLine cmdLine = null;
-		
-		
-		
+
 		///// parse command line options
 		try {
 			// parse the command line arguments
 			CommandLineParser parser = new PosixParser();
-			
+
 			cmdLine = parser.parse(cmdLnOptions, args);
-						
+
 			// validate that block-size has been set
-			if( cmdLine.hasOption( "block-size" ) ) {
+			if (cmdLine.hasOption("block-size")) {
 				// print the value of block-size
-				System.out.println( cmdLine.getOptionValue( "block-size" ) );
+				System.out.println(cmdLine.getOptionValue("block-size"));
 			}
-			
+
 		} catch (org.apache.commons.cli.ParseException e) {
 			System.err.println(e.getMessage());
 			new HelpFormatter().printHelp("java -jar ditaa.jar <INPFILE> [OUTFILE]", cmdLnOptions, true);
 			System.exit(2);
 		}
-		
-		
-		if(cmdLine.hasOption("help") || args.length == 0 ){
+
+		if (cmdLine.hasOption("help") || args.length == 0) {
 			new HelpFormatter().printHelp("java -jar ditaa.jar <INPFILE> [OUTFILE]", cmdLnOptions, true);
-			System.exit(0);			
+			System.exit(0);
 		}
-		
+
 		ConversionOptions options = null;
 		try {
 			options = new ConversionOptions(cmdLine);
@@ -151,42 +140,45 @@ public class CommandLineConverter {
 			new HelpFormatter().printHelp("java -jar ditaa.jar <INPFILE> [OUTFILE]", cmdLnOptions, true);
 			System.exit(2);
 		}
-		
+
 		args = cmdLine.getArgs();
-		
-		if(args.length == 0) {
+
+		if (args.length == 0) {
 			System.err.println("Error: Please provide the input file filename");
 			new HelpFormatter().printHelp("java -jar ditaa.jar <inpfile> [outfile]", cmdLnOptions, true);
 			System.exit(2);
-		} 
-		
-		if(cmdLine.hasOption("html")){
+		}
+
+		if (cmdLine.hasOption("html")) {
 			/////// print options before running
 			printRunInfo(cmdLine);
 			String filename = args[0];
-			
+
 			boolean overwrite = false;
-			if(options.processingOptions.overwriteFiles()) overwrite = true;
-			
+			if (options.processingOptions.overwriteFiles()) {
+				overwrite = true;
+			}
+
 			String toFilename;
-			if(args.length == 1){
+			if (args.length == 1) {
 				toFilename = FileUtils.makeTargetPathname(filename, "html", "_processed", true);
 			} else {
 				toFilename = args[1];
 			}
 			File target = new File(toFilename);
-			if(!overwrite && target.exists()) {
-				System.out.println("Error: File "+toFilename+" exists. If you would like to overwrite it, please use the --overwrite option.");
+			if (!overwrite && target.exists()) {
+				System.out.println("Error: File " + toFilename
+						+ " exists. If you would like to overwrite it, please use the --overwrite option.");
 				System.exit(0);
 			}
-			
+
 			new HTMLConverter().convertHTMLFile(filename, toFilename, "ditaa_diagram", "images", options);
 			System.exit(0);
-			
+
 		} else { //simple mode
-			
+
 			TextGrid grid = new TextGrid();
-			if(options.processingOptions.getCustomShapes() != null){
+			if (options.processingOptions.getCustomShapes() != null) {
 				grid.addToMarkupTags(options.processingOptions.getCustomShapes().keySet());
 			}
 
@@ -198,9 +190,11 @@ public class CommandLineConverter {
 			boolean stdOut;
 
 			boolean overwrite = false;
-			if(options.processingOptions.overwriteFiles()) overwrite = true;
-			
-			if(args.length == 1){
+			if (options.processingOptions.overwriteFiles()) {
+				overwrite = true;
+			}
+
+			if (args.length == 1) {
 				if (stdIn) { // if using stdin and no output specified, use stdout
 					stdOut = true;
 					toFilename = "-";
@@ -216,71 +210,76 @@ public class CommandLineConverter {
 			if (!stdOut) {
 				/////// print options before running
 				printRunInfo(cmdLine);
-				System.out.println("Reading "+ (stdIn ? "standard input" : "file: " + fromFilename));
+				System.out.println("Reading " + (stdIn ? "standard input" : "file: " + fromFilename));
 			}
 
 			try {
-				if(!grid.loadFrom(fromFilename, options.processingOptions)){
-					System.err.println("Cannot open file "+fromFilename+" for reading");
+				if (!grid.loadFrom(fromFilename, options.processingOptions)) {
+					System.err.println("Cannot open file " + fromFilename + " for reading");
 				}
-			} catch (UnsupportedEncodingException e1){
-				System.err.println("Error: "+e1.getMessage());
+			} catch (UnsupportedEncodingException e1) {
+				System.err.println("Error: " + e1.getMessage());
 				System.exit(1);
 			} catch (FileNotFoundException e1) {
-				System.err.println("Error: File "+fromFilename+" does not exist");
+				System.err.println("Error: File " + fromFilename + " does not exist");
 				System.exit(1);
 			} catch (IOException e1) {
-				System.err.println("Error: Cannot open file "+fromFilename+" for reading");
+				System.err.println("Error: Cannot open file " + fromFilename + " for reading");
 				System.exit(1);
 			}
-			
-			if(options.processingOptions.printDebugOutput()){
-				if (!stdOut) System.out.println("Using grid:");
+
+			if (options.processingOptions.printDebugOutput()) {
+				if (!stdOut) {
+					System.out.println("Using grid:");
+				}
 				grid.printDebug();
 			}
-			
+
 			Diagram diagram = new Diagram(grid, options);
-			if (!stdOut) System.out.println("Rendering to file: "+toFilename);
-			
-			
+			if (!stdOut) {
+				System.out.println("Rendering to file: " + toFilename);
+			}
+
 			RenderedImage image = new BitmapRenderer().renderToImage(diagram, options.renderingOptions);
-			
+
 			try {
 				OutputStream os = stdOut ? System.out : new FileOutputStream(toFilename);
 				ImageIO.write(image, "png", os);
 			} catch (IOException e) {
 				//e.printStackTrace();
-				System.err.println("Error: Cannot write to file "+toFilename);
+				System.err.println("Error: Cannot write to file " + toFilename);
 				System.exit(1);
 			}
-			
+
 			//BitmapRenderer.renderToPNG(diagram, toFilename, options.renderingOptions);
-			
+
 			long endTime = System.currentTimeMillis();
-			long totalTime  = (endTime - startTime) / 1000;
-			if (!stdOut) System.out.println("Done in "+totalTime+"sec");
-			
-//			try {
-//			Thread.sleep(Long.MAX_VALUE);
-//			} catch (InterruptedException e) {
-//			e.printStackTrace();
-//			}
-			
+			long totalTime = (endTime - startTime) / 1000;
+			if (!stdOut) {
+				System.out.println("Done in " + totalTime + "sec");
+			}
+
+			//			try {
+			//			Thread.sleep(Long.MAX_VALUE);
+			//			} catch (InterruptedException e) {
+			//			e.printStackTrace();
+			//			}
+
 		}
-	}	
+	}
 
 	private static void printRunInfo(CommandLine cmdLine) {
-		System.out.println("\n"+notice+"\n");
-		
+		System.out.println("\n" + notice + "\n");
+
 		System.out.println("Running with options:");
 		Option[] opts = cmdLine.getOptions();
 		for (Option option : opts) {
-			if(option.hasArgs()){
-				for(String value:option.getValues()){
-					System.out.println(option.getLongOpt()+" = "+value);
+			if (option.hasArgs()) {
+				for (String value : option.getValues()) {
+					System.out.println(option.getLongOpt() + " = " + value);
 				}
-			} else if(option.hasArg()){
-				System.out.println(option.getLongOpt()+" = "+option.getValue());
+			} else if (option.hasArg()) {
+				System.out.println(option.getLongOpt() + " = " + option.getValue());
 			} else {
 				System.out.println(option.getLongOpt());
 			}

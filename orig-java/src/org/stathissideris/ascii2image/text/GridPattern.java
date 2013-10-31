@@ -25,26 +25,14 @@ import java.util.Iterator;
 import java.util.regex.Pattern;
 
 /**
- * This is a TextGrid (usually 3x3) that contains the equivalent of a
- * 2D reqular expression (which uses custom syntax to make things more
- * visual, but standard syntax is also possible).
+ * This is a TextGrid (usually 3x3) that contains the equivalent of a 2D reqular expression (which uses custom syntax to make things more visual, but standard
+ * syntax is also possible).
  * 
- * The custom syntax is:
- * . means anything
- * b means any boundary (any of  - = / \ + | :)
- * ! means not boundary (none of  - = / \ + | :)
- * - means - or =
- * | means | or :
- * [ means not | nor :
- * ~ means not - nor =
- * ^ means a boundary but not - nor =
- * ( means a boundary but not | nor :
- * s means a straight boundary (one of - = + | :)
+ * The custom syntax is: . means anything b means any boundary (any of - = / \ + | :) ! means not boundary (none of - = / \ + | :) - means - or = | means | or :
+ * [ means not | nor : ~ means not - nor = ^ means a boundary but not - nor = ( means a boundary but not | nor : s means a straight boundary (one of - = + | :)
  * S means not a straight boundary (none of - = + | :)
  * 
- * 1 means a cell that has entry point 1
- * 2 means a cell that has entry point 2
- * 3 means a cell that has entry point 3 etc. up to number 8
+ * 1 means a cell that has entry point 1 2 means a cell that has entry point 2 3 means a cell that has entry point 3 etc. up to number 8
  * 
  * %1 means a cell that does not have entry point 1 etc.
  * 
@@ -65,30 +53,27 @@ import java.util.regex.Pattern;
  * 7   6   5
  * </pre>
  * 
- * We number the entry points for each cell as in the diagram
- * above. If a cell is occupied by a character, we define as
- * entry points the points of the above diagram that the character
- * can touch with the end of its lines. For example - has
- * entry points 8 and 4, | and : have entry points 2 and 6,
- * / has 3 and 7, \ has 1 and 5, + has 2, 6, 8 and 4 etc.   
+ * We number the entry points for each cell as in the diagram above. If a cell is occupied by a character, we define as entry points the points of the above
+ * diagram that the character can touch with the end of its lines. For example - has entry points 8 and 4, | and : have entry points 2 and 6, / has 3 and 7, \
+ * has 1 and 5, + has 2, 6, 8 and 4 etc.
  * 
  * 
  * @author Efstathios Sideris
  */
 public class GridPattern extends TextGrid {
-	
+
 	private ArrayList<Pattern> regExps = new ArrayList<Pattern>(); //TODO optimise: store as PatternS
 	private boolean regExpsAreValid = false;
-	
+
 	private static final boolean DEBUG = false;
-	
+
 	private boolean usesStandardSyntax = false;
 
-	public GridPattern(){
+	public GridPattern() {
 		super(3, 3);
 	}
 
-	public GridPattern(String row1, String row2, String row3){
+	public GridPattern(String row1, String row2, String row3) {
 		super(Math.max(Math.max(row1.length(), row2.length()), row3.length()), 3);
 		setTo(row1, row2, row3);
 		regExpsAreValid = false;
@@ -103,36 +88,41 @@ public class GridPattern extends TextGrid {
 		regExpsAreValid = false;
 	}
 
-	public boolean isMatchedBy(TextGrid grid){
+	public boolean isMatchedBy(TextGrid grid) {
 		/*if(grid.getHeight() != this.getHeight()
 			|| grid.getWidth() != this.getWidth()) return false;*/
-		if(!regExpsAreValid) prepareRegExps(); 
+		if (!regExpsAreValid) {
+			prepareRegExps();
+		}
 
-		for(int i = 0; i < grid.getHeight(); i++) {
+		for (int i = 0; i < grid.getHeight(); i++) {
 			String row = grid.getRow(i).toString();
 			Pattern regexp = regExps.get(i);
-			if(!regexp.matcher(row).matches()) {
-				if(DEBUG)
-					System.out.println(row+" does not match "+regexp);
+			if (!regexp.matcher(row).matches()) {
+				if (DEBUG) {
+					System.out.println(row + " does not match " + regexp);
+				}
 				return false;
-			} 
+			}
 		}
 		return true;
 	}
-	
-	private void prepareRegExps(){
+
+	private void prepareRegExps() {
 		regExpsAreValid = true;
 		regExps.clear();
-		if (DEBUG)
+		if (DEBUG) {
 			System.out.println("Trying to match:");
-		if(!usesStandardSyntax){
+		}
+		if (!usesStandardSyntax) {
 			Iterator<StringBuilder> it = getRows().iterator();
 			while (it.hasNext()) {
 				String row = it.next().toString();
 				regExps.add(Pattern.compile(makeRegExp(row)));
-				if(DEBUG)
-					System.out.println(row+" becomes "+makeRegExp(row));
-			}			
+				if (DEBUG) {
+					System.out.println(row + " becomes " + makeRegExp(row));
+				}
+			}
 		} else {
 			Iterator<StringBuilder> it = getRows().iterator();
 			while (it.hasNext()) {
@@ -141,104 +131,107 @@ public class GridPattern extends TextGrid {
 			}
 		}
 	}
-	
-	private String makeRegExp(String pattern){
+
+	private String makeRegExp(String pattern) {
 		StringBuilder result = new StringBuilder();
 		int tokensHandled = 0;
-		for(int i = 0; i < pattern.length() && tokensHandled < 3; i++){
+		for (int i = 0; i < pattern.length() && tokensHandled < 3; i++) {
 			char c = pattern.charAt(i);
-			if(c == '[') {
+			if (c == '[') {
 				result.append("[^|:]");
-			} else if(c == '|') {
+			} else if (c == '|') {
 				result.append("[|:]");
-			} else if(c == '-') {
+			} else if (c == '-') {
 				result.append("[-=]");
-			} else if(c == '!') {
+			} else if (c == '!') {
 				result.append("[^-=\\/\\\\+|:]");
-			} else if(c == 'b') {
+			} else if (c == 'b') {
 				result.append("[-=\\/\\\\+|:]");
-			} else if(c == '^') {
+			} else if (c == '^') {
 				result.append("[\\/\\\\+|:]");
-			} else if(c == '(') {
+			} else if (c == '(') {
 				result.append("[-=\\/\\\\+]");
-			} else if(c == '~') {
+			} else if (c == '~') {
 				result.append(".");
-			} else if(c == '+') {
+			} else if (c == '+') {
 				result.append("\\+");
-			} else if(c == '\\') {
+			} else if (c == '\\') {
 				result.append("\\\\");
-			} else if(c == 's') {
+			} else if (c == 's') {
 				result.append("[-=+|:]");
-			} else if(c == 'S') {
+			} else if (c == 'S') {
 				result.append("[\\/\\\\]");
-			} else if(c == '*') {
+			} else if (c == '*') {
 				result.append("\\*");
-			
-			//entry points
-			} else if(c == '1') {
+
+				//entry points
+			} else if (c == '1') {
 				result.append("[\\\\]");
 
-			} else if(c == '2') {
+			} else if (c == '2') {
 				result.append("[|:+\\/\\\\]");
 
-			} else if(c == '3') {
+			} else if (c == '3') {
 				result.append("[\\/]");
 
-			} else if(c == '4') {
+			} else if (c == '4') {
 				result.append("[-=+\\/\\\\]");
 
-			} else if(c == '5') {
+			} else if (c == '5') {
 				result.append("[\\\\]");
 
-			} else if(c == '6') {
+			} else if (c == '6') {
 				result.append("[|:+\\/\\\\]");
 
-			} else if(c == '7') {
+			} else if (c == '7') {
 				result.append("[\\/]");
 
-			} else if(c == '8') {
+			} else if (c == '8') {
 				result.append("[-=+\\/\\\\]");
-				
-			//entry point negations
-			} else if(c == '%') {
-				if(i+1 > pattern.length()){
+
+				//entry point negations
+			} else if (c == '%') {
+				if (i + 1 > pattern.length()) {
 					throw new RuntimeException("Invalid pattern, found % at the end");
 				}
 				c = pattern.charAt(++i);
-				
-				if(c == '1') {
+
+				if (c == '1') {
 					result.append("[^\\\\]");
 
-				} else if(c == '2') {
+				} else if (c == '2') {
 					result.append("[^|:+\\/\\\\]");
 
-				} else if(c == '3') {
+				} else if (c == '3') {
 					result.append("[^\\/]");
 
-				} else if(c == '4') {
+				} else if (c == '4') {
 					result.append("[^-=+\\/\\\\]");
 
-				} else if(c == '5') {
+				} else if (c == '5') {
 					result.append("[^\\\\]");
 
-				} else if(c == '6') {
+				} else if (c == '6') {
 					result.append("[^|:+\\/\\\\]");
 
-				} else if(c == '7') {
+				} else if (c == '7') {
 					result.append("[^\\/]");
 
-				} else if(c == '8') {
+				} else if (c == '8') {
 					result.append("[^-=+\\/\\\\]");
 				}
-			} else result.append(String.valueOf(c));
+			} else {
+				result.append(String.valueOf(c));
+			}
 			tokensHandled++;
 		}
 		return result.toString();
 	}
 
-
-	public void setTo(String row1, String row2, String row3){
-		if(getHeight() != 3) throw new RuntimeException("This method can only be called for GridPatternS with height 3");
+	public void setTo(String row1, String row2, String row3) {
+		if (getHeight() != 3) {
+			throw new RuntimeException("This method can only be called for GridPatternS with height 3");
+		}
 		regExpsAreValid = false;
 		writeStringTo(0, 0, row1);
 		writeStringTo(0, 1, row2);
@@ -246,46 +239,46 @@ public class GridPattern extends TextGrid {
 		//don't use setRow() here!
 	}
 
-	public static void main(String[] args) {		
+	public static void main(String[] args) {
 		TextGrid grid = new TextGrid(3, 3);
-//		grid.setRow(0, "   ");
-//		grid.setRow(1, "-\\ ");
-//		grid.setRow(2, " | ");
-//		
-//		if(GridPatternGroup.corner2Criteria.isAnyMatchedBy(grid)){
-//			System.out.println("Grid is corner 2");
-//		} else {
-//			System.out.println("Grid is not corner 2");
-//		}
-//
-//		if(grid.isCorner2(grid.new Cell(1,1))){
-//			System.out.println("Grid is corner 2");
-//		} else {
-//			System.out.println("Grid is not corner 2");
-//		}
-//
-//		
-//		grid.setRow(0, "-+ ");
-//		grid.setRow(1, " | ");
-//		grid.setRow(2, "-+ ");
-//
-//		if(GridPatternGroup.cornerCriteria.isAnyMatchedBy(grid)){			
-//			System.out.println("Grid is corner");
-//		} else {
-//			System.out.println("Grid is not corner");
-//		}
-//
-//		if(grid.isCorner(grid.new Cell(1,1))){			
-//			System.out.println("Grid is corner");
-//		} else {
-//			System.out.println("Grid is not corner");
-//		}
+		//		grid.setRow(0, "   ");
+		//		grid.setRow(1, "-\\ ");
+		//		grid.setRow(2, " | ");
+		//		
+		//		if(GridPatternGroup.corner2Criteria.isAnyMatchedBy(grid)){
+		//			System.out.println("Grid is corner 2");
+		//		} else {
+		//			System.out.println("Grid is not corner 2");
+		//		}
+		//
+		//		if(grid.isCorner2(grid.new Cell(1,1))){
+		//			System.out.println("Grid is corner 2");
+		//		} else {
+		//			System.out.println("Grid is not corner 2");
+		//		}
+		//
+		//		
+		//		grid.setRow(0, "-+ ");
+		//		grid.setRow(1, " | ");
+		//		grid.setRow(2, "-+ ");
+		//
+		//		if(GridPatternGroup.cornerCriteria.isAnyMatchedBy(grid)){			
+		//			System.out.println("Grid is corner");
+		//		} else {
+		//			System.out.println("Grid is not corner");
+		//		}
+		//
+		//		if(grid.isCorner(grid.new Cell(1,1))){			
+		//			System.out.println("Grid is corner");
+		//		} else {
+		//			System.out.println("Grid is not corner");
+		//		}
 
 		grid.setRow(0, "---");
 		grid.setRow(1, " / ");
 		grid.setRow(2, "---");
 		grid.printDebug();
-		if(GridPatternGroup.loneDiagonalCriteria.isAnyMatchedBy(grid)){			
+		if (GridPatternGroup.loneDiagonalCriteria.isAnyMatchedBy(grid)) {
 			System.out.println("Grid is lone diagonal");
 		} else {
 			System.out.println("Grid is not lone diagonal");
@@ -295,7 +288,7 @@ public class GridPattern extends TextGrid {
 		grid.setRow(1, " / ");
 		grid.setRow(2, "---");
 		grid.printDebug();
-		if(GridPatternGroup.loneDiagonalCriteria.isAnyMatchedBy(grid)){			
+		if (GridPatternGroup.loneDiagonalCriteria.isAnyMatchedBy(grid)) {
 			System.out.println("Grid is lone diagonal");
 		} else {
 			System.out.println("Grid is not lone diagonal");
@@ -305,7 +298,7 @@ public class GridPattern extends TextGrid {
 		grid.setRow(1, " \\ ");
 		grid.setRow(2, "---");
 		grid.printDebug();
-		if(GridPatternGroup.loneDiagonalCriteria.isAnyMatchedBy(grid)){			
+		if (GridPatternGroup.loneDiagonalCriteria.isAnyMatchedBy(grid)) {
 			System.out.println("Grid is lone diagonal");
 		} else {
 			System.out.println("Grid is not lone diagonal");
@@ -315,17 +308,17 @@ public class GridPattern extends TextGrid {
 		grid.setRow(1, " \\ ");
 		grid.setRow(2, "--\\");
 		grid.printDebug();
-		if(GridPatternGroup.loneDiagonalCriteria.isAnyMatchedBy(grid)){			
+		if (GridPatternGroup.loneDiagonalCriteria.isAnyMatchedBy(grid)) {
 			System.out.println("Grid is lone diagonal");
 		} else {
 			System.out.println("Grid is not lone diagonal");
 		}
 
-		grid.setRow(0, "   "); 
-		grid.setRow(1, "-\\/"); 
+		grid.setRow(0, "   ");
+		grid.setRow(1, "-\\/");
 		grid.setRow(2, " ||");
 		grid.printDebug();
-		if(GridPatternGroup.loneDiagonalCriteria.isAnyMatchedBy(grid)){			
+		if (GridPatternGroup.loneDiagonalCriteria.isAnyMatchedBy(grid)) {
 			System.out.println("Grid is lone diagonal");
 		} else {
 			System.out.println("Grid is not lone diagonal");

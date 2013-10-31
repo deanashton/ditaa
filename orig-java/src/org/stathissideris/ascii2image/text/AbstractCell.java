@@ -28,12 +28,14 @@ public class AbstractCell {
 
 	public int rows[][] = new int[3][3];
 	{
-		for(int y = 0; y < 3; y++)
-			for(int x = 0; x < 3; x++)
+		for (int y = 0; y < 3; y++) {
+			for (int x = 0; x < 3; x++) {
 				rows[x][y] = 0;
+			}
+		}
 	}
 
-	static AbstractCell makeHorizontalLine(){
+	static AbstractCell makeHorizontalLine() {
 		AbstractCell result = new AbstractCell();
 		result.rows[0][1] = 1;
 		result.rows[1][1] = 1;
@@ -41,7 +43,7 @@ public class AbstractCell {
 		return result;
 	}
 
-	static AbstractCell makeVerticalLine(){
+	static AbstractCell makeVerticalLine() {
 		AbstractCell result = new AbstractCell();
 		result.rows[1][0] = 1;
 		result.rows[1][1] = 1;
@@ -49,7 +51,7 @@ public class AbstractCell {
 		return result;
 	}
 
-	static AbstractCell makeCorner1(){
+	static AbstractCell makeCorner1() {
 		AbstractCell result = new AbstractCell();
 		result.rows[1][1] = 1;
 		result.rows[1][2] = 1;
@@ -57,7 +59,7 @@ public class AbstractCell {
 		return result;
 	}
 
-	static AbstractCell makeCorner2(){
+	static AbstractCell makeCorner2() {
 		AbstractCell result = new AbstractCell();
 		result.rows[0][1] = 1;
 		result.rows[1][1] = 1;
@@ -65,7 +67,7 @@ public class AbstractCell {
 		return result;
 	}
 
-	static AbstractCell makeCorner3(){
+	static AbstractCell makeCorner3() {
 		AbstractCell result = new AbstractCell();
 		result.rows[0][1] = 1;
 		result.rows[1][1] = 1;
@@ -73,7 +75,7 @@ public class AbstractCell {
 		return result;
 	}
 
-	static AbstractCell makeCorner4(){
+	static AbstractCell makeCorner4() {
 		AbstractCell result = new AbstractCell();
 		result.rows[2][1] = 1;
 		result.rows[1][1] = 1;
@@ -81,44 +83,45 @@ public class AbstractCell {
 		return result;
 	}
 
-	static AbstractCell makeT(){
+	static AbstractCell makeT() {
 		AbstractCell result = AbstractCell.makeHorizontalLine();
 		result.rows[1][2] = 1;
 		return result;
 	}
 
-	static AbstractCell makeInverseT(){
+	static AbstractCell makeInverseT() {
 		AbstractCell result = AbstractCell.makeHorizontalLine();
 		result.rows[1][0] = 1;
 		return result;
 	}
 
-	static AbstractCell makeK(){
+	static AbstractCell makeK() {
 		AbstractCell result = AbstractCell.makeVerticalLine();
 		result.rows[2][1] = 1;
 		return result;
 	}
 
-	static AbstractCell makeInverseK(){
+	static AbstractCell makeInverseK() {
 		AbstractCell result = AbstractCell.makeVerticalLine();
 		result.rows[0][1] = 1;
 		return result;
 	}
 
-	static AbstractCell makeCross(){
+	static AbstractCell makeCross() {
 		AbstractCell result = AbstractCell.makeVerticalLine();
 		result.rows[0][1] = 1;
 		result.rows[2][1] = 1;
 		return result;
 	}
 
-	static AbstractCell makeStar(){
+	static AbstractCell makeStar() {
 		AbstractCell result = AbstractCell.makeVerticalLine();
-		for(int y = 0; y < 3; y++)
-			for(int x = 0; x < 3; x++)
+		for (int y = 0; y < 3; y++) {
+			for (int x = 0; x < 3; x++) {
 				result.rows[x][y] = 1;
+			}
+		}
 		return result;
 	}
-
 
 }

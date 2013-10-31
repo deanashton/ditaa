@@ -20,8 +20,6 @@
  */
 package org.stathissideris.ascii2image.graphics;
 
-import java.awt.geom.Point2D.Float;
-
 /**
  * 
  * @author Efstathios Sideris
@@ -32,7 +30,7 @@ public class ShapePoint extends java.awt.geom.Point2D.Float {
 	public static final int TYPE_ROUND = 1;
 
 	private boolean locked = false;
-	
+
 	private int type = 0;
 
 	public ShapePoint() {
@@ -41,7 +39,7 @@ public class ShapePoint extends java.awt.geom.Point2D.Float {
 
 	public ShapePoint(float x, float y) {
 		super(x, y);
-		this.type = TYPE_NORMAL;
+		type = TYPE_NORMAL;
 	}
 
 	public ShapePoint(float x, float y, int type) {
@@ -49,10 +47,10 @@ public class ShapePoint extends java.awt.geom.Point2D.Float {
 		this.type = type;
 	}
 
-	public ShapePoint(ShapePoint other){
+	public ShapePoint(ShapePoint other) {
 		this(other.x, other.y, other.type);
 	}
-	
+
 	/**
 	 * @return
 	 */
@@ -66,63 +64,76 @@ public class ShapePoint extends java.awt.geom.Point2D.Float {
 	public void setType(int i) {
 		type = i;
 	}
-	
-	public boolean isInLineWith(ShapePoint point){
-		if(this.x == point.x) return true;
-		if(this.y == point.y) return true;
+
+	public boolean isInLineWith(ShapePoint point) {
+		if (x == point.x) {
+			return true;
+		}
+		if (y == point.y) {
+			return true;
+		}
 		return false;
 	}
-	
+
 	public boolean isWithinEdge(ShapeEdge edge) {
-		if(edge.isHorizontal()) {
-			if(x >= edge.getStartPoint().x && x <= edge.getEndPoint().x) return true;
-			if(x >= edge.getEndPoint().x && x <= edge.getStartPoint().x) return true;
+		if (edge.isHorizontal()) {
+			if (x >= edge.getStartPoint().x && x <= edge.getEndPoint().x) {
+				return true;
+			}
+			if (x >= edge.getEndPoint().x && x <= edge.getStartPoint().x) {
+				return true;
+			}
 			return false;
-		} else if(edge.isVertical()) {
-			if(y >= edge.getStartPoint().y && y <= edge.getEndPoint().y) return true;
-			if(y >= edge.getEndPoint().y && y <= edge.getStartPoint().y) return true;			
+		} else if (edge.isVertical()) {
+			if (y >= edge.getStartPoint().y && y <= edge.getEndPoint().y) {
+				return true;
+			}
+			if (y >= edge.getEndPoint().y && y <= edge.getStartPoint().y) {
+				return true;
+			}
 			return false;
 		}
 		throw new RuntimeException("Cannot calculate is ShapePoint is within sloped edge");
 	}
-	
-	public boolean isNorthOf(ShapePoint point){
-		return (this.y < point.y);
+
+	public boolean isNorthOf(ShapePoint point) {
+		return y < point.y;
 	}
 
-	public boolean isSouthOf(ShapePoint point){
-		return (this.y > point.y);
+	public boolean isSouthOf(ShapePoint point) {
+		return y > point.y;
 	}
 
-	public boolean isWestOf(ShapePoint point){
-		return (this.x < point.x);
+	public boolean isWestOf(ShapePoint point) {
+		return x < point.x;
 	}
 
-	public boolean isEastOf(ShapePoint point){
-		return (this.x > point.x);
+	public boolean isEastOf(ShapePoint point) {
+		return x > point.x;
 	}
 
-	public String toString(){
-		return "("+x+", "+y+")";
+	@Override
+	public String toString() {
+		return "(" + x + ", " + y + ")";
 	}
-	
-	public void assign(ShapePoint point){
-		this.x = point.x;
-		this.y = point.y;
+
+	public void assign(ShapePoint point) {
+		x = point.x;
+		y = point.y;
 	}
 
 	/**
-	 * Does the same as assign, but respects the
-	 * locked attribute 
+	 * Does the same as assign, but respects the locked attribute
 	 * 
 	 * @param point
 	 */
-	public void moveTo(ShapePoint point){
-		if(locked) return;
-		this.x = point.x;
-		this.y = point.y;
+	public void moveTo(ShapePoint point) {
+		if (locked) {
+			return;
+		}
+		x = point.x;
+		y = point.y;
 	}
-
 
 	/**
 	 * @return

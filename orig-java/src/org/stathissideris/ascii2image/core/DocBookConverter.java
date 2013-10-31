@@ -20,49 +20,48 @@
  */
 package org.stathissideris.ascii2image.core;
 
-import java.io.*;
-import org.xml.sax.*;
-import org.xml.sax.helpers.*;
+import org.xml.sax.Attributes;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.DefaultHandler;
+import org.xml.sax.helpers.XMLReaderFactory;
 
 // using SAX
 public class DocBookConverter {
 
 	class HowToHandler extends DefaultHandler {
-    	boolean title = false;
-    	boolean url   = false;
+		boolean title = false;
+		boolean url = false;
 
-    	public void startElement(
-    		String nsURI,
-    		String strippedName,
-			String tagName,
-			Attributes attributes)
-       			throws SAXException {
-     		if (tagName.equalsIgnoreCase("title"))
-        	title = true;
-     		if (tagName.equalsIgnoreCase("url"))
-        		url = true;
-    		}
-
-    	public void characters(char[] ch, int start, int length) {
-     		if (title) {
-       			System.out.println("Title: " + new String(ch, start, length));
-       			title = false;
-       		} else if (url) {
-       			System.out.println("Url: " + new String(ch, start,length));
-       			url = false;
+		@Override
+		public void startElement(String nsURI, String strippedName, String tagName, Attributes attributes) throws SAXException {
+			if (tagName.equalsIgnoreCase("title")) {
+				title = true;
+			}
+			if (tagName.equalsIgnoreCase("url")) {
+				url = true;
 			}
 		}
-    }
 
-    public void list( ) throws Exception {
-		XMLReader parser =
-			XMLReaderFactory.createXMLReader
-            	("org.apache.crimson.parser.XMLReaderImpl");
-		parser.setContentHandler(new HowToHandler( ));
+		@Override
+		public void characters(char[] ch, int start, int length) {
+			if (title) {
+				System.out.println("Title: " + new String(ch, start, length));
+				title = false;
+			} else if (url) {
+				System.out.println("Url: " + new String(ch, start, length));
+				url = false;
+			}
+		}
+	}
+
+	public void list() throws Exception {
+		XMLReader parser = XMLReaderFactory.createXMLReader("org.apache.crimson.parser.XMLReaderImpl");
+		parser.setContentHandler(new HowToHandler());
 		parser.parse("howto.xml");
 	}
 
 	public static void main(String[] args) throws Exception {
-		new DocBookConverter().list( );
+		new DocBookConverter().list();
 	}
 }

@@ -27,54 +27,59 @@ public class CustomShapeDefinition {
 	private boolean hasBorder = false;
 	private String filename;
 	private String comment;
-	
+
 	public boolean dropsShadow() {
 		return dropShadow;
 	}
+
 	public void setDropsShadow(boolean dropShadow) {
 		this.dropShadow = dropShadow;
 	}
+
 	public String getFilename() {
 		return filename;
 	}
+
 	public void setFilename(String filename) {
 		this.filename = filename;
 	}
+
 	public boolean stretches() {
 		return stretch;
 	}
+
 	public void setStretches(boolean stretch) {
 		this.stretch = stretch;
 	}
+
 	public boolean hasBorder() {
 		return hasBorder;
 	}
+
 	public void setHasBorder(boolean hasBorder) {
 		this.hasBorder = hasBorder;
 	}
+
 	public String getTag() {
 		return tag;
 	}
+
 	public void setTag(String tag) {
 		this.tag = tag;
 	}
-	
+
 	public String getComment() {
 		return comment;
 	}
+
 	public void setComment(String comment) {
 		this.comment = comment;
 	}
-	
-	public String toString(){
-		return
-			"Custom shape: \""+getTag()+"\":\n"
-			+"\tfile: "+getFilename()+"\n"
-			+"\tstretches: "+stretches()+"\n"
-			+"\thas border: "+hasBorder()+"\n"
-			+"\tdrops shadow: "+dropsShadow()+"\n"
-			+"\tcomment: "+getComment()+"\n"
-			;
+
+	@Override
+	public String toString() {
+		return "Custom shape: \"" + getTag() + "\":\n" + "\tfile: " + getFilename() + "\n" + "\tstretches: " + stretches() + "\n" + "\thas border: "
+				+ hasBorder() + "\n" + "\tdrops shadow: " + dropsShadow() + "\n" + "\tcomment: " + getComment() + "\n";
 	}
-	
+
 }
