@@ -67,11 +67,6 @@ public class CommandLineConverter {
 		cmdLnOptions.addOption("d", "debug", false, "Renders the debug grid over the resulting image.");
 		cmdLnOptions.addOption("r", "round-corners", false, "Causes all corners to be rendered as round corners.");
 		cmdLnOptions.addOption("E", "no-separation", false, "Prevents the separation of common edges of shapes.");
-		cmdLnOptions.addOption(
-				"h",
-				"html",
-				false,
-				"In this case the input is an HTML file. The contents of the <pre class=\"textdiagram\"> tags are rendered as diagrams and saved in the images directory and a new HTML file is produced with the appropriate <img> tags.");
 		cmdLnOptions.addOption("T", "transparent", false, "Causes the diagram to be rendered on a transparent background. Overrides --background.");
 
 		cmdLnOptions.addOption(OptionBuilder.withLongOpt("encoding").withDescription("The encoding of the input file.").hasArg()
@@ -149,122 +144,86 @@ public class CommandLineConverter {
 			System.exit(2);
 		}
 
-		if (cmdLine.hasOption("html")) {
+		TextGrid grid = new TextGrid();
+		if (options.processingOptions.getCustomShapes() != null) {
+			grid.addToMarkupTags(options.processingOptions.getCustomShapes().keySet());
+		}
+
+		// "-" means stdin / stdout
+		String fromFilename = args[0];
+		boolean stdIn = "-".equals(fromFilename);
+
+		String toFilename;
+		boolean stdOut;
+
+		boolean overwrite = false;
+		if (options.processingOptions.overwriteFiles()) {
+			overwrite = true;
+		}
+
+		if (args.length == 1) {
+			if (stdIn) { // if using stdin and no output specified, use stdout
+				stdOut = true;
+				toFilename = "-";
+			} else {
+				toFilename = FileUtils.makeTargetPathname(fromFilename, "png", overwrite);
+				stdOut = false;
+			}
+		} else {
+			toFilename = args[1];
+			stdOut = "-".equals(toFilename);
+		}
+
+		if (!stdOut) {
 			/////// print options before running
 			printRunInfo(cmdLine);
-			String filename = args[0];
+			System.out.println("Reading " + (stdIn ? "standard input" : "file: " + fromFilename));
+		}
 
-			boolean overwrite = false;
-			if (options.processingOptions.overwriteFiles()) {
-				overwrite = true;
+		try {
+			if (!grid.loadFrom(fromFilename, options.processingOptions)) {
+				System.err.println("Cannot open file " + fromFilename + " for reading");
 			}
+		} catch (UnsupportedEncodingException e1) {
+			System.err.println("Error: " + e1.getMessage());
+			System.exit(1);
+		} catch (FileNotFoundException e1) {
+			System.err.println("Error: File " + fromFilename + " does not exist");
+			System.exit(1);
+		} catch (IOException e1) {
+			System.err.println("Error: Cannot open file " + fromFilename + " for reading");
+			System.exit(1);
+		}
 
-			String toFilename;
-			if (args.length == 1) {
-				toFilename = FileUtils.makeTargetPathname(filename, "html", "_processed", true);
-			} else {
-				toFilename = args[1];
-			}
-			File target = new File(toFilename);
-			if (!overwrite && target.exists()) {
-				System.out.println("Error: File " + toFilename
-						+ " exists. If you would like to overwrite it, please use the --overwrite option.");
-				System.exit(0);
-			}
-
-			new HTMLConverter().convertHTMLFile(filename, toFilename, "ditaa_diagram", "images", options);
-			System.exit(0);
-
-		} else { //simple mode
-
-			TextGrid grid = new TextGrid();
-			if (options.processingOptions.getCustomShapes() != null) {
-				grid.addToMarkupTags(options.processingOptions.getCustomShapes().keySet());
-			}
-
-			// "-" means stdin / stdout
-			String fromFilename = args[0];
-			boolean stdIn = "-".equals(fromFilename);
-
-			String toFilename;
-			boolean stdOut;
-
-			boolean overwrite = false;
-			if (options.processingOptions.overwriteFiles()) {
-				overwrite = true;
-			}
-
-			if (args.length == 1) {
-				if (stdIn) { // if using stdin and no output specified, use stdout
-					stdOut = true;
-					toFilename = "-";
-				} else {
-					toFilename = FileUtils.makeTargetPathname(fromFilename, "png", overwrite);
-					stdOut = false;
-				}
-			} else {
-				toFilename = args[1];
-				stdOut = "-".equals(toFilename);
-			}
-
+		if (options.processingOptions.printDebugOutput()) {
 			if (!stdOut) {
-				/////// print options before running
-				printRunInfo(cmdLine);
-				System.out.println("Reading " + (stdIn ? "standard input" : "file: " + fromFilename));
+				System.out.println("Using grid:");
 			}
+			grid.printDebug();
+		}
 
-			try {
-				if (!grid.loadFrom(fromFilename, options.processingOptions)) {
-					System.err.println("Cannot open file " + fromFilename + " for reading");
-				}
-			} catch (UnsupportedEncodingException e1) {
-				System.err.println("Error: " + e1.getMessage());
-				System.exit(1);
-			} catch (FileNotFoundException e1) {
-				System.err.println("Error: File " + fromFilename + " does not exist");
-				System.exit(1);
-			} catch (IOException e1) {
-				System.err.println("Error: Cannot open file " + fromFilename + " for reading");
-				System.exit(1);
-			}
+		Diagram diagram = new Diagram(grid, options);
+		if (!stdOut) {
+			System.out.println("Rendering to file: " + toFilename);
+		}
 
-			if (options.processingOptions.printDebugOutput()) {
-				if (!stdOut) {
-					System.out.println("Using grid:");
-				}
-				grid.printDebug();
-			}
+		RenderedImage image = new BitmapRenderer().renderToImage(diagram, options.renderingOptions);
 
-			Diagram diagram = new Diagram(grid, options);
-			if (!stdOut) {
-				System.out.println("Rendering to file: " + toFilename);
-			}
+		try {
+			OutputStream os = stdOut ? System.out : new FileOutputStream(toFilename);
+			ImageIO.write(image, "png", os);
+		} catch (IOException e) {
+			//e.printStackTrace();
+			System.err.println("Error: Cannot write to file " + toFilename);
+			System.exit(1);
+		}
 
-			RenderedImage image = new BitmapRenderer().renderToImage(diagram, options.renderingOptions);
+		//BitmapRenderer.renderToPNG(diagram, toFilename, options.renderingOptions);
 
-			try {
-				OutputStream os = stdOut ? System.out : new FileOutputStream(toFilename);
-				ImageIO.write(image, "png", os);
-			} catch (IOException e) {
-				//e.printStackTrace();
-				System.err.println("Error: Cannot write to file " + toFilename);
-				System.exit(1);
-			}
-
-			//BitmapRenderer.renderToPNG(diagram, toFilename, options.renderingOptions);
-
-			long endTime = System.currentTimeMillis();
-			long totalTime = (endTime - startTime) / 1000;
-			if (!stdOut) {
-				System.out.println("Done in " + totalTime + "sec");
-			}
-
-			//			try {
-			//			Thread.sleep(Long.MAX_VALUE);
-			//			} catch (InterruptedException e) {
-			//			e.printStackTrace();
-			//			}
-
+		long endTime = System.currentTimeMillis();
+		long totalTime = (endTime - startTime) / 1000;
+		if (!stdOut) {
+			System.out.println("Done in " + totalTime + "sec");
 		}
 	}
 
