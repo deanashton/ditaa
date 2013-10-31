@@ -1650,29 +1650,16 @@ public class TextGrid {
 
 		int blankBorderSize = 2;
 
-		int maxLength = 0;
-		int index = 0;
 
 		String encoding = null;
 		if (options != null) {
 			encoding = options.getCharacterEncoding();
 		}
 
-		Iterator<StringBuilder> it = rows.iterator();
-		while (it.hasNext()) {
-			String row = it.next().toString();
-			if (encoding != null) {
-				byte[] bytes = row.getBytes();
-				row = new String(bytes, encoding);
-			}
-			if (row.length() > maxLength) {
-				maxLength = row.length();
-			}
-			rows.set(index, new StringBuilder(row));
-			index++;
-		}
+		recode(this.rows, encoding);
+		int maxLength = findMaxWidth(rows);
 
-		it = rows.iterator();
+		Iterator<StringBuilder> it = rows.iterator();
 		ArrayList<StringBuilder> newRows = new ArrayList<StringBuilder>();
 		//TODO: make the following depend on blankBorderSize
 
@@ -1704,6 +1691,26 @@ public class TextGrid {
 
 		replaceBullets();
 		replaceHumanColorCodes();
+	}
+
+	private static int findMaxWidth(ArrayList<StringBuilder> rows) {
+		int maxLength = 0;
+		for (StringBuilder row : rows) {
+			if (row.length() > maxLength) {
+				maxLength = row.length();
+			}
+		}
+		return maxLength;
+	}
+
+	private static void recode(ArrayList<StringBuilder> rows, String encoding) throws UnsupportedEncodingException {
+		if (encoding == null) {
+			return;
+		}
+		for (int index = 0; index < rows.size(); index++) {
+			byte[] bytes = rows.get(index).toString().getBytes();
+			rows.set(index, new StringBuilder(new String(bytes, encoding)));
+		}
 	}
 
 	private void fixTabs(int tabSize) {
