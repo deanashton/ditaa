@@ -388,63 +388,20 @@ public class Diagram {
 				continue;
 			}
 
-			//TODO: the code below could be a lot more concise
 			if (pair.tag.equals("d")) {
-				CustomShapeDefinition def = options.processingOptions.getFromCustomShapes("d");
-				if (def == null) {
-					containingShape.setType(DiagramShape.TYPE_DOCUMENT);
-				} else {
-					containingShape.setType(DiagramShape.TYPE_CUSTOM);
-					containingShape.setDefinition(def);
-				}
+				loadCustomShape(containingShape, options, "d", DiagramShape.TYPE_DOCUMENT);
 			} else if (pair.tag.equals("s")) {
-				CustomShapeDefinition def = options.processingOptions.getFromCustomShapes("s");
-				if (def == null) {
-					containingShape.setType(DiagramShape.TYPE_STORAGE);
-				} else {
-					containingShape.setType(DiagramShape.TYPE_CUSTOM);
-					containingShape.setDefinition(def);
-				}
+				loadCustomShape(containingShape, options, "s", DiagramShape.TYPE_STORAGE);
 			} else if (pair.tag.equals("io")) {
-				CustomShapeDefinition def = options.processingOptions.getFromCustomShapes("io");
-				if (def == null) {
-					containingShape.setType(DiagramShape.TYPE_IO);
-				} else {
-					containingShape.setType(DiagramShape.TYPE_CUSTOM);
-					containingShape.setDefinition(def);
-				}
+				loadCustomShape(containingShape, options, "io", DiagramShape.TYPE_IO);
 			} else if (pair.tag.equals("c")) {
-				CustomShapeDefinition def = options.processingOptions.getFromCustomShapes("c");
-				if (def == null) {
-					containingShape.setType(DiagramShape.TYPE_DECISION);
-				} else {
-					containingShape.setType(DiagramShape.TYPE_CUSTOM);
-					containingShape.setDefinition(def);
-				}
+				loadCustomShape(containingShape, options, "c", DiagramShape.TYPE_DECISION);
 			} else if (pair.tag.equals("mo")) {
-				CustomShapeDefinition def = options.processingOptions.getFromCustomShapes("mo");
-				if (def == null) {
-					containingShape.setType(DiagramShape.TYPE_MANUAL_OPERATION);
-				} else {
-					containingShape.setType(DiagramShape.TYPE_CUSTOM);
-					containingShape.setDefinition(def);
-				}
+				loadCustomShape(containingShape, options, "mo", DiagramShape.TYPE_MANUAL_OPERATION);
 			} else if (pair.tag.equals("tr")) {
-				CustomShapeDefinition def = options.processingOptions.getFromCustomShapes("tr");
-				if (def == null) {
-					containingShape.setType(DiagramShape.TYPE_TRAPEZOID);
-				} else {
-					containingShape.setType(DiagramShape.TYPE_CUSTOM);
-					containingShape.setDefinition(def);
-				}
+				loadCustomShape(containingShape, options, "tr", DiagramShape.TYPE_TRAPEZOID);
 			} else if (pair.tag.equals("o")) {
-				CustomShapeDefinition def = options.processingOptions.getFromCustomShapes("o");
-				if (def == null) {
-					containingShape.setType(DiagramShape.TYPE_ELLIPSE);
-				} else {
-					containingShape.setType(DiagramShape.TYPE_CUSTOM);
-					containingShape.setDefinition(def);
-				}
+				loadCustomShape(containingShape, options, "o", DiagramShape.TYPE_ELLIPSE);
 			} else {
 				CustomShapeDefinition def = options.processingOptions.getFromCustomShapes(pair.tag);
 				containingShape.setType(DiagramShape.TYPE_CUSTOM);
@@ -575,6 +532,17 @@ public class Diagram {
 			System.out.println("Corrected color of text according to underlying color");
 		}
 
+	}
+
+	private void loadCustomShape(DiagramShape containingShape, ConversionOptions options, String code,
+			int fallbackType) {
+		CustomShapeDefinition def = options.processingOptions.getFromCustomShapes(code);
+		if (def == null) {
+			containingShape.setType(fallbackType);
+		} else {
+			containingShape.setType(DiagramShape.TYPE_CUSTOM);
+			containingShape.setDefinition(def);
+		}
 	}
 
 	/**
