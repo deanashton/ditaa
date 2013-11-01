@@ -314,7 +314,7 @@ public class DiagramShape extends DiagramComponent {
 	/**
 	 * @return
 	 */
-	public ArrayList getPoints() {
+	public ArrayList<ShapePoint> getPoints() {
 		return points;
 	}
 
@@ -386,10 +386,10 @@ public class DiagramShape extends DiagramComponent {
 		}
 
 		GeneralPath path = new GeneralPath();
-		ShapePoint point = (ShapePoint) getPoints().get(0);
+		ShapePoint point = getPoints().get(0);
 		path.moveTo((int) point.x, (int) point.y);
 		for (int i = 1; i < size; i++) {
-			point = (ShapePoint) getPoints().get(i);
+			point = getPoints().get(i);
 			path.lineTo((int) point.x, (int) point.y);
 		}
 		if (isClosed() && size > 2) {
@@ -409,13 +409,10 @@ public class DiagramShape extends DiagramComponent {
 	}
 
 	public Rectangle getBounds() {
-		Rectangle bounds = makeIntoPath().getBounds();
-		return bounds;
+		return makeIntoPath().getBounds();
 	}
 
 	public GeneralPath makeIntoRenderPath(GraphicalGrid diagram, RenderingOptions options) {
-		int size = getPoints().size();
-
 		if (getType() == TYPE_POINT_MARKER) {
 			return makeMarkerPath(diagram);
 		}
@@ -448,16 +445,16 @@ public class DiagramShape extends DiagramComponent {
 			return makeEllipsePath();
 		}
 
+		int size = getPoints().size();
 		if (size < 2) {
 			return null;
 		}
 
 		GeneralPath path = new GeneralPath();
-		ShapePoint point = (ShapePoint) getPoints().get(0);
+		ShapePoint point = getPoints().get(0);
 		diagram.getCellFor(point);
-		//path.moveTo((int) point.x, (int) point.y);
-		ShapePoint previous = (ShapePoint) getPoints().get(size - 1);
-		ShapePoint next = (ShapePoint) getPoints().get(1);
+		ShapePoint previous = getPoints().get(size - 1);
+		ShapePoint next = getPoints().get(1);
 		ShapePoint entryPoint;
 		ShapePoint exitPoint;
 
@@ -477,11 +474,11 @@ public class DiagramShape extends DiagramComponent {
 
 		for (int i = 1; i < size; i++) {
 			previous = point;
-			point = (ShapePoint) getPoints().get(i);
+			point = getPoints().get(i);
 			if (i < size - 1) {
-				next = (ShapePoint) getPoints().get(i + 1);
+				next = getPoints().get(i + 1);
 			} else {
-				next = (ShapePoint) getPoints().get(0);
+				next = getPoints().get(0);
 			}
 
 			diagram.getCellFor(point);

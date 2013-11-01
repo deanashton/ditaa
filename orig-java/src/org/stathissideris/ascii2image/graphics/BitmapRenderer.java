@@ -121,7 +121,6 @@ public class BitmapRenderer {
 			renderShadows(shapes, g2, ggrid, options);
 
 			//blur shadows
-
 			if (true) {
 				BufferedImage destination = new BufferedImage(image.getWidth(), image.getHeight(),
 						image.getType());
@@ -135,7 +134,6 @@ public class BitmapRenderer {
 		}
 
 		//fill and stroke
-
 		initStrokes(ggrid);
 
 		//TODO: at this stage we should draw the open shapes first in order to make sure they are at the bottom (this is useful for the {mo} shape)
@@ -159,8 +157,7 @@ public class BitmapRenderer {
 
 		g2.setStroke(normalStroke);
 		for (DiagramShape shape : storageShapes) {
-			GeneralPath path;
-			path = shape.makeIntoRenderPath(diagram.getGraphicalGrid(), options);
+			GeneralPath path = shape.makeIntoRenderPath(ggrid, options);
 
 			if (shape.isStrokeDashed()) {
 				g2.setStroke(dashStroke);
@@ -195,41 +192,26 @@ public class BitmapRenderer {
 				continue;
 			}
 
-			shape.getPoints().size();
-
-			GeneralPath path;
-			path = shape.makeIntoRenderPath(diagram.getGraphicalGrid(), options);
+			GeneralPath path = shape.makeIntoRenderPath(ggrid, options);
 
 			//fill
 			if (path != null && shape.isClosed() && !shape.isStrokeDashed()) {
-				if (shape.getFillColor() != null) {
-					g2.setColor(shape.getFillColor());
-				} else {
-					g2.setColor(Color.white);
-				}
+				g2.setColor(shape.getFillColor() != null ? shape.getFillColor() : Color.white);
 				g2.fill(path);
 			}
 
 			//draw
 			if (shape.getType() != DiagramShape.TYPE_ARROWHEAD) {
 				g2.setColor(shape.getStrokeColor());
-				if (shape.isStrokeDashed()) {
-					g2.setStroke(dashStroke);
-				} else {
-					g2.setStroke(normalStroke);
-				}
+				g2.setStroke(shape.isStrokeDashed() ? dashStroke : normalStroke);
 				g2.draw(path);
 			}
 		}
 
 		//render point markers
-
 		g2.setStroke(normalStroke);
 		for (DiagramShape shape : pointMarkers) {
-			//if(shape.getType() != DiagramShape.TYPE_POINT_MARKER) continue;
-
-			GeneralPath path;
-			path = shape.makeIntoRenderPath(diagram.getGraphicalGrid(), options);
+			GeneralPath path = shape.makeIntoRenderPath(diagram.getGraphicalGrid(), options);
 
 			g2.setColor(Color.white);
 			g2.fill(path);
@@ -238,38 +220,40 @@ public class BitmapRenderer {
 		}
 
 		//handle text
-		//g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-		//renderTextLayer(diagram.getTextObjects().iterator());
-
 		for (DiagramText text : diagram.getTextObjects()) {
 			g2.setFont(text.getFont());
+			int x = text.getXPos(), y = text.getYPos();
 			if (text.hasOutline()) {
 				g2.setColor(text.getOutlineColor());
-				g2.drawString(text.getText(), text.getXPos() + 1, text.getYPos());
-				g2.drawString(text.getText(), text.getXPos() - 1, text.getYPos());
-				g2.drawString(text.getText(), text.getXPos(), text.getYPos() + 1);
-				g2.drawString(text.getText(), text.getXPos(), text.getYPos() - 1);
+				g2.drawString(text.getText(), x + 1, y);
+				g2.drawString(text.getText(), x - 1, y);
+				g2.drawString(text.getText(), x, y + 1);
+				g2.drawString(text.getText(), x, y - 1);
 			}
 			g2.setColor(text.getColor());
-			g2.drawString(text.getText(), text.getXPos(), text.getYPos());
+			g2.drawString(text.getText(), x, y);
 		}
 
 		if (options.renderDebugLines() || DEBUG_LINES) {
-			Stroke debugStroke = new BasicStroke(1, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
-			g2.setStroke(debugStroke);
-			g2.setColor(new Color(170, 170, 170));
-			g2.setXORMode(Color.white);
-			for (int x = 0; x < diagram.getWidth(); x += diagram.getCellWidth()) {
-				g2.drawLine(x, 0, x, diagram.getHeight());
-			}
-			for (int y = 0; y < diagram.getHeight(); y += diagram.getCellHeight()) {
-				g2.drawLine(0, y, diagram.getWidth(), y);
-			}
+			drawDebugLines(g2, ggrid);
 		}
 
 		g2.dispose();
 
 		return renderedImage;
+	}
+
+	private void drawDebugLines(Graphics2D g2, GraphicalGrid ggrid) {
+		Stroke debugStroke = new BasicStroke(1, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
+		g2.setStroke(debugStroke);
+		g2.setColor(new Color(170, 170, 170));
+		g2.setXORMode(Color.white);
+		for (int x = 0; x < ggrid.getWidth(); x += ggrid.getCellWidth()) {
+			g2.drawLine(x, 0, x, ggrid.getHeight());
+		}
+		for (int y = 0; y < ggrid.getHeight(); y += ggrid.getCellHeight()) {
+			g2.drawLine(0, y, ggrid.getWidth(), y);
+		}
 	}
 
 	private void initStrokes(GraphicalGrid ggrid) {
