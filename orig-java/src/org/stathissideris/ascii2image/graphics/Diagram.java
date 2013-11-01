@@ -673,10 +673,7 @@ public class Diagram {
 		}
 
 		ArrayList<Integer> toBeRemovedIndices = new ArrayList<Integer>();
-		it = filledSets.iterator();
-		while (it.hasNext()) {
-			CellSet set = (CellSet) it.next();
-
+		for (CellSet set : filledSets) {
 			if (DEBUG_VERBOSE) {
 				System.out.println("*** Deciding if the following should be removed:");
 				set.printAsGrid();
@@ -685,9 +682,7 @@ public class Diagram {
 			//find the other sets that have common cells with set
 			ArrayList<CellSet> common = new ArrayList<CellSet>();
 			common.add(set);
-			Iterator<CellSet> it2 = filledSets.iterator();
-			while (it2.hasNext()) {
-				CellSet set2 = it2.next();
+			for (CellSet set2 : filledSets) {
 				if (set != set2 && set.hasCommonCells(set2)) {
 					common.add(set2);
 				}
@@ -699,9 +694,7 @@ public class Diagram {
 
 			//find largest set
 			CellSet largest = set;
-			it2 = common.iterator();
-			while (it2.hasNext()) {
-				CellSet set2 = it2.next();
+			for (CellSet set2 : common) {
 				if (set2.size() > largest.size()) {
 					largest = set2;
 				}
@@ -718,9 +711,7 @@ public class Diagram {
 			//make the sum set of the small sets on a grid
 			TextGrid gridOfSmalls = new TextGrid(largest.getMaxX() + 2, largest.getMaxY() + 2);
 			new CellSet();
-			it2 = common.iterator();
-			while (it2.hasNext()) {
-				CellSet set2 = it2.next();
+			for (CellSet set2 : common) {
 				if (DEBUG_VERBOSE) {
 					System.out.println("One of smalls:");
 					set2.printAsGrid();
@@ -785,22 +776,18 @@ public class Diagram {
 		ArrayList<ShapeEdge> edges = new ArrayList<ShapeEdge>();
 
 		//get all adges
-		Iterator<?> it = shapes.iterator();
-		while (it.hasNext()) {
-			DiagramShape shape = (DiagramShape) it.next();
+		for (DiagramComponent component : shapes) {
+			DiagramShape shape = (DiagramShape) component;
 			edges.addAll(shape.getEdges());
 		}
 
 		//group edges into pairs of touching edges
 		ArrayList<Pair<ShapeEdge, ShapeEdge>> listOfPairs = new ArrayList<Pair<ShapeEdge, ShapeEdge>>();
-		it = edges.iterator();
 
 		//all-against-all touching test for the edges
 		int startIndex = 1; //skip some to avoid duplicate comparisons and self-to-self comparisons
 
-		while (it.hasNext()) {
-			ShapeEdge edge1 = (ShapeEdge) it.next();
-
+		for (ShapeEdge edge1 : edges) {
 			for (int k = startIndex; k < edges.size(); k++) {
 				ShapeEdge edge2 = edges.get(k);
 
@@ -814,9 +801,7 @@ public class Diagram {
 		ArrayList<ShapeEdge> movedEdges = new ArrayList<ShapeEdge>();
 
 		//move equivalent edges inwards
-		it = listOfPairs.iterator();
-		while (it.hasNext()) {
-			Pair<ShapeEdge, ShapeEdge> pair = (Pair<ShapeEdge, ShapeEdge>) it.next();
+		for (Pair<ShapeEdge, ShapeEdge> pair : listOfPairs) {
 			if (!movedEdges.contains(pair.first)) {
 				pair.first.moveInwardsBy(offset);
 				movedEdges.add(pair.first);
