@@ -118,9 +118,7 @@ public class Diagram {
 
 		if (DEBUG) {
 			System.out.println("******* Distinct shapes found using AbstractionGrid *******");
-			Iterator<CellSet> dit = boundarySetsStep1.iterator();
-			while (dit.hasNext()) {
-				CellSet set = dit.next();
+			for (CellSet set : boundarySetsStep1) {
 				set.printAsGrid();
 			}
 			System.out.println("******* Same set of shapes after processing them by filling *******");
@@ -173,9 +171,7 @@ public class Diagram {
 		boundarySetsStep2 = CellSet.removeDuplicateSets(boundarySetsStep2);
 
 		if (DEBUG) {
-			Iterator<CellSet> dit = boundarySetsStep2.iterator();
-			while (dit.hasNext()) {
-				CellSet set = dit.next();
+			for (CellSet set : boundarySetsStep2) {
 				set.printAsGrid();
 			}
 		}
@@ -197,9 +193,7 @@ public class Diagram {
 		ArrayList<CellSet> closed = new ArrayList<CellSet>();
 		ArrayList<CellSet> mixed = new ArrayList<CellSet>();
 
-		Iterator<CellSet> sets = boundarySetsStep2.iterator();
-		while (sets.hasNext()) {
-			CellSet set = sets.next();
+		for (CellSet set : boundarySetsStep2) {
 			int type = set.getType(workGrid);
 			if (type == CellSet.TYPE_CLOSED) {
 				closed.add(set);
@@ -232,12 +226,8 @@ public class Diagram {
 			hadToEliminateMixed = true;
 
 			//subtract from each of the mixed sets all the closed sets
-			sets = mixed.iterator();
-			while (sets.hasNext()) {
-				CellSet set = sets.next();
-				Iterator<CellSet> closedSets = closed.iterator();
-				while (closedSets.hasNext()) {
-					CellSet closedSet = closedSets.next();
+			for (CellSet set : mixed) {
+				for (CellSet closedSet : closed) {
 					set.subtractSet(closedSet);
 				}
 				// this is necessary because some mixed sets produce
@@ -265,9 +255,7 @@ public class Diagram {
 				System.out.println("******* Eliminating mixed shapes (advanced algorithm for truly mixed shapes) *******");
 			}
 
-			sets = mixed.iterator();
-			while (sets.hasNext()) {
-				CellSet set = sets.next();
+			for (CellSet set : mixed) {
 				boundarySetsStep2.remove(set);
 				boundarySetsStep2.addAll(set.breakTrulyMixedBoundaries(workGrid));
 			}
@@ -288,9 +276,7 @@ public class Diagram {
 			closed = new ArrayList<CellSet>();
 			mixed = new ArrayList<CellSet>();
 
-			sets = boundarySetsStep2.iterator();
-			while (sets.hasNext()) {
-				CellSet set = sets.next();
+			for (CellSet set : boundarySetsStep2) {
 				int type = set.getType(workGrid);
 				if (type == CellSet.TYPE_CLOSED) {
 					closed.add(set);
@@ -327,10 +313,7 @@ public class Diagram {
 		}
 
 		ArrayList<DiagramComponent> closedShapes = new ArrayList<DiagramComponent>();
-		sets = closed.iterator();
-		while (sets.hasNext()) {
-			CellSet set = sets.next();
-
+		for (CellSet set : closed) {
 			if (DEBUG_MAKE_SHAPES) {
 				set.printAsGrid();
 			}
@@ -352,9 +335,7 @@ public class Diagram {
 		}
 
 		//make open shapes
-		sets = open.iterator();
-		while (sets.hasNext()) {
-			CellSet set = sets.next();
+		for (CellSet set : open) {
 			if (set.size() == 1) { //single cell "shape"
 				TextGrid.Cell cell = set.getFirst();
 				if (!textGrid.cellContainsDashedLineChar(cell)) {
@@ -740,24 +721,18 @@ public class Diagram {
 		}
 
 		ArrayList<CellSet> setsToBeRemoved = new ArrayList<CellSet>();
-		it = toBeRemovedIndices.iterator();
-		while (it.hasNext()) {
-			int i = ((Integer) it.next()).intValue();
+		for (Integer i : toBeRemovedIndices) {
 			setsToBeRemoved.add(sets.get(i));
 		}
 
-		it = setsToBeRemoved.iterator();
-		while (it.hasNext()) {
-			CellSet set = (CellSet) it.next();
+		for (CellSet set : setsToBeRemoved) {
 			removedAny = true;
 			sets.remove(set);
 		}
 
 		if (DEBUG_VERBOSE) {
 			System.out.println("******* Sets after *******");
-			it = sets.iterator();
-			while (it.hasNext()) {
-				CellSet set = (CellSet) it.next();
+			for (CellSet set : sets) {
 				set.printAsGrid();
 			}
 		}
@@ -818,13 +793,9 @@ public class Diagram {
 	private void removeDuplicateShapes() {
 		ArrayList<DiagramShape> originalShapes = new ArrayList<DiagramShape>();
 
-		Iterator<DiagramShape> shapesIt = getShapesIterator();
-		while (shapesIt.hasNext()) {
-			DiagramShape shape = shapesIt.next();
+		for (DiagramShape shape : shapes) {
 			boolean isOriginal = true;
-			Iterator<DiagramShape> originals = originalShapes.iterator();
-			while (originals.hasNext()) {
-				DiagramShape originalShape = originals.next();
+			for (DiagramShape originalShape : originalShapes) {
 				if (shape.equals(originalShape)) {
 					isOriginal = false;
 				}
@@ -840,9 +811,7 @@ public class Diagram {
 
 	private DiagramShape findSmallestShapeContaining(ShapePoint point) {
 		DiagramShape containingShape = null;
-		Iterator<DiagramShape> shapes = getShapes().iterator();
-		while (shapes.hasNext()) {
-			DiagramShape shape = shapes.next();
+		for (DiagramShape shape : shapes) {
 			if (shape.contains(point)) {
 				if (containingShape == null) {
 					containingShape = shape;
@@ -858,9 +827,7 @@ public class Diagram {
 
 	private DiagramShape findSmallestShapeIntersecting(Rectangle2D rect) {
 		DiagramShape intersectingShape = null;
-		Iterator<DiagramShape> shapes = getShapes().iterator();
-		while (shapes.hasNext()) {
-			DiagramShape shape = shapes.next();
+		for (DiagramShape shape : shapes) {
 			if (shape.intersects(rect)) {
 				if (intersectingShape == null) {
 					intersectingShape = shape;
