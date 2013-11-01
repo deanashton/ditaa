@@ -362,7 +362,7 @@ public class Diagram {
 							.getCellWidth(), ggrid.getCellHeight());
 					if (shape != null) {
 						addToShapes(shape);
-						shape.connectEndsToAnchors(workGrid, this);
+						shape.connectEndsToAnchors(workGrid, ggrid);
 					}
 				}
 			} else { //normal shape
@@ -376,11 +376,11 @@ public class Diagram {
 				if (shape != null) {
 					if (shape instanceof CompositeDiagramShape) {
 						addToCompositeShapes((CompositeDiagramShape) shape);
-						((CompositeDiagramShape) shape).connectEndsToAnchors(workGrid, this);
+						((CompositeDiagramShape) shape).connectEndsToAnchors(workGrid, ggrid);
 					} else if (shape instanceof DiagramShape) {
 						addToShapes((DiagramShape) shape);
-						((DiagramShape) shape).connectEndsToAnchors(workGrid, this);
-						((DiagramShape) shape).moveEndsToCellEdges(textGrid, this);
+						((DiagramShape) shape).connectEndsToAnchors(workGrid, ggrid);
+						((DiagramShape) shape).moveEndsToCellEdges(textGrid, ggrid);
 					}
 				}
 
@@ -394,7 +394,7 @@ public class Diagram {
 		while (cellColorPairs.hasNext()) {
 			TextGrid.CellColorPair pair = cellColorPairs.next();
 
-			ShapePoint point = new ShapePoint(getCellMidX(pair.cell), getCellMidY(pair.cell));
+			ShapePoint point = new ShapePoint(ggrid.getCellMidX(pair.cell), ggrid.getCellMidY(pair.cell));
 			DiagramShape containingShape = findSmallestShapeContaining(point);
 
 			if (containingShape != null) {
@@ -407,7 +407,7 @@ public class Diagram {
 		while (cellTagPairs.hasNext()) {
 			TextGrid.CellTagPair pair = cellTagPairs.next();
 
-			ShapePoint point = new ShapePoint(getCellMidX(pair.cell), getCellMidY(pair.cell));
+			ShapePoint point = new ShapePoint(ggrid.getCellMidX(pair.cell), ggrid.getCellMidY(pair.cell));
 
 			DiagramShape containingShape = findSmallestShapeContaining(point);
 
@@ -499,7 +499,7 @@ public class Diagram {
 			TextGrid.Cell cell = markersIt.next();
 
 			DiagramShape mark = new DiagramShape();
-			mark.addToPoints(new ShapePoint(getCellMidX(cell), getCellMidY(cell)));
+			mark.addToPoints(new ShapePoint(ggrid.getCellMidX(cell), ggrid.getCellMidY(cell)));
 			mark.setType(DiagramShape.TYPE_POINT_MARKER);
 			mark.setFillColor(Color.white);
 			shapes.add(mark);
@@ -550,9 +550,9 @@ public class Diagram {
 				}
 				TextGrid.Cell lastCell = isolationGrid.new Cell(cell.x + string.length() - 1, cell.y);
 
-				int minX = getCellMinX(cell);
-				int y = getCellMaxY(cell);
-				int maxX = getCellMaxX(lastCell);
+				int minX = ggrid.getCellMinX(cell);
+				int y = ggrid.getCellMaxY(cell);
+				int maxX = ggrid.getCellMaxX(lastCell);
 
 				DiagramText textObject;
 				if (FontMeasurer.instance().getWidthFor(string, font) > maxX - minX) { //does not fit horizontally
@@ -562,7 +562,7 @@ public class Diagram {
 					textObject = new DiagramText(minX, y, string, font);
 				}
 
-				textObject.centerVerticallyBetween(getCellMinY(cell), getCellMaxY(cell));
+				textObject.centerVerticallyBetween(ggrid.getCellMinY(cell), ggrid.getCellMaxY(cell));
 
 				//TODO: if the strings start with bullets they should be aligned to the left
 
@@ -649,13 +649,13 @@ public class Diagram {
 
 		ArrayList<CellSet> filledSets = new ArrayList<CellSet>();
 
-		Iterator<CellSet> it;
+		Iterator<?> it;
 
 		if (DEBUG_VERBOSE) {
 			System.out.println("******* Sets before *******");
 			it = sets.iterator();
 			while (it.hasNext()) {
-				CellSet set = it.next();
+				CellSet set = (CellSet) it.next();
 				set.printAsGrid();
 			}
 		}
@@ -663,7 +663,7 @@ public class Diagram {
 		//make filled versions of all the boundary sets
 		it = sets.iterator();
 		while (it.hasNext()) {
-			CellSet set = it.next();
+			CellSet set = (CellSet) it.next();
 			set = set.getFilledEquivalent(grid);
 			if (set == null) {
 				return false;
@@ -675,7 +675,7 @@ public class Diagram {
 		ArrayList<Integer> toBeRemovedIndices = new ArrayList<Integer>();
 		it = filledSets.iterator();
 		while (it.hasNext()) {
-			CellSet set = it.next();
+			CellSet set = (CellSet) it.next();
 
 			if (DEBUG_VERBOSE) {
 				System.out.println("*** Deciding if the following should be removed:");
@@ -757,7 +757,7 @@ public class Diagram {
 
 		it = setsToBeRemoved.iterator();
 		while (it.hasNext()) {
-			CellSet set = it.next();
+			CellSet set = (CellSet) it.next();
 			removedAny = true;
 			sets.remove(set);
 		}
@@ -766,7 +766,7 @@ public class Diagram {
 			System.out.println("******* Sets after *******");
 			it = sets.iterator();
 			while (it.hasNext()) {
-				CellSet set = it.next();
+				CellSet set = (CellSet) it.next();
 				set.printAsGrid();
 			}
 		}
@@ -905,6 +905,10 @@ public class Diagram {
 		return shapes.iterator();
 	}
 
+	public GraphicalGrid getGraphicalGrid() {
+		return ggrid;
+	}
+
 	/**
 	 * @return
 	 */
@@ -945,63 +949,6 @@ public class Diagram {
 	 */
 	public ArrayList<DiagramShape> getShapes() {
 		return shapes;
-	}
-
-	public int getCellMinX(TextGrid.Cell cell) {
-		return getCellMinX(cell, ggrid.getCellWidth());
-	}
-
-	public static int getCellMinX(TextGrid.Cell cell, int cellXSize) {
-		return cell.x * cellXSize;
-	}
-
-	public int getCellMidX(TextGrid.Cell cell) {
-		return getCellMidX(cell, ggrid.getCellWidth());
-	}
-
-	public static int getCellMidX(TextGrid.Cell cell, int cellXSize) {
-		return cell.x * cellXSize + cellXSize / 2;
-	}
-
-	public int getCellMaxX(TextGrid.Cell cell) {
-		return getCellMaxX(cell, ggrid.getCellWidth());
-	}
-
-	public static int getCellMaxX(TextGrid.Cell cell, int cellXSize) {
-		return cell.x * cellXSize + cellXSize;
-	}
-
-	public int getCellMinY(TextGrid.Cell cell) {
-		return getCellMinY(cell, ggrid.getCellHeight());
-	}
-
-	public static int getCellMinY(TextGrid.Cell cell, int cellYSize) {
-		return cell.y * cellYSize;
-	}
-
-	public int getCellMidY(TextGrid.Cell cell) {
-		return getCellMidY(cell, ggrid.getCellHeight());
-	}
-
-	public static int getCellMidY(TextGrid.Cell cell, int cellYSize) {
-		return cell.y * cellYSize + cellYSize / 2;
-	}
-
-	public int getCellMaxY(TextGrid.Cell cell) {
-		return getCellMaxY(cell, ggrid.getCellHeight());
-	}
-
-	public static int getCellMaxY(TextGrid.Cell cell, int cellYSize) {
-		return cell.y * cellYSize + cellYSize;
-	}
-
-	public TextGrid.Cell getCellFor(ShapePoint point) {
-		if (point == null) {
-			throw new IllegalArgumentException("ShapePoint cannot be null");
-		}
-		//TODO: the fake grid is a problem
-		TextGrid g = new TextGrid();
-		return g.new Cell((int) point.x / ggrid.getCellWidth(), (int) point.y / ggrid.getCellHeight());
 	}
 
 	/**

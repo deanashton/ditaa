@@ -94,11 +94,14 @@ public class DiagramShape extends DiagramComponent {
 			return null;
 		}
 		DiagramShape shape = new DiagramShape();
-		shape.addToPoints(new ShapePoint(Diagram.getCellMidX(cell, cellXSize), Diagram.getCellMinY(cell,
+		shape.addToPoints(new ShapePoint(GraphicalGrid.getCellMidX(cell, cellXSize), GraphicalGrid.getCellMinY(
+				cell,
 				cellYSize)));
-		shape.addToPoints(new ShapePoint(Diagram.getCellMinX(cell, cellXSize), Diagram.getCellMaxY(cell,
+		shape.addToPoints(new ShapePoint(GraphicalGrid.getCellMinX(cell, cellXSize), GraphicalGrid.getCellMaxY(
+				cell,
 				cellYSize)));
-		shape.addToPoints(new ShapePoint(Diagram.getCellMaxX(cell, cellXSize), Diagram.getCellMaxY(cell,
+		shape.addToPoints(new ShapePoint(GraphicalGrid.getCellMaxX(cell, cellXSize), GraphicalGrid.getCellMaxY(
+				cell,
 				cellYSize)));
 		shape.setClosed(true);
 		shape.setFillColor(Color.black);
@@ -112,11 +115,14 @@ public class DiagramShape extends DiagramComponent {
 			return null;
 		}
 		DiagramShape shape = new DiagramShape();
-		shape.addToPoints(new ShapePoint(Diagram.getCellMinX(cell, cellXSize), Diagram.getCellMinY(cell,
+		shape.addToPoints(new ShapePoint(GraphicalGrid.getCellMinX(cell, cellXSize), GraphicalGrid.getCellMinY(
+				cell,
 				cellYSize)));
-		shape.addToPoints(new ShapePoint(Diagram.getCellMidX(cell, cellXSize), Diagram.getCellMaxY(cell,
+		shape.addToPoints(new ShapePoint(GraphicalGrid.getCellMidX(cell, cellXSize), GraphicalGrid.getCellMaxY(
+				cell,
 				cellYSize)));
-		shape.addToPoints(new ShapePoint(Diagram.getCellMaxX(cell, cellXSize), Diagram.getCellMinY(cell,
+		shape.addToPoints(new ShapePoint(GraphicalGrid.getCellMaxX(cell, cellXSize), GraphicalGrid.getCellMinY(
+				cell,
 				cellYSize)));
 		shape.setClosed(true);
 		shape.setFillColor(Color.black);
@@ -130,11 +136,14 @@ public class DiagramShape extends DiagramComponent {
 			return null;
 		}
 		DiagramShape shape = new DiagramShape();
-		shape.addToPoints(new ShapePoint(Diagram.getCellMaxX(cell, cellXSize), Diagram.getCellMinY(cell,
+		shape.addToPoints(new ShapePoint(GraphicalGrid.getCellMaxX(cell, cellXSize), GraphicalGrid.getCellMinY(
+				cell,
 				cellYSize)));
-		shape.addToPoints(new ShapePoint(Diagram.getCellMinX(cell, cellXSize), Diagram.getCellMidY(cell,
+		shape.addToPoints(new ShapePoint(GraphicalGrid.getCellMinX(cell, cellXSize), GraphicalGrid.getCellMidY(
+				cell,
 				cellYSize)));
-		shape.addToPoints(new ShapePoint(Diagram.getCellMaxX(cell, cellXSize), Diagram.getCellMaxY(cell,
+		shape.addToPoints(new ShapePoint(GraphicalGrid.getCellMaxX(cell, cellXSize), GraphicalGrid.getCellMaxY(
+				cell,
 				cellYSize)));
 		shape.setClosed(true);
 		shape.setFillColor(Color.black);
@@ -148,11 +157,14 @@ public class DiagramShape extends DiagramComponent {
 			return null;
 		}
 		DiagramShape shape = new DiagramShape();
-		shape.addToPoints(new ShapePoint(Diagram.getCellMinX(cell, cellXSize), Diagram.getCellMinY(cell,
+		shape.addToPoints(new ShapePoint(GraphicalGrid.getCellMinX(cell, cellXSize), GraphicalGrid.getCellMinY(
+				cell,
 				cellYSize)));
-		shape.addToPoints(new ShapePoint(Diagram.getCellMaxX(cell, cellXSize), Diagram.getCellMidY(cell,
+		shape.addToPoints(new ShapePoint(GraphicalGrid.getCellMaxX(cell, cellXSize), GraphicalGrid.getCellMidY(
+				cell,
 				cellYSize)));
-		shape.addToPoints(new ShapePoint(Diagram.getCellMinX(cell, cellXSize), Diagram.getCellMaxY(cell,
+		shape.addToPoints(new ShapePoint(GraphicalGrid.getCellMinX(cell, cellXSize), GraphicalGrid.getCellMaxY(
+				cell,
 				cellYSize)));
 		shape.setClosed(true);
 		shape.setFillColor(Color.black);
@@ -399,7 +411,7 @@ public class DiagramShape extends DiagramComponent {
 		return path;
 	}
 
-	private GeneralPath makeMarkerPath(Diagram diagram) {
+	private GeneralPath makeMarkerPath(GraphicalGrid diagram) {
 		if (points.size() != 1) {
 			return null;
 		}
@@ -414,7 +426,7 @@ public class DiagramShape extends DiagramComponent {
 		return bounds;
 	}
 
-	public GeneralPath makeIntoRenderPath(Diagram diagram, RenderingOptions options) {
+	public GeneralPath makeIntoRenderPath(GraphicalGrid diagram, RenderingOptions options) {
 		int size = getPoints().size();
 
 		if (getType() == TYPE_POINT_MARKER) {
@@ -422,7 +434,7 @@ public class DiagramShape extends DiagramComponent {
 		}
 
 		if (getType() == TYPE_DOCUMENT && points.size() == 4) {
-			return makeDocumentPath(diagram);
+			return makeDocumentPath();
 		}
 
 		if (getType() == TYPE_STORAGE && points.size() == 4) {
@@ -434,7 +446,7 @@ public class DiagramShape extends DiagramComponent {
 		}
 
 		if (getType() == TYPE_DECISION && points.size() == 4) {
-			return makeDecisionPath(diagram);
+			return makeDecisionPath();
 		}
 
 		if (getType() == TYPE_MANUAL_OPERATION && points.size() == 4) {
@@ -446,7 +458,7 @@ public class DiagramShape extends DiagramComponent {
 		}
 
 		if (getType() == TYPE_ELLIPSE && points.size() == 4) {
-			return makeEllipsePath(diagram);
+			return makeEllipsePath();
 		}
 
 		if (size < 2) {
@@ -557,7 +569,7 @@ public class DiagramShape extends DiagramComponent {
 	 * @param otherPoint
 	 * @return
 	 */
-	private ShapePoint getCellEdgePointBetween(ShapePoint pointInCell, ShapePoint otherPoint, Diagram diagram) {
+	private ShapePoint getCellEdgePointBetween(ShapePoint pointInCell, ShapePoint otherPoint, GraphicalGrid diagram) {
 		if (pointInCell == null || otherPoint == null || diagram == null) {
 			throw new IllegalArgumentException("None of the parameters can be null");
 		}
@@ -611,7 +623,7 @@ public class DiagramShape extends DiagramComponent {
 	 */
 
 	private ShapePoint getCellEdgeProjectionPointBetween(ShapePoint pointInCell, ShapePoint otherPoint,
-			Diagram diagram) {
+			GraphicalGrid diagram) {
 		if (pointInCell == null || otherPoint == null || diagram == null) {
 			throw new IllegalArgumentException("None of the parameters can be null");
 		}
@@ -689,7 +701,7 @@ public class DiagramShape extends DiagramComponent {
 		type = i;
 	}
 
-	public void moveEndsToCellEdges(TextGrid grid, Diagram diagram) {
+	public void moveEndsToCellEdges(TextGrid grid, GraphicalGrid diagram) {
 		if (isClosed()) {
 			return;
 		}
@@ -709,7 +721,7 @@ public class DiagramShape extends DiagramComponent {
 		linesEnd.moveTo(projectionPoint);
 	}
 
-	public void connectEndsToAnchors(TextGrid grid, Diagram diagram) {
+	public void connectEndsToAnchors(TextGrid grid, GraphicalGrid diagram) {
 		if (isClosed()) {
 			return;
 		}
@@ -730,7 +742,7 @@ public class DiagramShape extends DiagramComponent {
 	}
 
 	//TODO: improve connect Ends To Arrowheads to take direction into account
-	private void connectEndToAnchors(TextGrid grid, Diagram diagram, ShapePoint nextPoint, ShapePoint linesEnd) {
+	private void connectEndToAnchors(TextGrid grid, GraphicalGrid diagram, ShapePoint nextPoint, ShapePoint linesEnd) {
 
 		if (isClosed()) {
 			return;
@@ -759,7 +771,8 @@ public class DiagramShape extends DiagramComponent {
 	 * @param diagram
 	 * @return
 	 */
-	private static TextGrid.Cell getPossibleAnchorCell(ShapePoint linesEnd, ShapePoint nextPoint, Diagram diagram) {
+	private static TextGrid.Cell getPossibleAnchorCell(ShapePoint linesEnd, ShapePoint nextPoint,
+			GraphicalGrid diagram) {
 		ShapePoint cellPoint = null;
 
 		if (nextPoint.isNorthOf(linesEnd)) {
@@ -806,7 +819,7 @@ public class DiagramShape extends DiagramComponent {
 		isStrokeDashed = b;
 	}
 
-	private GeneralPath makeStoragePath(Diagram diagram) {
+	private GeneralPath makeStoragePath(GraphicalGrid diagram) {
 		if (points.size() != 4) {
 			return null;
 		}
@@ -846,7 +859,7 @@ public class DiagramShape extends DiagramComponent {
 		return path;
 	}
 
-	private GeneralPath makeDocumentPath(Diagram diagram) {
+	private GeneralPath makeDocumentPath() {
 		if (points.size() != 4) {
 			return null;
 		}
@@ -881,7 +894,7 @@ public class DiagramShape extends DiagramComponent {
 	// thanks to G. Adam Stanislav, http://whizkidtech.redprince.net/bezier/circle/
 	private static final float KAPPA = 4f * ((float) Math.sqrt(2) - 1) / 3f;
 
-	private GeneralPath makeEllipsePath(Diagram diagram) {
+	private GeneralPath makeEllipsePath() {
 		if (points.size() != 4) {
 			return null;
 		}
@@ -906,7 +919,7 @@ public class DiagramShape extends DiagramComponent {
 		return path;
 	}
 
-	private GeneralPath makeTrapezoidPath(Diagram diagram, RenderingOptions options, boolean inverted) {
+	private GeneralPath makeTrapezoidPath(GraphicalGrid diagram, RenderingOptions options, boolean inverted) {
 		if (points.size() != 4) {
 			return null;
 		}
@@ -932,7 +945,7 @@ public class DiagramShape extends DiagramComponent {
 		return path;
 	}
 
-	private GeneralPath makeDecisionPath(Diagram diagram) {
+	private GeneralPath makeDecisionPath() {
 		if (points.size() != 4) {
 			return null;
 		}
@@ -954,7 +967,7 @@ public class DiagramShape extends DiagramComponent {
 		return path;
 	}
 
-	private GeneralPath makeIOPath(Diagram diagram, RenderingOptions options) {
+	private GeneralPath makeIOPath(GraphicalGrid diagram, RenderingOptions options) {
 		if (points.size() != 4) {
 			return null;
 		}

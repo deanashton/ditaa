@@ -204,10 +204,10 @@ public class CompositeDiagramShape extends DiagramComponent {
 		return result;
 	}
 
-	public void connectEndsToAnchors(TextGrid grid, Diagram diagram) {
-		Iterator it = shapes.iterator();
+	public void connectEndsToAnchors(TextGrid grid, GraphicalGrid diagram) {
+		Iterator<DiagramShape> it = shapes.iterator();
 		while (it.hasNext()) {
-			DiagramShape shape = (DiagramShape) it.next();
+			DiagramShape shape = it.next();
 			if (!shape.isClosed()) {
 				shape.connectEndsToAnchors(grid, diagram);
 			}
