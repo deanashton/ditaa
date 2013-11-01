@@ -104,6 +104,7 @@ public class BitmapRenderer {
 
 	public RenderedImage render(Diagram diagram, BufferedImage image, RenderingOptions options) {
 		RenderedImage renderedImage = image;
+		GraphicalGrid ggrid = diagram.getGraphicalGrid();
 
 		Object antialiasSetting = options.performAntialias() ? RenderingHints.VALUE_ANTIALIAS_ON
 				: RenderingHints.VALUE_ANTIALIAS_OFF;
@@ -117,7 +118,6 @@ public class BitmapRenderer {
 		}
 
 		if (options.dropShadows()) {
-			GraphicalGrid ggrid = diagram.getGraphicalGrid();
 			renderShadows(shapes, g2, ggrid, options);
 
 			//blur shadows
@@ -136,17 +136,7 @@ public class BitmapRenderer {
 
 		//fill and stroke
 
-		float dashInterval = Math.min(diagram.getCellWidth(), diagram.getCellHeight()) / 2;
-		//Stroke normalStroke = g2.getStroke();
-
-		float strokeWeight = diagram.getGraphicalGrid().getMinimumOfCellDimension() / 10;
-
-		normalStroke = new BasicStroke(strokeWeight,
-		//10,
-				BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
-
-		dashStroke = new BasicStroke(strokeWeight, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND, 0,
-				new float[] { dashInterval }, 0);
+		initStrokes(ggrid);
 
 		//TODO: at this stage we should draw the open shapes first in order to make sure they are at the bottom (this is useful for the {mo} shape)
 
@@ -172,18 +162,11 @@ public class BitmapRenderer {
 			GeneralPath path;
 			path = shape.makeIntoRenderPath(diagram.getGraphicalGrid(), options);
 
-			if (!shape.isStrokeDashed()) {
-				if (shape.getFillColor() != null) {
-					g2.setColor(shape.getFillColor());
-				} else {
-					g2.setColor(Color.white);
-				}
-				g2.fill(path);
-			}
-
 			if (shape.isStrokeDashed()) {
 				g2.setStroke(dashStroke);
 			} else {
+				g2.setColor(shape.getFillColor() != null ? shape.getFillColor() : Color.white);
+				g2.fill(path);
 				g2.setStroke(normalStroke);
 			}
 			g2.setColor(shape.getStrokeColor());
@@ -287,6 +270,19 @@ public class BitmapRenderer {
 		g2.dispose();
 
 		return renderedImage;
+	}
+
+	private void initStrokes(GraphicalGrid ggrid) {
+		float dashInterval = Math.min(ggrid.getCellWidth(), ggrid.getCellHeight()) / 2;
+		//Stroke normalStroke = g2.getStroke();
+
+		float strokeWeight = ggrid.getMinimumOfCellDimension() / 10;
+
+		normalStroke = new BasicStroke(strokeWeight,
+				BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
+
+		dashStroke = new BasicStroke(strokeWeight, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND, 0,
+				new float[] { dashInterval }, 0);
 	}
 
 	private void blurShadows(BufferedImage source, BufferedImage destination) {
