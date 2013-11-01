@@ -37,7 +37,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 
 import javax.imageio.ImageIO;
 
@@ -105,22 +104,11 @@ public class BitmapRenderer {
 
 	public RenderedImage render(Diagram diagram, BufferedImage image, RenderingOptions options) {
 		RenderedImage renderedImage = image;
-		Graphics2D g2 = image.createGraphics();
 
-		Object antialiasSetting = RenderingHints.VALUE_ANTIALIAS_OFF;
-		if (options.performAntialias()) {
-			antialiasSetting = RenderingHints.VALUE_ANTIALIAS_ON;
-		}
+		Object antialiasSetting = options.performAntialias() ? RenderingHints.VALUE_ANTIALIAS_ON
+				: RenderingHints.VALUE_ANTIALIAS_OFF;
 
-		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, antialiasSetting);
-
-		g2.setColor(options.getBackgroundColor());
-		//TODO: find out why the next line does not work
-		g2.fillRect(0, 0, image.getWidth() + 10, image.getHeight() + 10);
-		/*for(int y = 0; y < diagram.getHeight(); y ++)
-			g2.drawLine(0, y, diagram.getWidth(), y);*/
-
-		g2.setStroke(new BasicStroke(1, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_ROUND));
+		Graphics2D g2 = prepareCanvas(image, options, antialiasSetting);
 
 		ArrayList<DiagramShape> shapes = diagram.getAllDiagramShapes();
 
@@ -128,53 +116,18 @@ public class BitmapRenderer {
 			System.out.println("Rendering " + shapes.size() + " shapes (groups flattened)");
 		}
 
-		Iterator<DiagramShape> shapesIt;
 		if (options.dropShadows()) {
-			//render shadows
-			for (DiagramShape shape : shapes) {
-				if (shape.getPoints().isEmpty()) {
-					continue;
-				}
-
-				//GeneralPath path = shape.makeIntoPath();
-				GeneralPath path;
-				path = shape.makeIntoRenderPath(diagram.getGraphicalGrid(), options);
-
-				float offset = diagram.getGraphicalGrid().getMinimumOfCellDimension() / 3.333f;
-
-				if (path != null && shape.dropsShadow() && shape.getType() != DiagramShape.TYPE_CUSTOM) {
-					GeneralPath shadow = new GeneralPath(path);
-					AffineTransform translate = new AffineTransform();
-					translate.setToTranslation(offset, offset);
-					shadow.transform(translate);
-					g2.setColor(new Color(150, 150, 150));
-					g2.fill(shadow);
-
-				}
-			}
+			GraphicalGrid ggrid = diagram.getGraphicalGrid();
+			renderShadows(shapes, g2, ggrid, options);
 
 			//blur shadows
 
 			if (true) {
-				int blurRadius = 6;
-				int blurRadius2 = blurRadius * blurRadius;
-				float blurRadius2F = blurRadius2;
-				float weight = 1.0f / blurRadius2F;
-				float[] elements = new float[blurRadius2];
-				for (int k = 0; k < blurRadius2; k++) {
-					elements[k] = weight;
-				}
-				Kernel myKernel = new Kernel(blurRadius, blurRadius, elements);
-
-				//if EDGE_NO_OP is not selected, EDGE_ZERO_FILL is the default which creates a black border
-				ConvolveOp simpleBlur = new ConvolveOp(myKernel, ConvolveOp.EDGE_NO_OP, null);
-
 				BufferedImage destination = new BufferedImage(image.getWidth(), image.getHeight(),
 						image.getType());
 
-				simpleBlur.filter(image, destination);
+				blurShadows(image, destination);
 
-				//destination = destination.getSubimage(blurRadius/2, blurRadius/2, image.getWidth(), image.getHeight());
 				g2 = (Graphics2D) destination.getGraphics();
 				g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, antialiasSetting);
 				renderedImage = destination;
@@ -334,6 +287,61 @@ public class BitmapRenderer {
 		g2.dispose();
 
 		return renderedImage;
+	}
+
+	private void blurShadows(BufferedImage source, BufferedImage destination) {
+		int blurRadius = 6;
+		int blurRadius2 = blurRadius * blurRadius;
+		float blurRadius2F = blurRadius2;
+		float weight = 1.0f / blurRadius2F;
+		float[] elements = new float[blurRadius2];
+		for (int k = 0; k < blurRadius2; k++) {
+			elements[k] = weight;
+		}
+		Kernel myKernel = new Kernel(blurRadius, blurRadius, elements);
+
+		//if EDGE_NO_OP is not selected, EDGE_ZERO_FILL is the default which creates a black border
+		ConvolveOp simpleBlur = new ConvolveOp(myKernel, ConvolveOp.EDGE_NO_OP, null);
+
+		simpleBlur.filter(source, destination);
+	}
+
+	private void renderShadows(ArrayList<DiagramShape> shapes, Graphics2D g2, GraphicalGrid ggrid,
+			RenderingOptions options) {
+		//render shadows
+		for (DiagramShape shape : shapes) {
+			if (shape.getPoints().isEmpty()) {
+				continue;
+			}
+
+			GeneralPath path = shape.makeIntoRenderPath(ggrid, options);
+
+			float offset = ggrid.getMinimumOfCellDimension() / 3.333f;
+
+			if (path != null && shape.dropsShadow() && shape.getType() != DiagramShape.TYPE_CUSTOM) {
+				GeneralPath shadow = new GeneralPath(path);
+				AffineTransform translate = new AffineTransform();
+				translate.setToTranslation(offset, offset);
+				shadow.transform(translate);
+				g2.setColor(new Color(150, 150, 150));
+				g2.fill(shadow);
+
+			}
+		}
+	}
+
+	private Graphics2D prepareCanvas(BufferedImage image, RenderingOptions options, Object antialiasSetting) {
+		Graphics2D g2 = image.createGraphics();
+		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, antialiasSetting);
+
+		g2.setColor(options.getBackgroundColor());
+		//TODO: find out why the next line does not work
+		g2.fillRect(0, 0, image.getWidth() + 10, image.getHeight() + 10);
+		/*for(int y = 0; y < diagram.getHeight(); y ++)
+			g2.drawLine(0, y, diagram.getWidth(), y);*/
+
+		g2.setStroke(new BasicStroke(1, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_ROUND));
+		return g2;
 	}
 
 	private void renderCustomShape(DiagramShape shape, Graphics2D g2) {
