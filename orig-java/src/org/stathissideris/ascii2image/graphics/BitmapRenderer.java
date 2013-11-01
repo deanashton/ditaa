@@ -102,6 +102,12 @@ public class BitmapRenderer {
 		return render(diagram, image, options);
 	}
 
+	// TODO(akavel):
+	// try to insert a step of serialization to xml and deserialization, so that we can decouple
+	// the two parts, and try to build a bitmap renderer in Go for example.
+	// a) serialize and deserialize ArrayList<DiagramShape> diagram.getAllDiagramShapes() + diagram.getTextObjects()
+	// b) or maybe GeneralPath-s?
+
 	public RenderedImage render(Diagram diagram, BufferedImage image, RenderingOptions options) {
 		RenderedImage renderedImage = image;
 		GraphicalGrid ggrid = diagram.getGraphicalGrid();
