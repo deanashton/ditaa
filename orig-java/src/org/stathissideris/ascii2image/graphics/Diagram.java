@@ -649,13 +649,13 @@ public class Diagram {
 
 		ArrayList<CellSet> filledSets = new ArrayList<CellSet>();
 
-		Iterator it;
+		Iterator<CellSet> it;
 
 		if (DEBUG_VERBOSE) {
 			System.out.println("******* Sets before *******");
 			it = sets.iterator();
 			while (it.hasNext()) {
-				CellSet set = (CellSet) it.next();
+				CellSet set = it.next();
 				set.printAsGrid();
 			}
 		}
@@ -663,7 +663,7 @@ public class Diagram {
 		//make filled versions of all the boundary sets
 		it = sets.iterator();
 		while (it.hasNext()) {
-			CellSet set = (CellSet) it.next();
+			CellSet set = it.next();
 			set = set.getFilledEquivalent(grid);
 			if (set == null) {
 				return false;
@@ -675,7 +675,7 @@ public class Diagram {
 		ArrayList<Integer> toBeRemovedIndices = new ArrayList<Integer>();
 		it = filledSets.iterator();
 		while (it.hasNext()) {
-			CellSet set = (CellSet) it.next();
+			CellSet set = it.next();
 
 			if (DEBUG_VERBOSE) {
 				System.out.println("*** Deciding if the following should be removed:");
@@ -685,9 +685,9 @@ public class Diagram {
 			//find the other sets that have common cells with set
 			ArrayList<CellSet> common = new ArrayList<CellSet>();
 			common.add(set);
-			Iterator it2 = filledSets.iterator();
+			Iterator<CellSet> it2 = filledSets.iterator();
 			while (it2.hasNext()) {
-				CellSet set2 = (CellSet) it2.next();
+				CellSet set2 = it2.next();
 				if (set != set2 && set.hasCommonCells(set2)) {
 					common.add(set2);
 				}
@@ -701,7 +701,7 @@ public class Diagram {
 			CellSet largest = set;
 			it2 = common.iterator();
 			while (it2.hasNext()) {
-				CellSet set2 = (CellSet) it2.next();
+				CellSet set2 = it2.next();
 				if (set2.size() > largest.size()) {
 					largest = set2;
 				}
@@ -720,7 +720,7 @@ public class Diagram {
 			new CellSet();
 			it2 = common.iterator();
 			while (it2.hasNext()) {
-				CellSet set2 = (CellSet) it2.next();
+				CellSet set2 = it2.next();
 				if (DEBUG_VERBOSE) {
 					System.out.println("One of smalls:");
 					set2.printAsGrid();
@@ -757,7 +757,7 @@ public class Diagram {
 
 		it = setsToBeRemoved.iterator();
 		while (it.hasNext()) {
-			CellSet set = (CellSet) it.next();
+			CellSet set = it.next();
 			removedAny = true;
 			sets.remove(set);
 		}
@@ -766,7 +766,7 @@ public class Diagram {
 			System.out.println("******* Sets after *******");
 			it = sets.iterator();
 			while (it.hasNext()) {
-				CellSet set = (CellSet) it.next();
+				CellSet set = it.next();
 				set.printAsGrid();
 			}
 		}
@@ -778,14 +778,14 @@ public class Diagram {
 		return Math.min(getCellWidth(), getCellHeight());
 	}
 
-	private void separateCommonEdges(ArrayList shapes) {
+	private void separateCommonEdges(ArrayList<DiagramComponent> shapes) {
 
 		float offset = getMinimumOfCellDimension() / 5;
 
 		ArrayList<ShapeEdge> edges = new ArrayList<ShapeEdge>();
 
 		//get all adges
-		Iterator it = shapes.iterator();
+		Iterator<?> it = shapes.iterator();
 		while (it.hasNext()) {
 			DiagramShape shape = (DiagramShape) it.next();
 			edges.addAll(shape.getEdges());
@@ -831,15 +831,15 @@ public class Diagram {
 
 	//TODO: removes more than it should
 	private void removeDuplicateShapes() {
-		ArrayList originalShapes = new ArrayList();
+		ArrayList<DiagramShape> originalShapes = new ArrayList<DiagramShape>();
 
-		Iterator shapesIt = getShapesIterator();
+		Iterator<DiagramShape> shapesIt = getShapesIterator();
 		while (shapesIt.hasNext()) {
-			DiagramShape shape = (DiagramShape) shapesIt.next();
+			DiagramShape shape = shapesIt.next();
 			boolean isOriginal = true;
-			Iterator originals = originalShapes.iterator();
+			Iterator<DiagramShape> originals = originalShapes.iterator();
 			while (originals.hasNext()) {
-				DiagramShape originalShape = (DiagramShape) originals.next();
+				DiagramShape originalShape = originals.next();
 				if (shape.equals(originalShape)) {
 					isOriginal = false;
 				}
@@ -901,7 +901,7 @@ public class Diagram {
 		shapes.add(shape);
 	}
 
-	public Iterator getShapesIterator() {
+	public Iterator<DiagramShape> getShapesIterator() {
 		return shapes.iterator();
 	}
 
