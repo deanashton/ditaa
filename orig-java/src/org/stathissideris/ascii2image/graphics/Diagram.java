@@ -31,10 +31,7 @@ import org.stathissideris.ascii2image.core.Pair;
 import org.stathissideris.ascii2image.text.AbstractionGrid;
 import org.stathissideris.ascii2image.text.CellSet;
 import org.stathissideris.ascii2image.text.TextGrid;
-import org.stathissideris.ascii2image.text.TextGrid.Cell;
-import org.stathissideris.ascii2image.text.TextGrid.CellColorPair;
 import org.stathissideris.ascii2image.text.TextGrid.CellStringPair;
-import org.stathissideris.ascii2image.text.TextGrid.CellTagPair;
 
 /**
  *
@@ -371,10 +368,7 @@ public class Diagram {
 		//assign color codes to shapes
 		//TODO: text on line should not change its color
 
-		Iterator<CellColorPair> cellColorPairs = textGrid.findColorCodes().iterator();
-		while (cellColorPairs.hasNext()) {
-			TextGrid.CellColorPair pair = cellColorPairs.next();
-
+		for (TextGrid.CellColorPair pair : textGrid.findColorCodes()) {
 			ShapePoint point = new ShapePoint(ggrid.getCellMidX(pair.cell), ggrid.getCellMidY(pair.cell));
 			DiagramShape containingShape = findSmallestShapeContaining(point);
 
@@ -384,10 +378,7 @@ public class Diagram {
 		}
 
 		//assign markup to shapes
-		Iterator<CellTagPair> cellTagPairs = textGrid.findMarkupTags().iterator();
-		while (cellTagPairs.hasNext()) {
-			TextGrid.CellTagPair pair = cellTagPairs.next();
-
+		for (TextGrid.CellTagPair pair : textGrid.findMarkupTags()) {
 			ShapePoint point = new ShapePoint(ggrid.getCellMidX(pair.cell), ggrid.getCellMidY(pair.cell));
 
 			DiagramShape containingShape = findSmallestShapeContaining(point);
@@ -462,9 +453,7 @@ public class Diagram {
 		}
 
 		//make arrowheads
-		Iterator<Cell> arrowheadCells = workGrid.findArrowheads().iterator();
-		while (arrowheadCells.hasNext()) {
-			TextGrid.Cell cell = arrowheadCells.next();
+		for (TextGrid.Cell cell : workGrid.findArrowheads()) {
 			DiagramShape arrowhead = DiagramShape.createArrowhead(workGrid, cell, ggrid.getCellWidth(),
 					ggrid.getCellHeight());
 			if (arrowhead != null) {
@@ -475,10 +464,7 @@ public class Diagram {
 		}
 
 		//make point markers
-		Iterator<TextGrid.Cell> markersIt = textGrid.getPointMarkersOnLine().iterator();
-		while (markersIt.hasNext()) {
-			TextGrid.Cell cell = markersIt.next();
-
+		for (TextGrid.Cell cell : textGrid.getPointMarkersOnLine()) {
 			DiagramShape mark = new DiagramShape();
 			mark.addToPoints(new ShapePoint(ggrid.getCellMidX(cell), ggrid.getCellMidY(cell)));
 			mark.setType(DiagramShape.TYPE_POINT_MARKER);
@@ -513,17 +499,12 @@ public class Diagram {
 
 		Font font = FontMeasurer.instance().getFontFor(ggrid.getCellHeight());
 
-		Iterator<CellSet> textGroupIt = textGroups.iterator();
-		while (textGroupIt.hasNext()) {
-			CellSet textGroupCellSet = textGroupIt.next();
-
+		for (CellSet textGroupCellSet : textGroups) {
 			TextGrid isolationGrid = new TextGrid(width, height);
 			workGrid.copyCellsTo(textGroupCellSet, isolationGrid);
 
 			ArrayList<CellStringPair> strings = isolationGrid.findStrings();
-			Iterator<CellStringPair> it = strings.iterator();
-			while (it.hasNext()) {
-				TextGrid.CellStringPair pair = it.next();
+			for (TextGrid.CellStringPair pair : strings) {
 				TextGrid.Cell cell = pair.cell;
 				String string = pair.string;
 				if (DEBUG) {
@@ -581,13 +562,9 @@ public class Diagram {
 		}
 
 		//set outline to true for test within custom shapes
-		Iterator<DiagramShape> shapes = getAllDiagramShapes().iterator();
-		while (shapes.hasNext()) {
-			DiagramShape shape = shapes.next();
+		for (DiagramShape shape : getAllDiagramShapes()) {
 			if (shape.getType() == DiagramShape.TYPE_CUSTOM) {
-				Iterator<DiagramText> textObjects = getTextObjects().iterator();
-				while (textObjects.hasNext()) {
-					DiagramText textObject = textObjects.next();
+				for (DiagramText textObject : getTextObjects()) {
 					textObject.setHasOutline(true);
 					textObject.setColor(DiagramText.DEFAULT_COLOR);
 				}
@@ -634,17 +611,13 @@ public class Diagram {
 
 		if (DEBUG_VERBOSE) {
 			System.out.println("******* Sets before *******");
-			it = sets.iterator();
-			while (it.hasNext()) {
-				CellSet set = (CellSet) it.next();
+			for (CellSet set : sets) {
 				set.printAsGrid();
 			}
 		}
 
 		//make filled versions of all the boundary sets
-		it = sets.iterator();
-		while (it.hasNext()) {
-			CellSet set = (CellSet) it.next();
+		for (CellSet set : sets) {
 			set = set.getFilledEquivalent(grid);
 			if (set == null) {
 				return false;
