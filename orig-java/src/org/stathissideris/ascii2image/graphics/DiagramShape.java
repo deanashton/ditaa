@@ -27,7 +27,6 @@ import java.awt.geom.GeneralPath;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 
 import org.stathissideris.ascii2image.core.RenderingOptions;
 import org.stathissideris.ascii2image.text.TextGrid;
@@ -199,14 +198,8 @@ public class DiagramShape extends DiagramComponent {
 		points.add(point);
 	}
 
-	public Iterator getPointsIterator() {
-		return points.iterator();
-	}
-
 	public void scale(float factor) {
-		Iterator it = getPointsIterator();
-		while (it.hasNext()) {
-			ShapePoint point = (ShapePoint) it.next();
+		for (ShapePoint point : points) {
 			point.x *= factor;
 			point.y *= factor;
 		}
@@ -352,10 +345,8 @@ public class DiagramShape extends DiagramComponent {
 		if (DEBUG) {
 			System.out.println("points1: ");
 		}
-		HashMap points1 = new HashMap();
-		Iterator it = getPointsIterator();
-		while (it.hasNext()) {
-			ShapePoint point = (ShapePoint) it.next();
+		HashMap<String, Object> points1 = new HashMap<String, Object>();
+		for (ShapePoint point : points) {
 			points1.put("" + (int) point.x + "," + (int) point.y, null);
 			if (DEBUG) {
 				System.out.println((int) point.x + ", " + (int) point.y);
@@ -365,19 +356,15 @@ public class DiagramShape extends DiagramComponent {
 		if (DEBUG) {
 			System.out.println("points2: ");
 		}
-		HashMap points2 = new HashMap();
-		it = shape.getPointsIterator();
-		while (it.hasNext()) {
-			ShapePoint point = (ShapePoint) it.next();
+		HashMap<String, Object> points2 = new HashMap<String, Object>();
+		for (ShapePoint point : shape.points) {
 			points2.put("" + (int) point.x + "," + (int) point.y, null);
 			if (DEBUG) {
 				System.out.println((int) point.x + ", " + (int) point.y);
 			}
 		}
 
-		it = points1.keySet().iterator();
-		while (it.hasNext()) {
-			String key = (String) it.next();
+		for (String key : points1.keySet()) {
 			if (!points2.containsKey(key)) {
 				if (DEBUG) {
 					System.out.println("\tare not equal");
@@ -794,15 +781,15 @@ public class DiagramShape extends DiagramComponent {
 	@Override
 	public String toString() {
 		String s = "DiagramShape, " + points.size() + " points: ";
-		Iterator it = getPointsIterator();
-		while (it.hasNext()) {
-			ShapePoint point = (ShapePoint) it.next();
-			s += point;
-			if (it.hasNext()) {
-				s += " ";
+		String s2 = "";
+
+		for (ShapePoint point : points) {
+			if (s2.length() > 0) {
+				s2 += " ";
 			}
+			s2 += point;
 		}
-		return s;
+		return s + s2;
 	}
 
 	/**
