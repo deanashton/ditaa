@@ -1,6 +1,6 @@
 /*
  * DiTAA - Diagrams Through Ascii Art
- * 
+ *
  * Copyright (C) 2004 Efstathios Sideris
  *
  * This program is free software; you can redistribute it and/or
@@ -16,15 +16,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *   
+ *
  */
 package org.stathissideris.ascii2image.text;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 
 /**
- * 
+ *
  * @author Efstathios Sideris
  */
 public class AbstractionGrid {
@@ -35,7 +34,7 @@ public class AbstractionGrid {
 
 	/**
 	 * Makes an AbstractionGrid using <code>internalGrid</code> as its internal buffer
-	 * 
+	 *
 	 * @param internalGrid
 	 * @return
 	 */
@@ -51,14 +50,14 @@ public class AbstractionGrid {
 
 	/**
 	 * Makes an AbstractionGrid using the <code>cellSet</code> of <code>textGrid</code>.
-	 * 
+	 *
 	 * @param textGrid
 	 * @param cellSet
 	 */
 	public AbstractionGrid(TextGrid textGrid, CellSet cellSet) {
 		this(textGrid.getWidth(), textGrid.getHeight());
 		/*this(cellSet.getWidth(), cellSet.getHeight());
-		
+
 		cellSet = new CellSet(cellSet);
 		cellSet.translate( - cellSet.getMinX(), - cellSet.getMinY());*/
 
@@ -69,9 +68,7 @@ public class AbstractionGrid {
 			cellSet.printAsGrid();
 		}
 
-		Iterator it = cellSet.iterator();
-		while (it.hasNext()) {
-			TextGrid.Cell cell = (TextGrid.Cell) it.next();
+		for (TextGrid.Cell cell : cellSet) {
 			if (textGrid.isBlank(cell)) {
 				continue;
 			}
@@ -156,9 +153,7 @@ public class AbstractionGrid {
 		CellSet nonBlank = grid.getAllNonBlank();
 		ArrayList<CellSet> distinct = nonBlank.breakIntoDistinctBoundaries();
 
-		Iterator<CellSet> it = distinct.iterator();
-		while (it.hasNext()) {
-			CellSet set = it.next();
+		for (CellSet set : distinct) {
 			AbstractionGrid temp = new AbstractionGrid(getWidth(), getHeight());
 			temp.fillCells(set);
 			result.add(temp.getAsTextGrid().getAllNonBlank());

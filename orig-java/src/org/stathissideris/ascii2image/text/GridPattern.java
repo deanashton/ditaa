@@ -21,7 +21,6 @@
 package org.stathissideris.ascii2image.text;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.regex.Pattern;
 
 /**
@@ -115,18 +114,16 @@ public class GridPattern extends TextGrid {
 			System.out.println("Trying to match:");
 		}
 		if (!usesStandardSyntax) {
-			Iterator<StringBuilder> it = getRows().iterator();
-			while (it.hasNext()) {
-				String row = it.next().toString();
+			for (StringBuilder rawRow : getRows()) {
+				String row = rawRow.toString();
 				regExps.add(Pattern.compile(makeRegExp(row)));
 				if (DEBUG) {
 					System.out.println(row + " becomes " + makeRegExp(row));
 				}
 			}
 		} else {
-			Iterator<StringBuilder> it = getRows().iterator();
-			while (it.hasNext()) {
-				String row = it.next().toString();
+			for (StringBuilder rawRow : getRows()) {
+				String row = rawRow.toString();
 				regExps.add(Pattern.compile(row));
 			}
 		}

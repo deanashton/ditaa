@@ -21,7 +21,6 @@
 package org.stathissideris.ascii2image.text;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 
 /**
  *
@@ -29,9 +28,7 @@ import java.util.Iterator;
  */
 public class GridPatternGroup extends ArrayList<GridPattern> {
 	public boolean areAllMatchedBy(TextGrid grid) {
-		Iterator<GridPattern> it = iterator();
-		while (it.hasNext()) {
-			GridPattern pattern = it.next();
+		for (GridPattern pattern : this) {
 			if (!pattern.isMatchedBy(grid)) {
 				return false;
 			}
@@ -40,9 +37,7 @@ public class GridPatternGroup extends ArrayList<GridPattern> {
 	}
 
 	public boolean isAnyMatchedBy(TextGrid grid) {
-		Iterator<GridPattern> it = iterator();
-		while (it.hasNext()) {
-			GridPattern pattern = it.next();
+		for (GridPattern pattern : this) {
 			if (pattern.isMatchedBy(grid)) {
 				return true;
 			}
