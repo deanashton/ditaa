@@ -21,7 +21,6 @@
 package org.stathissideris.ascii2image.graphics;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import org.stathissideris.ascii2image.core.DebugUtils;
@@ -160,20 +159,14 @@ public class CompositeDiagramShape extends DiagramComponent {
 
 		//find all lines
 		ArrayList<DiagramShape> lines = new ArrayList<DiagramShape>();
-		Iterator it = shapes.iterator();
-		while (it.hasNext()) {
-			DiagramShape shape = (DiagramShape) it.next();
+		for (DiagramShape shape : shapes) {
 			if (shape.getPoints().size() == 2) {
 				lines.add(shape);
 			}
 		}
 
-		it = lines.iterator();
-		while (it.hasNext()) {
-			DiagramShape line1 = (DiagramShape) it.next();
-			Iterator it2 = lines.iterator();
-			while (it2.hasNext()) {
-				DiagramShape line2 = (DiagramShape) it.next();
+		for (DiagramShape line1 : lines) {
+			for (DiagramShape line2 : lines) {
 				ShapePoint commonPoint = null;
 				if (line1.getPoint(0).equals(line2.getPoint(0))) {
 					commonPoint = line1.getPoint(0);
@@ -205,9 +198,7 @@ public class CompositeDiagramShape extends DiagramComponent {
 	}
 
 	public void connectEndsToAnchors(TextGrid grid, GraphicalGrid diagram) {
-		Iterator<DiagramShape> it = shapes.iterator();
-		while (it.hasNext()) {
-			DiagramShape shape = it.next();
+		for (DiagramShape shape : shapes) {
 			if (!shape.isClosed()) {
 				shape.connectEndsToAnchors(grid, diagram);
 			}
@@ -216,18 +207,6 @@ public class CompositeDiagramShape extends DiagramComponent {
 
 	private void addToShapes(DiagramShape shape) {
 		shapes.add(shape);
-	}
-
-	private Iterator getShapesIterator() {
-		return shapes.iterator();
-	}
-
-	public void scale(float factor) {
-		Iterator it = getShapesIterator();
-		while (it.hasNext()) {
-			DiagramShape shape = (DiagramShape) it.next();
-			shape.scale(factor);
-		}
 	}
 
 	/**
