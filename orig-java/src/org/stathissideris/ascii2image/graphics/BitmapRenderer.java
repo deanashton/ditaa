@@ -37,6 +37,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import javax.imageio.ImageIO;
 
@@ -99,7 +100,8 @@ public class BitmapRenderer {
 	public RenderedImage renderToImage(Diagram diagram, RenderingOptions options) {
 		BufferedImage image = new BufferedImage(diagram.getWidth(), diagram.getHeight(), options
 				.needsTransparency() ? BufferedImage.TYPE_INT_ARGB : BufferedImage.TYPE_INT_RGB);
-		return render(diagram, image, options);
+		return render(image, diagram.getAllDiagramShapes(), diagram.getTextObjects(), diagram
+				.getGraphicalGrid(), options);
 	}
 
 	// TODO(akavel):
@@ -108,16 +110,14 @@ public class BitmapRenderer {
 	// a) serialize and deserialize ArrayList<DiagramShape> diagram.getAllDiagramShapes() + diagram.getTextObjects()
 	// b) or maybe GeneralPath-s?
 
-	public RenderedImage render(Diagram diagram, BufferedImage image, RenderingOptions options) {
+	public RenderedImage render(BufferedImage image, List<DiagramShape> shapes, List<DiagramText> textObjects,
+			GraphicalGrid ggrid, RenderingOptions options) {
 		RenderedImage renderedImage = image;
-		GraphicalGrid ggrid = diagram.getGraphicalGrid();
 
 		Object antialiasSetting = options.performAntialias() ? RenderingHints.VALUE_ANTIALIAS_ON
 				: RenderingHints.VALUE_ANTIALIAS_OFF;
 
 		Graphics2D g2 = prepareCanvas(image, options, antialiasSetting);
-
-		ArrayList<DiagramShape> shapes = diagram.getAllDiagramShapes();
 
 		if (DEBUG) {
 			System.out.println("Rendering " + shapes.size() + " shapes (groups flattened)");
@@ -217,7 +217,7 @@ public class BitmapRenderer {
 		//render point markers
 		g2.setStroke(normalStroke);
 		for (DiagramShape shape : pointMarkers) {
-			GeneralPath path = shape.makeIntoRenderPath(diagram.getGraphicalGrid(), options);
+			GeneralPath path = shape.makeIntoRenderPath(ggrid, options);
 
 			g2.setColor(Color.white);
 			g2.fill(path);
@@ -226,7 +226,7 @@ public class BitmapRenderer {
 		}
 
 		//handle text
-		for (DiagramText text : diagram.getTextObjects()) {
+		for (DiagramText text : textObjects) {
 			g2.setFont(text.getFont());
 			int x = text.getXPos(), y = text.getYPos();
 			if (text.hasOutline()) {
@@ -292,7 +292,7 @@ public class BitmapRenderer {
 		simpleBlur.filter(source, destination);
 	}
 
-	private void renderShadows(ArrayList<DiagramShape> shapes, Graphics2D g2, GraphicalGrid ggrid,
+	private void renderShadows(List<DiagramShape> shapes, Graphics2D g2, GraphicalGrid ggrid,
 			RenderingOptions options) {
 		//render shadows
 		for (DiagramShape shape : shapes) {
