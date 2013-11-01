@@ -140,7 +140,7 @@ public class BitmapRenderer {
 				GeneralPath path;
 				path = shape.makeIntoRenderPath(diagram.getGraphicalGrid(), options);
 
-				float offset = diagram.getMinimumOfCellDimension() / 3.333f;
+				float offset = diagram.getGraphicalGrid().getMinimumOfCellDimension() / 3.333f;
 
 				if (path != null && shape.dropsShadow() && shape.getType() != DiagramShape.TYPE_CUSTOM) {
 					GeneralPath shadow = new GeneralPath(path);
@@ -186,7 +186,7 @@ public class BitmapRenderer {
 		float dashInterval = Math.min(diagram.getCellWidth(), diagram.getCellHeight()) / 2;
 		//Stroke normalStroke = g2.getStroke();
 
-		float strokeWeight = diagram.getMinimumOfCellDimension() / 10;
+		float strokeWeight = diagram.getGraphicalGrid().getMinimumOfCellDimension() / 10;
 
 		normalStroke = new BasicStroke(strokeWeight,
 		//10,

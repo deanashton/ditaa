@@ -33,6 +33,10 @@ public class GraphicalGrid {
 		return cellHeight;
 	}
 
+	public float getMinimumOfCellDimension() {
+		return Math.min(getCellWidth(), getCellHeight());
+	}
+
 	public int getCellMinX(TextGrid.Cell cell) {
 		return getCellMinX(cell, getCellWidth());
 	}

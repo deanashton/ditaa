@@ -713,13 +713,9 @@ public class Diagram {
 		return removedAny;
 	}
 
-	public float getMinimumOfCellDimension() {
-		return Math.min(getCellWidth(), getCellHeight());
-	}
-
 	private void separateCommonEdges(ArrayList<DiagramComponent> shapes) {
 
-		float offset = getMinimumOfCellDimension() / 5;
+		float offset = ggrid.getMinimumOfCellDimension() / 5;
 
 		ArrayList<ShapeEdge> edges = new ArrayList<ShapeEdge>();
 
