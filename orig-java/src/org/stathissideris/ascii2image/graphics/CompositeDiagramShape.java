@@ -38,8 +38,8 @@ public class CompositeDiagramShape extends DiagramComponent {
 
 	private ArrayList<DiagramShape> shapes = new ArrayList<DiagramShape>();
 
-	public static DiagramComponent createOpenFromBoundaryCells(final TextGrid grid, final CellSet boundaryCells, final int cellWidth, final int cellHeight,
-			boolean allRound) {
+	public static DiagramComponent createOpenFromBoundaryCells(final TextGrid grid, final CellSet boundaryCells,
+			final int cellWidth, final int cellHeight, boolean allRound) {
 
 		if (boundaryCells.getType(grid) != CellSet.TYPE_OPEN) {
 			throw new IllegalArgumentException("This shape is closed and cannot be handled by this method");
@@ -64,7 +64,8 @@ public class CompositeDiagramShape extends DiagramComponent {
 		for (TextGrid.Cell cell : boundaryCells) {
 			if (workGrid.isLinesEnd(cell)) {
 				CellSet nextCells = workGrid.followCell(cell);
-				shapes.addAll(growEdgesFromCell(workGrid, cellWidth, cellHeight, allRound, nextCells.getFirst(), cell, visitedCells));
+				shapes.addAll(growEdgesFromCell(workGrid, cellWidth, cellHeight, allRound, nextCells
+						.getFirst(), cell, visitedCells));
 				break;
 			}
 		}
@@ -87,8 +88,9 @@ public class CompositeDiagramShape extends DiagramComponent {
 		return compositeShape;
 	}
 
-	private static List<DiagramShape> growEdgesFromCell(TextGrid workGrid, final int cellWidth, final int cellHeight, boolean allRound, TextGrid.Cell cell,
-			TextGrid.Cell previousCell, CellSet visitedCells) {
+	private static List<DiagramShape> growEdgesFromCell(TextGrid workGrid, final int cellWidth,
+			final int cellHeight, boolean allRound, TextGrid.Cell cell, TextGrid.Cell previousCell,
+			CellSet visitedCells) {
 
 		List<DiagramShape> result = new ArrayList<DiagramShape>(50);
 
@@ -98,7 +100,8 @@ public class CompositeDiagramShape extends DiagramComponent {
 
 		shape.addToPoints(makePointForCell(previousCell, workGrid, cellWidth, cellHeight, allRound));
 		if (DEBUG) {
-			System.out.println("point at " + previousCell + " (call from line: " + DebugUtils.getLineNumber() + ")");
+			System.out.println("point at " + previousCell + " (call from line: "
+					+ DebugUtils.getLineNumber() + ")");
 		}
 		if (workGrid.cellContainsDashedLineChar(previousCell)) {
 			shape.setStrokeDashed(true);
@@ -109,7 +112,8 @@ public class CompositeDiagramShape extends DiagramComponent {
 			visitedCells.add(cell);
 			if (workGrid.isPointCell(cell)) {
 				if (DEBUG) {
-					System.out.println("point at " + cell + " (call from line: " + DebugUtils.getLineNumber() + ")");
+					System.out.println("point at " + cell + " (call from line: "
+							+ DebugUtils.getLineNumber() + ")");
 				}
 				shape.addToPoints(makePointForCell(cell, workGrid, cellWidth, cellHeight, allRound));
 			}
@@ -130,12 +134,14 @@ public class CompositeDiagramShape extends DiagramComponent {
 				previousCell = cell;
 				cell = nextCells.getFirst();
 				if (DEBUG) {
-					System.out.println("tracing at " + cell + " (call from line: " + DebugUtils.getLineNumber() + ")");
+					System.out.println("tracing at " + cell + " (call from line: "
+							+ DebugUtils.getLineNumber() + ")");
 				}
 			} else if (nextCells.size() > 1 || nextCells.size() == 0) {//3- or 4- way intersection
 				finished = true;
 				for (TextGrid.Cell nextCell : nextCells) {
-					result.addAll(growEdgesFromCell(workGrid, cellWidth, cellHeight, allRound, nextCell, cell, visitedCells));
+					result.addAll(growEdgesFromCell(workGrid, cellWidth, cellHeight, allRound,
+							nextCell, cell, visitedCells));
 				}
 			}
 		}

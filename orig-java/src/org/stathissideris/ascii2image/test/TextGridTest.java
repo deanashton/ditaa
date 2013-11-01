@@ -280,7 +280,8 @@ public class TextGridTest {
 		CellSet set = new CellSet();
 		for (String cellString : cellStrings) {
 			int x = Integer.parseInt(cellString.substring(1, cellString.indexOf(",")).trim());
-			int y = Integer.parseInt(cellString.substring(cellString.indexOf(",") + 1, cellString.length() - 1).trim());
+			int y = Integer.parseInt(cellString.substring(cellString.indexOf(",") + 1,
+					cellString.length() - 1).trim());
 			set.add(grid.new Cell(x, y));
 		}
 		return set;

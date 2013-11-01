@@ -80,7 +80,8 @@ public class ImageHandler {
 		return svgRenderer.renderToImage(uri.toString(), width, height, stretch, null, null);
 	}
 
-	public BufferedImage renderSVG(String filename, int width, int height, boolean stretch, String idRegex, Color color) throws IOException {
+	public BufferedImage renderSVG(String filename, int width, int height, boolean stretch, String idRegex,
+			Color color) throws IOException {
 		File file = new File(filename);
 		URI uri = file.toURI();
 		return svgRenderer.renderToImage(uri.toString(), width, height, stretch, idRegex, color);

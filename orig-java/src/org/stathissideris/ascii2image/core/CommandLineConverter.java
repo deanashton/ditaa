@@ -62,14 +62,18 @@ public class CommandLineConverter {
 				"If the filename of the destination image already exists, an alternative name is chosen. If the overwrite option is selected, the image file is instead overwriten.");
 		cmdLnOptions.addOption("S", "no-shadows", false, "Turns off the drop-shadow effect.");
 		cmdLnOptions.addOption("A", "no-antialias", false, "Turns anti-aliasing off.");
-		cmdLnOptions.addOption("W", "fixed-slope", false, "Makes sides of parallelograms and trapezoids fixed slope instead of fixed width.");
+		cmdLnOptions.addOption("W", "fixed-slope", false,
+				"Makes sides of parallelograms and trapezoids fixed slope instead of fixed width.");
 		cmdLnOptions.addOption("d", "debug", false, "Renders the debug grid over the resulting image.");
-		cmdLnOptions.addOption("r", "round-corners", false, "Causes all corners to be rendered as round corners.");
-		cmdLnOptions.addOption("E", "no-separation", false, "Prevents the separation of common edges of shapes.");
-		cmdLnOptions.addOption("T", "transparent", false, "Causes the diagram to be rendered on a transparent background. Overrides --background.");
+		cmdLnOptions.addOption("r", "round-corners", false,
+				"Causes all corners to be rendered as round corners.");
+		cmdLnOptions.addOption("E", "no-separation", false,
+				"Prevents the separation of common edges of shapes.");
+		cmdLnOptions.addOption("T", "transparent", false,
+				"Causes the diagram to be rendered on a transparent background. Overrides --background.");
 
-		cmdLnOptions.addOption(OptionBuilder.withLongOpt("encoding").withDescription("The encoding of the input file.").hasArg()
-				.withArgName("ENCODING").create('e'));
+		cmdLnOptions.addOption(OptionBuilder.withLongOpt("encoding").withDescription(
+				"The encoding of the input file.").hasArg().withArgName("ENCODING").create('e'));
 
 		cmdLnOptions.addOption(OptionBuilder
 				.withLongOpt("scale")

@@ -78,8 +78,9 @@ public class CustomShapeDefinition {
 
 	@Override
 	public String toString() {
-		return "Custom shape: \"" + getTag() + "\":\n" + "\tfile: " + getFilename() + "\n" + "\tstretches: " + stretches() + "\n" + "\thas border: "
-				+ hasBorder() + "\n" + "\tdrops shadow: " + dropsShadow() + "\n" + "\tcomment: " + getComment() + "\n";
+		return "Custom shape: \"" + getTag() + "\":\n" + "\tfile: " + getFilename() + "\n" + "\tstretches: "
+				+ stretches() + "\n" + "\thas border: " + hasBorder() + "\n" + "\tdrops shadow: "
+				+ dropsShadow() + "\n" + "\tcomment: " + getComment() + "\n";
 	}
 
 }

@@ -69,7 +69,8 @@ public class ConfigurationParser {
 
 	private class XMLHandler extends DefaultHandler {
 		@Override
-		public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
+		public void startElement(String uri, String localName, String qName, Attributes attributes)
+				throws SAXException {
 			if (qName.equals(SHAPE_GROUP_TAG_NAME)) {
 				if (attributes.getLength() == 1) {
 					currentDir = attributes.getValue(0).trim();
@@ -111,8 +112,9 @@ public class ConfigurationParser {
 
 				if (shapeDefinitions.containsKey(definition.getTag())) {
 					CustomShapeDefinition oldDef = shapeDefinitions.get(definition.getTag());
-					System.err.println("*** Warning: shape \"" + oldDef.getTag() + "\" (file: " + oldDef.getFilename()
-							+ ") has been redefined as file: " + definition.getFilename());
+					System.err.println("*** Warning: shape \"" + oldDef.getTag() + "\" (file: "
+							+ oldDef.getFilename() + ") has been redefined as file: "
+							+ definition.getFilename());
 				}
 
 				File file = new File(definition.getFilename());
@@ -122,7 +124,8 @@ public class ConfigurationParser {
 						System.out.println(definition);
 					}
 				} else {
-					System.err.println("File " + file + " does not exist, skipping tag " + definition.getTag());
+					System.err.println("File " + file + " does not exist, skipping tag "
+							+ definition.getTag());
 				}
 
 			}
@@ -131,11 +134,13 @@ public class ConfigurationParser {
 					File includedFile = new File(attributes.getValue(0).trim());
 
 					if (!includedFile.isAbsolute()) {
-						includedFile = new File(createFilename(configFile.getParentFile().getAbsolutePath(), includedFile.getPath()));
+						includedFile = new File(createFilename(configFile.getParentFile()
+								.getAbsolutePath(), includedFile.getPath()));
 					}
 
 					if (!includedFile.exists()) {
-						System.err.println("Included file " + includedFile + " does not exist, skipping");
+						System.err.println("Included file " + includedFile
+								+ " does not exist, skipping");
 						return;
 					}
 
@@ -149,7 +154,8 @@ public class ConfigurationParser {
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
-					HashMap<String, CustomShapeDefinition> shapes = configParser.getShapeDefinitionsHash();
+					HashMap<String, CustomShapeDefinition> shapes = configParser
+							.getShapeDefinitionsHash();
 					shapeDefinitions.putAll(shapes);
 				}
 			}

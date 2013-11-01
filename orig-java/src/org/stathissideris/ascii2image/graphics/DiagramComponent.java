@@ -31,29 +31,37 @@ public abstract class DiagramComponent {
 
 	private static final boolean DEBUG = false;
 
-	protected static ShapePoint makePointForCell(TextGrid.Cell cell, TextGrid grid, int cellWidth, int cellHeight, boolean allRound) {
+	protected static ShapePoint makePointForCell(TextGrid.Cell cell, TextGrid grid, int cellWidth, int cellHeight,
+			boolean allRound) {
 		if (DEBUG) {
 			System.out.println("Found point at cell " + cell);
 		}
 		if (grid.isCorner(cell) && allRound) {
-			return new ShapePoint(cell.x * cellWidth + cellWidth / 2, cell.y * cellHeight + cellHeight / 2, ShapePoint.TYPE_ROUND);
+			return new ShapePoint(cell.x * cellWidth + cellWidth / 2, cell.y * cellHeight + cellHeight / 2,
+					ShapePoint.TYPE_ROUND);
 		} else if (grid.isNormalCorner(cell)) {
-			return new ShapePoint(cell.x * cellWidth + cellWidth / 2, cell.y * cellHeight + cellHeight / 2, ShapePoint.TYPE_NORMAL);
+			return new ShapePoint(cell.x * cellWidth + cellWidth / 2, cell.y * cellHeight + cellHeight / 2,
+					ShapePoint.TYPE_NORMAL);
 		} else if (grid.isRoundCorner(cell)) {
-			return new ShapePoint(cell.x * cellWidth + cellWidth / 2, cell.y * cellHeight + cellHeight / 2, ShapePoint.TYPE_ROUND);
+			return new ShapePoint(cell.x * cellWidth + cellWidth / 2, cell.y * cellHeight + cellHeight / 2,
+					ShapePoint.TYPE_ROUND);
 		} else if (grid.isLinesEnd(cell)) {
-			return new ShapePoint(cell.x * cellWidth + cellWidth / 2, cell.y * cellHeight + cellHeight / 2, ShapePoint.TYPE_NORMAL);
+			return new ShapePoint(cell.x * cellWidth + cellWidth / 2, cell.y * cellHeight + cellHeight / 2,
+					ShapePoint.TYPE_NORMAL);
 		} else if (grid.isIntersection(cell)) {
-			return new ShapePoint(cell.x * cellWidth + cellWidth / 2, cell.y * cellHeight + cellHeight / 2, ShapePoint.TYPE_NORMAL);
+			return new ShapePoint(cell.x * cellWidth + cellWidth / 2, cell.y * cellHeight + cellHeight / 2,
+					ShapePoint.TYPE_NORMAL);
 		}
 		throw new RuntimeException("Cannot make point for cell " + cell);
 	}
 
-	public static DiagramComponent createClosedFromBoundaryCells(TextGrid grid, CellSet cells, int cellWidth, int cellHeight) {
+	public static DiagramComponent createClosedFromBoundaryCells(TextGrid grid, CellSet cells, int cellWidth,
+			int cellHeight) {
 		return createClosedFromBoundaryCells(grid, cells, cellWidth, cellHeight, false);
 	}
 
-	public static DiagramComponent createClosedFromBoundaryCells(TextGrid grid, CellSet cells, int cellWidth, int cellHeight, boolean allRound) {
+	public static DiagramComponent createClosedFromBoundaryCells(TextGrid grid, CellSet cells, int cellWidth,
+			int cellHeight, boolean allRound) {
 		if (cells.getType(grid) == CellSet.TYPE_OPEN) {
 			throw new IllegalArgumentException("CellSet is closed and cannot be handled by this method");
 		}
@@ -96,7 +104,8 @@ public abstract class DiagramComponent {
 				previous = cell;
 				cell = nextCells.getFirst();
 				if (!cell.equals(start) && workGrid.isCorner(cell)) {
-					shape.addToPoints(makePointForCell(cell, workGrid, cellWidth, cellHeight, allRound));
+					shape.addToPoints(makePointForCell(cell, workGrid, cellWidth, cellHeight,
+							allRound));
 				}
 			} else if (nextCells.size() > 1) {
 				return null;

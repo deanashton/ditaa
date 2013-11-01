@@ -1,6 +1,6 @@
 /*
  * DiTAA - Diagrams Through Ascii Art
- * 
+ *
  * Copyright (C) 2004 Efstathios Sideris
  *
  * This program is free software; you can redistribute it and/or
@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *   
+ *
  */
 package org.stathissideris.ascii2image.graphics;
 
@@ -37,7 +37,7 @@ import org.stathissideris.ascii2image.text.TextGrid.CellStringPair;
 import org.stathissideris.ascii2image.text.TextGrid.CellTagPair;
 
 /**
- * 
+ *
  * @author Efstathios Sideris
  */
 public class Diagram {
@@ -50,16 +50,15 @@ public class Diagram {
 	private ArrayList<CompositeDiagramShape> compositeShapes = new ArrayList<CompositeDiagramShape>();
 	private ArrayList<DiagramText> textObjects = new ArrayList<DiagramText>();
 
-	private int width, height;
-	private int cellWidth, cellHeight;
+	private GraphicalGrid ggrid = null;
 
 	/**
-	 * 
+	 *
 	 * <p>
 	 * An outline of the inner workings of this very important (and monstrous) constructor is presented here. Boundary processing is the first step of the
 	 * process:
 	 * </p>
-	 * 
+	 *
 	 * <ol>
 	 * <li>Copy the grid into a work grid and remove all type-on-line and point markers from the work grid</li>
 	 * <li>Split grid into distinct shapes by plotting the grid onto an AbstractionGrid and its getDistinctShapes() method.</li>
@@ -79,11 +78,11 @@ public class Diagram {
 	 * </li>
 	 * <li>If we had to eliminate any mixed shapes, we seperate the found boundary sets again to open, closed or mixed.</li>
 	 * </ol>
-	 * 
+	 *
 	 * <p>
 	 * At this stage, the boundary processing is all complete and we proceed with using those boundaries to create the shapes:
 	 * </p>
-	 * 
+	 *
 	 * <ol>
 	 * <li>Create closed shapes.</li>
 	 * <li>Create open shapes. That's when the line end corrections are also applied, concerning the positioning of the ends of lines see methods
@@ -93,34 +92,27 @@ public class Diagram {
 	 * <li>Create arrowheads.</p>
 	 * <li>Create point markers.</p>
 	 * </ol>
-	 * 
+	 *
 	 * <p>
 	 * Finally, the text processing occurs: [pending]
 	 * </p>
-	 * 
-	 * @param grid
-	 * @param cellWidth
-	 * @param cellHeight
+	 *
 	 */
-	public Diagram(TextGrid grid, ConversionOptions options) {
+	public Diagram(TextGrid textGrid, ConversionOptions options) {
 
-		cellWidth = options.renderingOptions.getCellWidth();
-		cellHeight = options.renderingOptions.getCellHeight();
+		ggrid = new GraphicalGrid(textGrid, options.renderingOptions);
 
-		width = grid.getWidth() * cellWidth;
-		height = grid.getHeight() * cellHeight;
-
-		TextGrid workGrid = new TextGrid(grid);
+		TextGrid workGrid = new TextGrid(textGrid);
 		workGrid.replaceTypeOnLine();
 		workGrid.replacePointMarkersOnLine();
 		if (DEBUG) {
 			workGrid.printDebug();
 		}
 
-		int width = grid.getWidth();
-		int height = grid.getHeight();
+		int width = textGrid.getWidth();
+		int height = textGrid.getHeight();
 
-		//split distinct shapes using AbstractionGrid 
+		//split distinct shapes using AbstractionGrid
 		AbstractionGrid temp = new AbstractionGrid(workGrid, workGrid.getAllBoundaries());
 		ArrayList<CellSet> boundarySetsStep1 = temp.getDistinctShapes();
 
@@ -146,16 +138,19 @@ public class Diagram {
 				for (int xi = 0; xi < width * 3; xi++) {
 					if (fillBuffer.isBlank(xi, yi)) {
 
-						TextGrid copyGrid = new AbstractionGrid(workGrid, set).getCopyOfInternalBuffer();
+						TextGrid copyGrid = new AbstractionGrid(workGrid, set)
+								.getCopyOfInternalBuffer();
 
-						CellSet boundaries = copyGrid.findBoundariesExpandingFrom(copyGrid.new Cell(xi, yi));
+						CellSet boundaries = copyGrid
+								.findBoundariesExpandingFrom(copyGrid.new Cell(xi, yi));
 						if (boundaries.size() == 0) {
 							continue; //i'm not sure why these occur
 						}
 						boundarySetsStep2.add(boundaries.makeScaledOneThirdEquivalent());
 
 						copyGrid = new AbstractionGrid(workGrid, set).getCopyOfInternalBuffer();
-						CellSet filled = copyGrid.fillContinuousArea(copyGrid.new Cell(xi, yi), '*');
+						CellSet filled = copyGrid.fillContinuousArea(copyGrid.new Cell(xi, yi),
+								'*');
 						fillBuffer.fillCellsWith(filled, '*');
 						fillBuffer.fillCellsWith(boundaries, '-');
 
@@ -188,7 +183,8 @@ public class Diagram {
 		int originalSize = boundarySetsStep2.size();
 		boundarySetsStep2 = CellSet.removeDuplicateSets(boundarySetsStep2);
 		if (DEBUG) {
-			System.out.println("******* Removed duplicates: there were " + originalSize + " shapes and now there are " + boundarySetsStep2.size());
+			System.out.println("******* Removed duplicates: there were " + originalSize
+					+ " shapes and now there are " + boundarySetsStep2.size());
 		}
 
 		//split boundaries to open, closed and mixed
@@ -228,7 +224,7 @@ public class Diagram {
 
 		if (mixed.size() > 0 && closed.size() > 0) {
 			// mixed shapes can be eliminated by
-			// subtracting all the closed shapes from them 
+			// subtracting all the closed shapes from them
 			if (DEBUG) {
 				System.out.println("******* Eliminating mixed shapes (basic algorithm) *******");
 			}
@@ -255,7 +251,7 @@ public class Diagram {
 
 		} else if (mixed.size() > 0 && closed.size() == 0) {
 			// no closed shape exists, will have to
-			// handle mixed shape on its own 
+			// handle mixed shape on its own
 			// an example of this case is the following:
 			// +-----+
 			// |  A  |C                 B
@@ -339,7 +335,8 @@ public class Diagram {
 				set.printAsGrid();
 			}
 
-			DiagramComponent shape = DiagramComponent.createClosedFromBoundaryCells(workGrid, set, cellWidth, cellHeight, allCornersRound);
+			DiagramComponent shape = DiagramComponent.createClosedFromBoundaryCells(workGrid, set, ggrid
+					.getCellWidth(), ggrid.getCellHeight(), allCornersRound);
 			if (shape != null) {
 				if (shape instanceof DiagramShape) {
 					addToShapes((DiagramShape) shape);
@@ -360,8 +357,9 @@ public class Diagram {
 			CellSet set = sets.next();
 			if (set.size() == 1) { //single cell "shape"
 				TextGrid.Cell cell = set.getFirst();
-				if (!grid.cellContainsDashedLineChar(cell)) {
-					DiagramShape shape = DiagramShape.createSmallLine(workGrid, cell, cellWidth, cellHeight);
+				if (!textGrid.cellContainsDashedLineChar(cell)) {
+					DiagramShape shape = DiagramShape.createSmallLine(workGrid, cell, ggrid
+							.getCellWidth(), ggrid.getCellHeight());
 					if (shape != null) {
 						addToShapes(shape);
 						shape.connectEndsToAnchors(workGrid, this);
@@ -372,8 +370,8 @@ public class Diagram {
 					System.out.println(set.getCellsAsString());
 				}
 
-				DiagramComponent shape = CompositeDiagramShape.createOpenFromBoundaryCells(workGrid, set, cellWidth, cellHeight,
-						allCornersRound);
+				DiagramComponent shape = CompositeDiagramShape.createOpenFromBoundaryCells(workGrid,
+						set, ggrid.getCellWidth(), ggrid.getCellHeight(), allCornersRound);
 
 				if (shape != null) {
 					if (shape instanceof CompositeDiagramShape) {
@@ -382,7 +380,7 @@ public class Diagram {
 					} else if (shape instanceof DiagramShape) {
 						addToShapes((DiagramShape) shape);
 						((DiagramShape) shape).connectEndsToAnchors(workGrid, this);
-						((DiagramShape) shape).moveEndsToCellEdges(grid, this);
+						((DiagramShape) shape).moveEndsToCellEdges(textGrid, this);
 					}
 				}
 
@@ -392,7 +390,7 @@ public class Diagram {
 		//assign color codes to shapes
 		//TODO: text on line should not change its color
 
-		Iterator<CellColorPair> cellColorPairs = grid.findColorCodes().iterator();
+		Iterator<CellColorPair> cellColorPairs = textGrid.findColorCodes().iterator();
 		while (cellColorPairs.hasNext()) {
 			TextGrid.CellColorPair pair = cellColorPairs.next();
 
@@ -405,7 +403,7 @@ public class Diagram {
 		}
 
 		//assign markup to shapes
-		Iterator<CellTagPair> cellTagPairs = grid.findMarkupTags().iterator();
+		Iterator<CellTagPair> cellTagPairs = textGrid.findMarkupTags().iterator();
 		while (cellTagPairs.hasNext()) {
 			TextGrid.CellTagPair pair = cellTagPairs.next();
 
@@ -486,7 +484,8 @@ public class Diagram {
 		Iterator<Cell> arrowheadCells = workGrid.findArrowheads().iterator();
 		while (arrowheadCells.hasNext()) {
 			TextGrid.Cell cell = arrowheadCells.next();
-			DiagramShape arrowhead = DiagramShape.createArrowhead(workGrid, cell, cellWidth, cellHeight);
+			DiagramShape arrowhead = DiagramShape.createArrowhead(workGrid, cell, ggrid.getCellWidth(),
+					ggrid.getCellHeight());
 			if (arrowhead != null) {
 				addToShapes(arrowhead);
 			} else {
@@ -495,7 +494,7 @@ public class Diagram {
 		}
 
 		//make point markers
-		Iterator<TextGrid.Cell> markersIt = grid.getPointMarkersOnLine().iterator();
+		Iterator<TextGrid.Cell> markersIt = textGrid.getPointMarkersOnLine().iterator();
 		while (markersIt.hasNext()) {
 			TextGrid.Cell cell = markersIt.next();
 
@@ -516,7 +515,7 @@ public class Diagram {
 		}
 
 		//copy again
-		workGrid = new TextGrid(grid);
+		workGrid = new TextGrid(textGrid);
 		workGrid.removeNonText();
 
 		// ****** handle text *******
@@ -531,7 +530,7 @@ public class Diagram {
 			System.out.println(textGroups.size() + " text groups found");
 		}
 
-		Font font = FontMeasurer.instance().getFontFor(cellHeight);
+		Font font = FontMeasurer.instance().getFontFor(ggrid.getCellHeight());
 
 		Iterator<CellSet> textGroupIt = textGroups.iterator();
 		while (textGroupIt.hasNext()) {
@@ -594,7 +593,8 @@ public class Diagram {
 		//to the underlying color
 		for (DiagramText textObject : getTextObjects()) {
 			DiagramShape shape = findSmallestShapeIntersecting(textObject.getBounds());
-			if (shape != null && shape.getFillColor() != null && BitmapRenderer.isColorDark(shape.getFillColor())) {
+			if (shape != null && shape.getFillColor() != null
+					&& BitmapRenderer.isColorDark(shape.getFillColor())) {
 				textObject.setColor(Color.white);
 			}
 		}
@@ -621,7 +621,7 @@ public class Diagram {
 
 	/**
 	 * Returns a list of all DiagramShapes in the Diagram, including the ones within CompositeDiagramShapes
-	 * 
+	 *
 	 * @return
 	 */
 	public ArrayList<DiagramShape> getAllDiagramShapes() {
@@ -636,9 +636,9 @@ public class Diagram {
 
 	/**
 	 * Removes the sets from <code>sets</code>that are the sum of their parts when plotted as filled shapes.
-	 * 
+	 *
 	 * @return true if it removed any obsolete.
-	 * 
+	 *
 	 */
 	private boolean removeObsoleteShapes(TextGrid grid, ArrayList<CellSet> sets) {
 		if (DEBUG) {
@@ -909,28 +909,28 @@ public class Diagram {
 	 * @return
 	 */
 	public int getHeight() {
-		return height;
+		return ggrid.getHeight();
 	}
 
 	/**
 	 * @return
 	 */
 	public int getWidth() {
-		return width;
+		return ggrid.getWidth();
 	}
 
 	/**
 	 * @return
 	 */
 	public int getCellWidth() {
-		return cellWidth;
+		return ggrid.getCellWidth();
 	}
 
 	/**
 	 * @return
 	 */
 	public int getCellHeight() {
-		return cellHeight;
+		return ggrid.getCellHeight();
 	}
 
 	/**
@@ -948,7 +948,7 @@ public class Diagram {
 	}
 
 	public int getCellMinX(TextGrid.Cell cell) {
-		return getCellMinX(cell, cellWidth);
+		return getCellMinX(cell, ggrid.getCellWidth());
 	}
 
 	public static int getCellMinX(TextGrid.Cell cell, int cellXSize) {
@@ -956,7 +956,7 @@ public class Diagram {
 	}
 
 	public int getCellMidX(TextGrid.Cell cell) {
-		return getCellMidX(cell, cellWidth);
+		return getCellMidX(cell, ggrid.getCellWidth());
 	}
 
 	public static int getCellMidX(TextGrid.Cell cell, int cellXSize) {
@@ -964,7 +964,7 @@ public class Diagram {
 	}
 
 	public int getCellMaxX(TextGrid.Cell cell) {
-		return getCellMaxX(cell, cellWidth);
+		return getCellMaxX(cell, ggrid.getCellWidth());
 	}
 
 	public static int getCellMaxX(TextGrid.Cell cell, int cellXSize) {
@@ -972,7 +972,7 @@ public class Diagram {
 	}
 
 	public int getCellMinY(TextGrid.Cell cell) {
-		return getCellMinY(cell, cellHeight);
+		return getCellMinY(cell, ggrid.getCellHeight());
 	}
 
 	public static int getCellMinY(TextGrid.Cell cell, int cellYSize) {
@@ -980,7 +980,7 @@ public class Diagram {
 	}
 
 	public int getCellMidY(TextGrid.Cell cell) {
-		return getCellMidY(cell, cellHeight);
+		return getCellMidY(cell, ggrid.getCellHeight());
 	}
 
 	public static int getCellMidY(TextGrid.Cell cell, int cellYSize) {
@@ -988,7 +988,7 @@ public class Diagram {
 	}
 
 	public int getCellMaxY(TextGrid.Cell cell) {
-		return getCellMaxY(cell, cellHeight);
+		return getCellMaxY(cell, ggrid.getCellHeight());
 	}
 
 	public static int getCellMaxY(TextGrid.Cell cell, int cellYSize) {
@@ -1001,7 +1001,7 @@ public class Diagram {
 		}
 		//TODO: the fake grid is a problem
 		TextGrid g = new TextGrid();
-		return g.new Cell((int) point.x / cellWidth, (int) point.y / cellHeight);
+		return g.new Cell((int) point.x / ggrid.getCellWidth(), (int) point.y / ggrid.getCellHeight());
 	}
 
 	/**

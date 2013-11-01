@@ -205,7 +205,8 @@ public class CellSet implements Iterable<TextGrid.Cell> {
 		}
 
 		if (DEBUG) {
-			System.out.println("Tracing:\nStarting at " + start + " (" + grid.getCellTypeAsString(start) + ")");
+			System.out.println("Tracing:\nStarting at " + start + " (" + grid.getCellTypeAsString(start)
+					+ ")");
 		}
 		TextGrid.Cell previous = start;
 		TextGrid.Cell cell = null;
@@ -230,7 +231,8 @@ public class CellSet implements Iterable<TextGrid.Cell> {
 				previous = cell;
 				cell = nextCells.getFirst();
 				if (DEBUG) {
-					System.out.println("\tat cell " + cell + " (" + grid.getCellTypeAsString(cell) + ")");
+					System.out.println("\tat cell " + cell + " (" + grid.getCellTypeAsString(cell)
+							+ ")");
 				}
 			} else if (nextCells.size() > 1) {
 				if (DEBUG) {

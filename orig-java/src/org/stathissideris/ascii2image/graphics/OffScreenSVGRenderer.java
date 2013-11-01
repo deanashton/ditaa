@@ -47,8 +47,8 @@ public class OffScreenSVGRenderer {
 		return renderXMLToImage(xmlContent, width, height, false, null, null);
 	}
 
-	public BufferedImage renderXMLToImage(String xmlContent, int width, int height, boolean stretch, String idRegex, Color replacementColor)
-			throws IOException {
+	public BufferedImage renderXMLToImage(String xmlContent, int width, int height, boolean stretch,
+			String idRegex, Color replacementColor) throws IOException {
 		// the following is necessary so that batik knows how to resolve URI fragments
 		// (#myLinearGradient). Otherwise the resolution fails and you cannot render.
 
@@ -66,7 +66,8 @@ public class OffScreenSVGRenderer {
 		return renderToImage(uri, width, height, false, null, null);
 	}
 
-	public BufferedImage renderToImage(String uri, int width, int height, boolean stretch, String idRegex, Color replacementColor) throws IOException {
+	public BufferedImage renderToImage(String uri, int width, int height, boolean stretch, String idRegex,
+			Color replacementColor) throws IOException {
 		SAXSVGDocumentFactory df = new SAXSVGDocumentFactory("org.apache.xerces.parsers.SAXParser");
 		SVGDocument document = df.createSVGDocument(uri);
 		if (idRegex != null && replacementColor != null) {

@@ -41,7 +41,8 @@ public class AbstractionGrid {
 	 */
 	public static AbstractionGrid makeUsingBuffer(TextGrid internalGrid) {
 		if (internalGrid.getWidth() % 3 != 0 || internalGrid.getHeight() % 3 != 0) {
-			throw new IllegalArgumentException("Passed TextGrid must have dimensions that are divisible by 3.");
+			throw new IllegalArgumentException(
+					"Passed TextGrid must have dimensions that are divisible by 3.");
 		}
 		AbstractionGrid result = new AbstractionGrid(internalGrid.getWidth() / 3, internalGrid.getHeight() / 3);
 		result.setInternalBuffer(internalGrid);

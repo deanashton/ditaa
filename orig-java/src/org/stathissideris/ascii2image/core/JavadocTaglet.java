@@ -226,7 +226,8 @@ public class JavadocTaglet implements Taglet {
 		String relPath = getRelativePath(srcFile);
 
 		// Special hack for the overview file
-		if (srcFile.getName().toLowerCase().equals("overview.html") || relPath == null && srcFile.getName().toLowerCase().endsWith(".html")) {
+		if (srcFile.getName().toLowerCase().equals("overview.html") || relPath == null
+				&& srcFile.getName().toLowerCase().endsWith(".html")) {
 			relPath = "overview";
 		}
 

@@ -155,7 +155,8 @@ public class DiagramText extends DiagramComponent {
 
 	@Override
 	public String toString() {
-		return "DiagramText, at (" + xPos + ", " + yPos + "), within " + getBounds() + " '" + text + "', " + color + " " + font;
+		return "DiagramText, at (" + xPos + ", " + yPos + "), within " + getBounds() + " '" + text + "', "
+				+ color + " " + font;
 	}
 
 	/**

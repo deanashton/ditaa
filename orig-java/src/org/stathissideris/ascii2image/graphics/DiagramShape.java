@@ -94,9 +94,12 @@ public class DiagramShape extends DiagramComponent {
 			return null;
 		}
 		DiagramShape shape = new DiagramShape();
-		shape.addToPoints(new ShapePoint(Diagram.getCellMidX(cell, cellXSize), Diagram.getCellMinY(cell, cellYSize)));
-		shape.addToPoints(new ShapePoint(Diagram.getCellMinX(cell, cellXSize), Diagram.getCellMaxY(cell, cellYSize)));
-		shape.addToPoints(new ShapePoint(Diagram.getCellMaxX(cell, cellXSize), Diagram.getCellMaxY(cell, cellYSize)));
+		shape.addToPoints(new ShapePoint(Diagram.getCellMidX(cell, cellXSize), Diagram.getCellMinY(cell,
+				cellYSize)));
+		shape.addToPoints(new ShapePoint(Diagram.getCellMinX(cell, cellXSize), Diagram.getCellMaxY(cell,
+				cellYSize)));
+		shape.addToPoints(new ShapePoint(Diagram.getCellMaxX(cell, cellXSize), Diagram.getCellMaxY(cell,
+				cellYSize)));
 		shape.setClosed(true);
 		shape.setFillColor(Color.black);
 		shape.setStrokeColor(Color.black);
@@ -109,9 +112,12 @@ public class DiagramShape extends DiagramComponent {
 			return null;
 		}
 		DiagramShape shape = new DiagramShape();
-		shape.addToPoints(new ShapePoint(Diagram.getCellMinX(cell, cellXSize), Diagram.getCellMinY(cell, cellYSize)));
-		shape.addToPoints(new ShapePoint(Diagram.getCellMidX(cell, cellXSize), Diagram.getCellMaxY(cell, cellYSize)));
-		shape.addToPoints(new ShapePoint(Diagram.getCellMaxX(cell, cellXSize), Diagram.getCellMinY(cell, cellYSize)));
+		shape.addToPoints(new ShapePoint(Diagram.getCellMinX(cell, cellXSize), Diagram.getCellMinY(cell,
+				cellYSize)));
+		shape.addToPoints(new ShapePoint(Diagram.getCellMidX(cell, cellXSize), Diagram.getCellMaxY(cell,
+				cellYSize)));
+		shape.addToPoints(new ShapePoint(Diagram.getCellMaxX(cell, cellXSize), Diagram.getCellMinY(cell,
+				cellYSize)));
 		shape.setClosed(true);
 		shape.setFillColor(Color.black);
 		shape.setStrokeColor(Color.black);
@@ -124,9 +130,12 @@ public class DiagramShape extends DiagramComponent {
 			return null;
 		}
 		DiagramShape shape = new DiagramShape();
-		shape.addToPoints(new ShapePoint(Diagram.getCellMaxX(cell, cellXSize), Diagram.getCellMinY(cell, cellYSize)));
-		shape.addToPoints(new ShapePoint(Diagram.getCellMinX(cell, cellXSize), Diagram.getCellMidY(cell, cellYSize)));
-		shape.addToPoints(new ShapePoint(Diagram.getCellMaxX(cell, cellXSize), Diagram.getCellMaxY(cell, cellYSize)));
+		shape.addToPoints(new ShapePoint(Diagram.getCellMaxX(cell, cellXSize), Diagram.getCellMinY(cell,
+				cellYSize)));
+		shape.addToPoints(new ShapePoint(Diagram.getCellMinX(cell, cellXSize), Diagram.getCellMidY(cell,
+				cellYSize)));
+		shape.addToPoints(new ShapePoint(Diagram.getCellMaxX(cell, cellXSize), Diagram.getCellMaxY(cell,
+				cellYSize)));
 		shape.setClosed(true);
 		shape.setFillColor(Color.black);
 		shape.setStrokeColor(Color.black);
@@ -139,9 +148,12 @@ public class DiagramShape extends DiagramComponent {
 			return null;
 		}
 		DiagramShape shape = new DiagramShape();
-		shape.addToPoints(new ShapePoint(Diagram.getCellMinX(cell, cellXSize), Diagram.getCellMinY(cell, cellYSize)));
-		shape.addToPoints(new ShapePoint(Diagram.getCellMaxX(cell, cellXSize), Diagram.getCellMidY(cell, cellYSize)));
-		shape.addToPoints(new ShapePoint(Diagram.getCellMinX(cell, cellXSize), Diagram.getCellMaxY(cell, cellYSize)));
+		shape.addToPoints(new ShapePoint(Diagram.getCellMinX(cell, cellXSize), Diagram.getCellMinY(cell,
+				cellYSize)));
+		shape.addToPoints(new ShapePoint(Diagram.getCellMaxX(cell, cellXSize), Diagram.getCellMidY(cell,
+				cellYSize)));
+		shape.addToPoints(new ShapePoint(Diagram.getCellMinX(cell, cellXSize), Diagram.getCellMaxY(cell,
+				cellYSize)));
 		shape.setClosed(true);
 		shape.setFillColor(Color.black);
 		shape.setStrokeColor(Color.black);
@@ -154,10 +166,12 @@ public class DiagramShape extends DiagramComponent {
 			DiagramShape shape = new DiagramShape();
 			if (grid.isHorizontalLine(cell)) {
 				shape.addToPoints(new ShapePoint(cell.x * cellXSize, cell.y * cellYSize + cellYSize / 2));
-				shape.addToPoints(new ShapePoint(cell.x * cellXSize + cellXSize - 1, cell.y * cellYSize + cellYSize / 2));
+				shape.addToPoints(new ShapePoint(cell.x * cellXSize + cellXSize - 1, cell.y * cellYSize
+						+ cellYSize / 2));
 			} else if (grid.isVerticalLine(cell)) {
 				shape.addToPoints(new ShapePoint(cell.x * cellXSize + cellXSize / 2, cell.y * cellYSize));
-				shape.addToPoints(new ShapePoint(cell.x * cellXSize + cellXSize / 2, cell.y * cellYSize + cellYSize - 1));
+				shape.addToPoints(new ShapePoint(cell.x * cellXSize + cellXSize / 2, cell.y * cellYSize
+						+ cellYSize - 1));
 			}
 
 			//the -1 above, make a difference: the second point
@@ -391,7 +405,8 @@ public class DiagramShape extends DiagramComponent {
 		}
 		ShapePoint center = getPoint(0);
 		float diameter = (float) 0.7 * Math.min(diagram.getCellWidth(), diagram.getCellHeight());
-		return new GeneralPath(new Ellipse2D.Float(center.x - diameter / 2, center.y - diameter / 2, diameter, diameter));
+		return new GeneralPath(new Ellipse2D.Float(center.x - diameter / 2, center.y - diameter / 2, diameter,
+				diameter));
 	}
 
 	public Rectangle getBounds() {
@@ -554,7 +569,8 @@ public class DiagramShape extends DiagramComponent {
 		TextGrid.Cell cell = diagram.getCellFor(pointInCell);
 
 		if (cell == null) {
-			throw new RuntimeException("Upexpected error, cannot find cell corresponding to point " + pointInCell + " for diagram " + diagram);
+			throw new RuntimeException("Upexpected error, cannot find cell corresponding to point "
+					+ pointInCell + " for diagram " + diagram);
 		}
 
 		if (otherPoint.isNorthOf(pointInCell)) {
@@ -568,8 +584,8 @@ public class DiagramShape extends DiagramComponent {
 		}
 
 		if (result == null) {
-			throw new RuntimeException("Upexpected error, cannot find cell edge point for points " + pointInCell + " and " + otherPoint
-					+ " for diagram " + diagram);
+			throw new RuntimeException("Upexpected error, cannot find cell edge point for points "
+					+ pointInCell + " and " + otherPoint + " for diagram " + diagram);
 		}
 
 		return result;
@@ -594,19 +610,22 @@ public class DiagramShape extends DiagramComponent {
 	 * @return
 	 */
 
-	private ShapePoint getCellEdgeProjectionPointBetween(ShapePoint pointInCell, ShapePoint otherPoint, Diagram diagram) {
+	private ShapePoint getCellEdgeProjectionPointBetween(ShapePoint pointInCell, ShapePoint otherPoint,
+			Diagram diagram) {
 		if (pointInCell == null || otherPoint == null || diagram == null) {
 			throw new IllegalArgumentException("None of the parameters can be null");
 		}
 		if (pointInCell.equals(otherPoint)) {
-			throw new IllegalArgumentException("The two points cannot be the same: " + pointInCell + " and " + otherPoint + " passed");
+			throw new IllegalArgumentException("The two points cannot be the same: " + pointInCell
+					+ " and " + otherPoint + " passed");
 		}
 
 		ShapePoint result = null;
 		TextGrid.Cell cell = diagram.getCellFor(pointInCell);
 
 		if (cell == null) {
-			throw new RuntimeException("Upexpected error, cannot find cell corresponding to point " + pointInCell + " for diagram " + diagram);
+			throw new RuntimeException("Upexpected error, cannot find cell corresponding to point "
+					+ pointInCell + " for diagram " + diagram);
 		}
 
 		if (otherPoint.isNorthOf(pointInCell)) {
@@ -620,8 +639,8 @@ public class DiagramShape extends DiagramComponent {
 		}
 
 		if (result == null) {
-			throw new RuntimeException("Upexpected error, cannot find cell edge point for points " + pointInCell + " and " + otherPoint
-					+ " for diagram " + diagram);
+			throw new RuntimeException("Upexpected error, cannot find cell edge point for points "
+					+ pointInCell + " and " + otherPoint + " for diagram " + diagram);
 		}
 
 		return result;
@@ -652,7 +671,8 @@ public class DiagramShape extends DiagramComponent {
 	}
 
 	public boolean dropsShadow() {
-		return isClosed() && getType() != DiagramShape.TYPE_ARROWHEAD && getType() != DiagramShape.TYPE_POINT_MARKER && !isStrokeDashed();
+		return isClosed() && getType() != DiagramShape.TYPE_ARROWHEAD
+				&& getType() != DiagramShape.TYPE_POINT_MARKER && !isStrokeDashed();
 	}
 
 	/**
@@ -809,14 +829,17 @@ public class DiagramShape extends DiagramComponent {
 
 		//top of cylinder
 		path.moveTo(point1.x, point1.y);
-		path.curveTo(point1.x + cpOffsetX, point1.y + cpOffsetYTop, point2.x - cpOffsetX, point2.y + cpOffsetYTop, point2.x, point2.y);
-		path.curveTo(point2.x - cpOffsetX, point2.y - cpOffsetYTop, point1.x + cpOffsetX, point1.y - cpOffsetYTop, point1.x, point1.y);
+		path.curveTo(point1.x + cpOffsetX, point1.y + cpOffsetYTop, point2.x - cpOffsetX, point2.y
+				+ cpOffsetYTop, point2.x, point2.y);
+		path.curveTo(point2.x - cpOffsetX, point2.y - cpOffsetYTop, point1.x + cpOffsetX, point1.y
+				- cpOffsetYTop, point1.x, point1.y);
 
 		//side of cylinder
 		path.moveTo(point1.x, point1.y);
 		path.lineTo(point4.x, point4.y);
 
-		path.curveTo(point4.x + cpOffsetX, point4.y + cpOffsetYBottom, point3.x - cpOffsetX, point3.y + cpOffsetYBottom, point3.x, point3.y);
+		path.curveTo(point4.x + cpOffsetX, point4.y + cpOffsetYBottom, point3.x - cpOffsetX, point3.y
+				+ cpOffsetYBottom, point3.x, point3.y);
 
 		path.lineTo(point2.x, point2.y);
 

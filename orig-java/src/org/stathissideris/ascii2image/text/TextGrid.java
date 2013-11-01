@@ -264,7 +264,8 @@ public class TextGrid {
 	public void printDebug() {
 		Iterator<StringBuilder> it = rows.iterator();
 		int i = 0;
-		System.out.println("    " + StringUtils.repeatString("0123456789", (int) Math.floor(getWidth() / 10) + 1));
+		System.out.println("    "
+				+ StringUtils.repeatString("0123456789", (int) Math.floor(getWidth() / 10) + 1));
 		while (it.hasNext()) {
 			String row = it.next().toString();
 			String index = new Integer(i).toString();
@@ -280,7 +281,8 @@ public class TextGrid {
 		StringBuilder buffer = new StringBuilder();
 		Iterator<StringBuilder> it = rows.iterator();
 		int i = 0;
-		buffer.append("    " + StringUtils.repeatString("0123456789", (int) Math.floor(getWidth() / 10) + 1) + "\n");
+		buffer.append("    " + StringUtils.repeatString("0123456789", (int) Math.floor(getWidth() / 10) + 1)
+				+ "\n");
 		while (it.hasNext()) {
 			String row = it.next().toString();
 			String index = new Integer(i).toString();
@@ -721,7 +723,8 @@ public class TextGrid {
 						String tagName = matcher.group(1);
 						if (markupTags.contains(tagName)) {
 							if (DEBUG) {
-								System.out.println("found tag " + tagName + " at " + x + ", " + y);
+								System.out.println("found tag " + tagName + " at " + x
+										+ ", " + y);
 							}
 							result.add(new CellTagPair(new Cell(x, y), tagName));
 						}
@@ -949,7 +952,8 @@ public class TextGrid {
 	}
 
 	public boolean isArrowhead(Cell cell) {
-		return isNorthArrowhead(cell) || isSouthArrowhead(cell) || isWestArrowhead(cell) || isEastArrowhead(cell);
+		return isNorthArrowhead(cell) || isSouthArrowhead(cell) || isWestArrowhead(cell)
+				|| isEastArrowhead(cell);
 	}
 
 	public boolean isNorthArrowhead(Cell cell) {
@@ -980,7 +984,8 @@ public class TextGrid {
 
 	private boolean isBullet(Cell cell) {
 		char c = get(cell);
-		if ((c == 'o' || c == '*') && isBlank(cell.getEast()) && isBlank(cell.getWest()) && Character.isLetterOrDigit(get(cell.getEast().getEast()))) {
+		if ((c == 'o' || c == '*') && isBlank(cell.getEast()) && isBlank(cell.getWest())
+				&& Character.isLetterOrDigit(get(cell.getEast().getEast()))) {
 			return true;
 		}
 		return false;
@@ -1594,7 +1599,8 @@ public class TextGrid {
 	}
 
 	public void loadFrom(String filename, ProcessingOptions options) throws IOException {
-		ArrayList<StringBuilder> lines = FileUtils.readLines(filename, (options == null) ? null : options.getCharacterEncoding());
+		ArrayList<StringBuilder> lines = FileUtils.readLines(filename, (options == null) ? null : options
+				.getCharacterEncoding());
 		initialiseWithLines(lines, options);
 	}
 
@@ -1602,7 +1608,8 @@ public class TextGrid {
 		initialiseWithLines(FileUtils.splitLines(text), options);
 	}
 
-	public void initialiseWithLines(ArrayList<StringBuilder> lines, ProcessingOptions options) throws UnsupportedEncodingException {
+	public void initialiseWithLines(ArrayList<StringBuilder> lines, ProcessingOptions options)
+			throws UnsupportedEncodingException {
 
 		rows = new ArrayList<StringBuilder>(lines);
 

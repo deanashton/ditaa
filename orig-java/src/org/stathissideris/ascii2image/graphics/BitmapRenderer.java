@@ -74,7 +74,8 @@ public class BitmapRenderer {
 		grid.loadFrom("tests/text/" + filename);
 
 		Diagram diagram = new Diagram(grid, options);
-		new BitmapRenderer().renderToPNG(diagram, "tests/images/" + filename + ".png", options.renderingOptions);
+		new BitmapRenderer()
+				.renderToPNG(diagram, "tests/images/" + filename + ".png", options.renderingOptions);
 		long endTime = System.currentTimeMillis();
 		long totalTime = (endTime - startTime) / 1000;
 		System.out.println("Done in " + totalTime + "sec");
@@ -97,13 +98,8 @@ public class BitmapRenderer {
 	}
 
 	public RenderedImage renderToImage(Diagram diagram, RenderingOptions options) {
-		BufferedImage image;
-		if (options.needsTransparency()) {
-			image = new BufferedImage(diagram.getWidth(), diagram.getHeight(), BufferedImage.TYPE_INT_ARGB);
-		} else {
-			image = new BufferedImage(diagram.getWidth(), diagram.getHeight(), BufferedImage.TYPE_INT_RGB);
-		}
-
+		BufferedImage image = new BufferedImage(diagram.getWidth(), diagram.getHeight(), options
+				.needsTransparency() ? BufferedImage.TYPE_INT_ARGB : BufferedImage.TYPE_INT_RGB);
 		return render(diagram, image, options);
 	}
 
@@ -176,7 +172,8 @@ public class BitmapRenderer {
 				//if EDGE_NO_OP is not selected, EDGE_ZERO_FILL is the default which creates a black border
 				ConvolveOp simpleBlur = new ConvolveOp(myKernel, ConvolveOp.EDGE_NO_OP, null);
 
-				BufferedImage destination = new BufferedImage(image.getWidth(), image.getHeight(), image.getType());
+				BufferedImage destination = new BufferedImage(image.getWidth(), image.getHeight(),
+						image.getType());
 
 				simpleBlur.filter(image, destination);
 
@@ -198,7 +195,8 @@ public class BitmapRenderer {
 		//10,
 				BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
 
-		dashStroke = new BasicStroke(strokeWeight, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND, 0, new float[] { dashInterval }, 0);
+		dashStroke = new BasicStroke(strokeWeight, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND, 0,
+				new float[] { dashInterval }, 0);
 
 		//TODO: at this stage we should draw the open shapes first in order to make sure they are at the bottom (this is useful for the {mo} shape)
 
@@ -365,8 +363,10 @@ public class BitmapRenderer {
 				g2.setStroke(normalStroke);
 			}
 			g2.drawLine(bounds.x, bounds.y, bounds.x + bounds.width, bounds.y);
-			g2.drawLine(bounds.x + bounds.width, bounds.y, bounds.x + bounds.width, bounds.y + bounds.height);
-			g2.drawLine(bounds.x, bounds.y + bounds.height, bounds.x + bounds.width, bounds.y + bounds.height);
+			g2.drawLine(bounds.x + bounds.width, bounds.y, bounds.x + bounds.width, bounds.y
+					+ bounds.height);
+			g2.drawLine(bounds.x, bounds.y + bounds.height, bounds.x + bounds.width, bounds.y
+					+ bounds.height);
 			g2.drawLine(bounds.x, bounds.y, bounds.x, bounds.y + bounds.height);
 
 			//			g2.drawRect(bounds.x, bounds.y, bounds.width, bounds.height); //looks different!
@@ -386,10 +386,11 @@ public class BitmapRenderer {
 		Image graphic;
 		try {
 			if (shape.getFillColor() == null) {
-				graphic = ImageHandler.instance().renderSVG(definition.getFilename(), bounds.width, bounds.height, definition.stretches());
+				graphic = ImageHandler.instance().renderSVG(definition.getFilename(), bounds.width,
+						bounds.height, definition.stretches());
 			} else {
-				graphic = ImageHandler.instance().renderSVG(definition.getFilename(), bounds.width, bounds.height, definition.stretches(),
-						IDREGEX, shape.getFillColor());
+				graphic = ImageHandler.instance().renderSVG(definition.getFilename(), bounds.width,
+						bounds.height, definition.stretches(), IDREGEX, shape.getFillColor());
 			}
 			g2.drawImage(graphic, bounds.x, bounds.y, null);
 		} catch (IOException e) {

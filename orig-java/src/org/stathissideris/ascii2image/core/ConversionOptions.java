@@ -57,8 +57,9 @@ public class ConversionOptions {
 		if (hexString.length() == 6) {
 			return new Color(Integer.parseInt(hexString, 16));
 		} else if (hexString.length() == 8) {
-			return new Color(Integer.parseInt(hexString.substring(0, 2), 16), Integer.parseInt(hexString.substring(2, 4), 16), Integer.parseInt(
-					hexString.substring(4, 6), 16), Integer.parseInt(hexString.substring(6, 8), 16));
+			return new Color(Integer.parseInt(hexString.substring(0, 2), 16), Integer.parseInt(hexString
+					.substring(2, 4), 16), Integer.parseInt(hexString.substring(4, 6), 16), Integer
+					.parseInt(hexString.substring(6, 8), 16));
 		} else {
 			throw new IllegalArgumentException(
 					"Cannot interpret \""
@@ -118,7 +119,8 @@ public class ConversionOptions {
 					File file = new File(configFilename);
 					if (file.exists()) {
 						configParser.parseFile(file);
-						HashMap<String, CustomShapeDefinition> shapes = configParser.getShapeDefinitionsHash();
+						HashMap<String, CustomShapeDefinition> shapes = configParser
+								.getShapeDefinitionsHash();
 						processingOptions.putAllInCustomShapes(shapes);
 					} else {
 						System.err.println("File " + file + " does not exist, skipping");

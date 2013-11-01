@@ -117,7 +117,8 @@ public class VisualTester {
 			}
 		}
 
-		assertTrue("Images for " + textFile.getName() + " are not pixel-identical, first different pixel at: " + x + "," + y, pixelsEqual);
+		assertTrue("Images for " + textFile.getName() + " are not pixel-identical, first different pixel at: "
+				+ x + "," + y, pixelsEqual);
 	}
 
 	public VisualTester(File textFile, int index) {
@@ -147,8 +148,10 @@ public class VisualTester {
 
 		Set<String> excludedFiles = new HashSet<String>();
 		excludedFiles.addAll(Arrays.asList(new String[] { "dak_orgstruktur_vs_be.ditaa.OutOfMemoryError.txt",
-				"dak_orgstruktur_vs_be.ditaa.OutOfMemoryError.2.txt", "dak_orgstruktur_vs_be.ditaa.OutOfMemoryError.3.txt",
-				"dak_orgstruktur_vs_be.ditaa.OutOfMemoryError.4.txt", "dak_orgstruktur_vs_be.ditaa.OutOfMemoryError.edit.txt",
+				"dak_orgstruktur_vs_be.ditaa.OutOfMemoryError.2.txt",
+				"dak_orgstruktur_vs_be.ditaa.OutOfMemoryError.3.txt",
+				"dak_orgstruktur_vs_be.ditaa.OutOfMemoryError.4.txt",
+				"dak_orgstruktur_vs_be.ditaa.OutOfMemoryError.edit.txt",
 				"dak_orgstruktur_vs_be.ditaa.txt" }));
 
 		Iterator<File> it = textFiles.iterator();
@@ -188,7 +191,8 @@ public class VisualTester {
 				grid.loadFrom(textFile.toString());
 				Diagram diagram = new Diagram(grid, options);
 
-				RenderedImage image = new BitmapRenderer().renderToImage(diagram, options.renderingOptions);
+				RenderedImage image = new BitmapRenderer().renderToImage(diagram,
+						options.renderingOptions);
 
 				b = java.lang.System.nanoTime();
 				java.lang.System.out.println("Done in " + Math.round((b - a) / 10e6) + "msec");
@@ -250,7 +254,8 @@ public class VisualTester {
 				grid.loadFrom(textFile.toString());
 				Diagram diagram = new Diagram(grid, options);
 
-				RenderedImage image = new BitmapRenderer().renderToImage(diagram, options.renderingOptions);
+				RenderedImage image = new BitmapRenderer().renderToImage(diagram,
+						options.renderingOptions);
 
 				b = java.lang.System.nanoTime();
 				java.lang.System.out.println("Done in " + Math.round((b - a) / 10e6) + "msec");

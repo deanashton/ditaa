@@ -41,7 +41,8 @@ public class FileUtils {
 		return makeTargetPathname(sourcePathname, extension, "", overwrite);
 	}
 
-	public static String makeTargetPathname(String sourcePathname, String extension, String postfix, boolean overwrite) {
+	public static String makeTargetPathname(String sourcePathname, String extension, String postfix,
+			boolean overwrite) {
 		File sourceFile = new File(sourcePathname);
 
 		String path = "";
@@ -161,7 +162,8 @@ public class FileUtils {
 		System.out.println(getExtension("pipi"));
 	}
 
-	public static ArrayList<StringBuilder> readLines(String filename, String encoding) throws FileNotFoundException, IOException {
+	public static ArrayList<StringBuilder> readLines(String filename, String encoding)
+			throws FileNotFoundException, IOException {
 		InputStream is = "-".equals(filename) ? System.in : new FileInputStream(filename);
 		return splitLines(readFile(is, filename, encoding));
 	}
