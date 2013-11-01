@@ -128,9 +128,7 @@ public class CellSet implements Iterable<TextGrid.Cell> {
 		TextGrid grid = new TextGrid();
 		CellSet newSet = new CellSet();
 
-		Iterator<TextGrid.Cell> it = set.iterator();
-		while (it.hasNext()) {
-			TextGrid.Cell cell = it.next();
+		for (TextGrid.Cell cell : set) {
 			TextGrid.Cell newCell = grid.new Cell(cell);
 			newSet.add(newCell);
 		}
@@ -320,18 +318,14 @@ public class CellSet implements Iterable<TextGrid.Cell> {
 
 	public void translate(int dx, int dy) {
 		typeIsValid = false;
-		Iterator<TextGrid.Cell> it = iterator();
-		while (it.hasNext()) {
-			TextGrid.Cell cCell = it.next();
-			cCell.x += dx;
-			cCell.y += dy;
+		for (TextGrid.Cell cell : this) {
+			cell.x += dx;
+			cell.y += dy;
 		}
 	}
 
 	public TextGrid.Cell find(TextGrid.Cell cell) {
-		Iterator<TextGrid.Cell> it = iterator();
-		while (it.hasNext()) {
-			TextGrid.Cell cCell = it.next();
+		for (TextGrid.Cell cCell : this) {
 			if (cCell.equals(cell)) {
 				return cCell;
 			}
@@ -361,9 +355,7 @@ public class CellSet implements Iterable<TextGrid.Cell> {
 	}
 
 	public boolean hasCommonCells(CellSet otherSet) {
-		Iterator<TextGrid.Cell> it = iterator();
-		while (it.hasNext()) {
-			TextGrid.Cell cell = it.next();
+		for (TextGrid.Cell cell : this) {
 			if (otherSet.contains(cell)) {
 				return true;
 			}
@@ -372,11 +364,9 @@ public class CellSet implements Iterable<TextGrid.Cell> {
 	}
 
 	public TextGrid.Cell find(int x, int y) {
-		Iterator<TextGrid.Cell> it = iterator();
-		while (it.hasNext()) {
-			TextGrid.Cell cCell = it.next();
-			if (cCell.x == x && cCell.y == y) {
-				return cCell;
+		for (TextGrid.Cell cell : this) {
+			if (cell.x == x && cell.y == y) {
+				return cell;
 			}
 		}
 		return null;
@@ -419,9 +409,7 @@ public class CellSet implements Iterable<TextGrid.Cell> {
 	 * @return
 	 */
 	public TextGrid.Cell findCellNextTo(TextGrid.Cell cell) {
-		Iterator<TextGrid.Cell> it = iterator();
-		while (it.hasNext()) {
-			TextGrid.Cell cCell = it.next();
+		for (TextGrid.Cell cCell : this) {
 			if (cCell.isNextTo(cell)) {
 				return cCell;
 			}
@@ -440,9 +428,7 @@ public class CellSet implements Iterable<TextGrid.Cell> {
 			throw new IllegalArgumentException("cell cannot be null");
 		}
 		CellSet set = new CellSet();
-		Iterator<TextGrid.Cell> it = iterator();
-		while (it.hasNext()) {
-			TextGrid.Cell cCell = it.next();
+		for (TextGrid.Cell cCell : this) {
 			if (cCell.isNextTo(cell)) {
 				set.add(cCell);
 			}
@@ -452,9 +438,7 @@ public class CellSet implements Iterable<TextGrid.Cell> {
 
 	public void appendSet(CellSet set) {
 		typeIsValid = false;
-		Iterator<TextGrid.Cell> it = set.iterator();
-		while (it.hasNext()) {
-			TextGrid.Cell cell = it.next();
+		for (TextGrid.Cell cell : set) {
 			if (find(cell) == null) {
 				add(cell);
 			}
@@ -463,9 +447,7 @@ public class CellSet implements Iterable<TextGrid.Cell> {
 
 	public void subtractSet(CellSet set) {
 		typeIsValid = false;
-		Iterator<TextGrid.Cell> it = set.iterator();
-		while (it.hasNext()) {
-			TextGrid.Cell cell = it.next();
+		for (TextGrid.Cell cell : set) {
 			TextGrid.Cell thisCell = find(cell);
 			if (thisCell != null) {
 				remove(thisCell);
@@ -483,9 +465,7 @@ public class CellSet implements Iterable<TextGrid.Cell> {
 
 	public int getMaxX() {
 		int result = 0;
-		Iterator<TextGrid.Cell> it = iterator();
-		while (it.hasNext()) {
-			TextGrid.Cell cell = it.next();
+		for (TextGrid.Cell cell : this) {
 			if (cell.x > result) {
 				result = cell.x;
 			}
@@ -495,9 +475,7 @@ public class CellSet implements Iterable<TextGrid.Cell> {
 
 	public int getMinX() {
 		int result = Integer.MAX_VALUE;
-		Iterator<TextGrid.Cell> it = iterator();
-		while (it.hasNext()) {
-			TextGrid.Cell cell = it.next();
+		for (TextGrid.Cell cell : this) {
 			if (cell.x < result) {
 				result = cell.x;
 			}
@@ -507,9 +485,7 @@ public class CellSet implements Iterable<TextGrid.Cell> {
 
 	public int getMaxY() {
 		int result = 0;
-		Iterator<TextGrid.Cell> it = iterator();
-		while (it.hasNext()) {
-			TextGrid.Cell cell = it.next();
+		for (TextGrid.Cell cell : this) {
 			if (cell.y > result) {
 				result = cell.y;
 			}
@@ -519,9 +495,7 @@ public class CellSet implements Iterable<TextGrid.Cell> {
 
 	public int getMinY() {
 		int result = Integer.MAX_VALUE;
-		Iterator<TextGrid.Cell> it = iterator();
-		while (it.hasNext()) {
-			TextGrid.Cell cell = it.next();
+		for (TextGrid.Cell cell : this) {
 			if (cell.y < result) {
 				result = cell.y;
 			}
@@ -548,13 +522,9 @@ public class CellSet implements Iterable<TextGrid.Cell> {
 	public static ArrayList<CellSet> removeDuplicateSets(ArrayList<CellSet> list) {
 		ArrayList<CellSet> uniqueSets = new ArrayList<CellSet>();
 
-		Iterator<CellSet> it = list.iterator();
-		while (it.hasNext()) {
-			CellSet set = it.next();
+		for (CellSet set : list) {
 			boolean isOriginal = true;
-			Iterator<CellSet> uniquesIt = uniqueSets.iterator();
-			while (uniquesIt.hasNext()) {
-				CellSet uniqueSet = uniquesIt.next();
+			for (CellSet uniqueSet : uniqueSets) {
 				if (set.equals(uniqueSet)) {
 					isOriginal = false;
 				}
@@ -596,9 +566,7 @@ public class CellSet implements Iterable<TextGrid.Cell> {
 		TextGrid boundaryGrid = new TextGrid(getMaxX() + 2, getMaxY() + 2);
 		boundaryGrid.fillCellsWith(this, '*');
 
-		Iterator<TextGrid.Cell> it = iterator();
-		while (it.hasNext()) {
-			TextGrid.Cell cell = it.next();
+		for (TextGrid.Cell cell : this) {
 			if (boundaryGrid.isBlank(cell.x, cell.y)) {
 				continue;
 			}
@@ -649,9 +617,7 @@ public class CellSet implements Iterable<TextGrid.Cell> {
 			workGrid.printDebug();
 		}
 
-		Iterator<TextGrid.Cell> it = iterator();
-		while (it.hasNext()) {
-			TextGrid.Cell start = it.next();
+		for (TextGrid.Cell start : this) {
 			if (workGrid.isLinesEnd(start) && !visitedEnds.contains(start)) {
 
 				if (DEBUG) {
