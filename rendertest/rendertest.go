@@ -87,6 +87,7 @@ func renderShadows(img *image.RGBA, shapes []Shape, g Grid, opt Options) {
 }
 
 func blurShadows(img *image.RGBA) {
+	StackBlur(img, 6, true)
 	/* // the blurring/convolution from go-graphics pkg is SLOOOOOOOOOW
 	if true {
 		img2 := image.NewRGBA(img.Bounds())
