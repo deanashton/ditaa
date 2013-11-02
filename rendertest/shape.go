@@ -3,6 +3,7 @@ package main
 import (
 	"code.google.com/p/freetype-go/freetype/raster"
 	"math"
+	//"fmt"
 )
 
 type Grid struct {
@@ -47,6 +48,51 @@ func (s *Shape) MakeMarkerPaths(g Grid) (outer, inner raster.Path) {
 		Circle(float64(center.X), float64(center.Y), (diameter-STROKE_WIDTH)*0.5)
 }
 
+type Rect struct{ Min, Max Point }
+
+func Bounds(pp []Point) Rect {
+	if len(pp) == 0 {
+		return Rect{}
+	}
+	r := Rect{pp[0], pp[0]}
+	for _, p := range pp {
+		if p.X < r.Min.X {
+			r.Min.X = p.X
+		}
+		if p.X > r.Max.X {
+			r.Max.X = p.X
+		}
+		if p.Y < r.Min.Y {
+			r.Min.Y = p.Y
+		}
+		if p.Y > r.Max.Y {
+			r.Max.Y = p.Y
+		}
+	}
+	return r
+}
+
+func (s *Shape) makeDocumentPath() raster.Path {
+	bb := Bounds(s.Points)
+	p1 := Point{X: bb.Min.X, Y: bb.Min.Y}
+	p2 := Point{X: bb.Max.X, Y: bb.Min.Y}
+	p3 := Point{X: bb.Max.X, Y: bb.Max.Y}
+	p4 := Point{X: bb.Min.X, Y: bb.Max.Y}
+	pmid := Point{X: 0.5 * (bb.Min.X + bb.Max.X), Y: bb.Max.Y}
+
+	path := raster.Path{}
+	path.Start(P(p1))
+	path.Add1(P(p2))
+	path.Add1(P(p3))
+
+	controlDX := (bb.Max.X - bb.Min.X) / 6
+	controlDY := (bb.Max.Y - bb.Min.Y) / 8
+	path.Add2(P(Point{X: pmid.X + controlDX, Y: pmid.Y - controlDY}), P(pmid))
+	path.Add2(P(Point{X: pmid.X - controlDX, Y: pmid.Y + controlDY}), P(p4))
+	path.Add1(P(p1))
+	return path
+}
+
 func (s *Shape) MakeIntoRenderPath(g Grid, opt Options) raster.Path {
 	if s.Type == TYPE_POINT_MARKER {
 		panic("please handle markers separately")
@@ -55,7 +101,9 @@ func (s *Shape) MakeIntoRenderPath(g Grid, opt Options) raster.Path {
 	}
 	if len(s.Points) == 4 {
 		switch s.Type {
-		case TYPE_DOCUMENT, TYPE_STORAGE, TYPE_IO, TYPE_DECISION, TYPE_MANUAL_OPERATION, TYPE_TRAPEZOID, TYPE_ELLIPSE:
+		case TYPE_DOCUMENT:
+			return s.makeDocumentPath()
+		case TYPE_STORAGE, TYPE_IO, TYPE_DECISION, TYPE_MANUAL_OPERATION, TYPE_TRAPEZOID, TYPE_ELLIPSE:
 			//panic(fmt.Sprintf("niy for type %d", s.Type))
 			//TODO: fixme
 			return nil
