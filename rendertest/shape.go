@@ -141,6 +141,26 @@ func (s *Shape) makeTrapezoidPath(g Grid, opt Options, inverted bool) raster.Pat
 	return path
 }
 
+func (s *Shape) makeDecisionPath() raster.Path {
+	if len(s.Points) != 4 {
+		return nil
+	}
+	bb := Bounds(s.Points)
+	pmid := Point{X: 0.5 * (bb.Min.X + bb.Max.X), Y: 0.5 * (bb.Min.Y + bb.Max.Y)}
+	left := Point{X: bb.Min.X, Y: pmid.Y}
+	right := Point{X: bb.Max.X, Y: pmid.Y}
+	top := Point{X: pmid.X, Y: bb.Min.Y}
+	bottom := Point{X: pmid.X, Y: bb.Max.Y}
+
+	path := raster.Path{}
+	path.Start(P(left))
+	path.Add1(P(top))
+	path.Add1(P(right))
+	path.Add1(P(bottom))
+	path.Add1(P(left)) // close path
+	return path
+}
+
 func (s *Shape) MakeIntoRenderPath(g Grid, opt Options) raster.Path {
 	if s.Type == TYPE_POINT_MARKER {
 		panic("please handle markers separately")
@@ -157,7 +177,9 @@ func (s *Shape) MakeIntoRenderPath(g Grid, opt Options) raster.Path {
 			return s.makeTrapezoidPath(g, opt, true)
 		case TYPE_TRAPEZOID:
 			return s.makeTrapezoidPath(g, opt, false)
-		case TYPE_STORAGE, TYPE_DECISION, TYPE_ELLIPSE:
+		case TYPE_DECISION:
+			return s.makeDecisionPath()
+		case TYPE_STORAGE, TYPE_ELLIPSE:
 			_ = fmt.Sprintf
 			//panic(fmt.Sprintf("niy for type %d", s.Type))
 			//TODO: fixme
