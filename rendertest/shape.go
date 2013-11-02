@@ -252,9 +252,9 @@ func (s *Shape) MakeIntoRenderPath(g Grid, opt Options) raster.Path {
 			return s.makeTrapezoidPath(g, opt, false)
 		case TYPE_DECISION:
 			return s.makeDecisionPath()
-		case TYPE_STORAGE:
-			return s.makeStoragePath(g)
-		case TYPE_ELLIPSE:
+		//case TYPE_STORAGE:
+		//	return s.makeStoragePath(g)
+		case TYPE_STORAGE, TYPE_ELLIPSE:
 			_ = fmt.Sprintf
 			//panic(fmt.Sprintf("niy for type %d", s.Type))
 			//TODO: fixme
