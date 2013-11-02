@@ -13,6 +13,19 @@ type Grid struct {
 	CellH int `xml:"cellHeight"`
 }
 
+type Cell struct {
+	X, Y int
+}
+
+func (g Grid) CellFor(p Point) Cell {
+	return Cell{int(p.X) / g.CellW, int(p.Y) / g.CellH}
+}
+
+func (g Grid) CellMinX(cell Cell) int { return cell.X * g.CellW }
+func (g Grid) CellMaxX(cell Cell) int { return (cell.X + 1) * g.CellW }
+func (g Grid) CellMinY(cell Cell) int { return cell.Y * g.CellH }
+func (g Grid) CellMaxY(cell Cell) int { return (cell.Y + 1) * g.CellH }
+
 type ShapeType int
 
 const (
@@ -203,6 +216,24 @@ func (s *Shape) makeStoragePath(g Grid) raster.Path {
 	return path
 }
 
+func getCellEdgePointBetween(pointInCell, otherPoint Point, g Grid) Point {
+	if pointInCell == otherPoint {
+		panic("the two points cannot be the same")
+	}
+	cell := g.CellFor(pointInCell)
+	switch {
+	case otherPoint.NorthOf(pointInCell):
+		return Point{X: pointInCell.X, Y: float64(g.CellMinY(cell))}
+	case otherPoint.SouthOf(pointInCell):
+		return Point{X: pointInCell.X, Y: float64(g.CellMaxY(cell))}
+	case otherPoint.WestOf(pointInCell):
+		return Point{X: float64(g.CellMinX(cell)), Y: pointInCell.Y}
+	case otherPoint.EastOf(pointInCell):
+		return Point{X: float64(g.CellMaxX(cell)), Y: pointInCell.Y}
+	}
+	panic("should not reach")
+}
+
 func (s *Shape) MakeIntoRenderPath(g Grid, opt Options) raster.Path {
 	if s.Type == TYPE_POINT_MARKER {
 		panic("please handle markers separately")
@@ -235,15 +266,14 @@ func (s *Shape) MakeIntoRenderPath(g Grid, opt Options) raster.Path {
 	}
 	path := raster.Path{}
 	point, prev, next := s.Points[0], s.Points[len(s.Points)-1], s.Points[1]
-	_, _ = prev, next
-	//var entry, exit *Point
 	switch point.Type {
 	case POINT_NORMAL:
 		path.Start(P(point))
 	case POINT_ROUND:
-		//TODO: fixme
-		path.Start(P(point))
-		//panic("niy")
+		entry := getCellEdgePointBetween(point, prev, g)
+		exit := getCellEdgePointBetween(point, next, g)
+		path.Start(P(entry))
+		path.Add2(P(point), P(exit))
 	}
 	for i := 1; i < len(s.Points); i++ {
 		prev = point
@@ -257,13 +287,22 @@ func (s *Shape) MakeIntoRenderPath(g Grid, opt Options) raster.Path {
 		case POINT_NORMAL:
 			path.Add1(P(point))
 		case POINT_ROUND:
-			//TODO: fixme
-			path.Add1(P(point))
-			//panic("niy")
+			entry := getCellEdgePointBetween(point, prev, g)
+			exit := getCellEdgePointBetween(point, next, g)
+			path.Add1(P(entry))
+			path.Add2(P(point), P(exit))
 		}
 	}
 	if s.Closed && len(s.Points) > 2 {
-		path.Add1(P(s.Points[0])) //FIXME: other for POINT_ROUND?
+		prev = point
+		point = s.Points[0]
+		switch point.Type {
+		case POINT_NORMAL:
+			path.Add1(P(point))
+		case POINT_ROUND:
+			entry := getCellEdgePointBetween(point, prev, g)
+			path.Add1(P(entry))
+		}
 	}
 	return path
 }

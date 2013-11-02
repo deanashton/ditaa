@@ -39,6 +39,11 @@ type Point struct {
 	Type   PointType `xml:"type,attr"`
 }
 
+func (p1 Point) NorthOf(p2 Point) bool { return p1.Y < p2.Y }
+func (p1 Point) SouthOf(p2 Point) bool { return p1.Y > p2.Y }
+func (p1 Point) WestOf(p2 Point) bool  { return p1.X < p2.X }
+func (p1 Point) EastOf(p2 Point) bool  { return p1.X > p2.X }
+
 func P(p Point) raster.Point {
 	//TODO: handle fractional part too, but probably not needed
 	return raster.Point{
