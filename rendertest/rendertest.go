@@ -234,7 +234,8 @@ func RenderDiagram(img *image.RGBA, diagram *Diagram, opt Options) error {
 		//TODO: draw
 		if shape.Type != TYPE_ARROWHEAD {
 			g := raster.NewRasterizer(diagram.Grid.W, diagram.Grid.H)
-			g.AddPath(path)
+			//g.AddPath(path)
+			raster.Stroke(g, path, 1<<8, nil, nil)
 			painter := raster.NewRGBAPainter(img)
 			painter.SetColor(shape.StrokeColor.RGBA())
 			g.Rasterize(painter)
