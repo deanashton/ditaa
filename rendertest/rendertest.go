@@ -51,7 +51,8 @@ func RenderDiagram(img *image.RGBA, diagram *Diagram, opt Options) error {
 	//TODO: drop shadows
 	//TODO: special handling of storage shapes
 	//TODO: sorting of shapes (largest first)
-	//TODO: render rest of shapes + collect point markers
+
+	// render rest of shapes + collect point markers
 	pointMarkers := []Shape{}
 	for _, shape := range diagram.Shapes {
 		switch shape.Type {
@@ -85,7 +86,8 @@ func RenderDiagram(img *image.RGBA, diagram *Diagram, opt Options) error {
 			Stroke(img, path, shape.StrokeColor.RGBA())
 		}
 	}
-	//TODO: render point markers
+
+	// render point markers
 	for _, shape := range pointMarkers {
 		outer, inner := shape.MakeMarkerPaths(diagram.Grid)
 		Fill(img, outer, shape.StrokeColor.RGBA())
