@@ -13,8 +13,9 @@ import (
 )
 
 const (
-	sources = "../orig-java/tests/xmls"
-	results = "imgs"
+	sources      = "../orig-java/tests/xmls"
+	results      = "imgs"
+	STROKE_WIDTH = 1 << 8
 )
 
 type Ref struct {
@@ -229,13 +230,28 @@ func RenderDiagram(img *image.RGBA, diagram *Diagram, opt Options) error {
 		if len(shape.Points) == 0 {
 			continue
 		}
+
 		path := shape.MakeIntoRenderPath(diagram.Grid, opt)
-		//TODO: fill
-		//TODO: draw
+
+		// fill
+		if path != nil && shape.Closed && !shape.Dashed {
+			g := raster.NewRasterizer(diagram.Grid.W, diagram.Grid.H)
+			g.AddPath(path)
+			painter := raster.NewRGBAPainter(img)
+			if shape.FillColor != nil {
+				painter.SetColor(shape.FillColor.RGBA())
+			} else {
+				painter.SetColor(color.RGBA{255, 255, 255, 255})
+			}
+			g.Rasterize(painter)
+		}
+
+		// draw
 		if shape.Type != TYPE_ARROWHEAD {
+			//TODO: support dashed lines
 			g := raster.NewRasterizer(diagram.Grid.W, diagram.Grid.H)
 			//g.AddPath(path)
-			raster.Stroke(g, path, 1<<8, nil, nil)
+			raster.Stroke(g, path, STROKE_WIDTH, nil, nil)
 			painter := raster.NewRGBAPainter(img)
 			painter.SetColor(shape.StrokeColor.RGBA())
 			g.Rasterize(painter)
