@@ -21,11 +21,13 @@
 package org.stathissideris.ascii2image.graphics;
 
 import java.awt.Font;
+import java.awt.FontFormatException;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.font.FontRenderContext;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.Locale;
 
 /**
@@ -54,13 +56,13 @@ public class FontMeasurer {
 		fakeRenderContext = fakeGraphics.getFontRenderContext();
 	}
 
-	public int getWidthFor(String str, int pixelHeight) {
+	public int getWidthFor(String str, int pixelHeight) throws FontFormatException, IOException {
 		Font font = getFontFor(pixelHeight);
 		Rectangle2D rectangle = font.getStringBounds(str, fakeRenderContext);
 		return (int) rectangle.getWidth();
 	}
 
-	public int getHeightFor(String str, int pixelHeight) {
+	public int getHeightFor(String str, int pixelHeight) throws FontFormatException, IOException {
 		Font font = getFontFor(pixelHeight);
 		Rectangle2D rectangle = font.getStringBounds(str, fakeRenderContext);
 		return (int) rectangle.getHeight();
@@ -80,7 +82,7 @@ public class FontMeasurer {
 		return font.getStringBounds(str, fakeRenderContext);
 	}
 
-	public Font getFontFor(int pixelHeight) {
+	public Font getFontFor(int pixelHeight) throws FontFormatException, IOException {
 		BufferedImage image = new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB);
 		image.createGraphics();
 		return getFontFor(pixelHeight, fakeRenderContext);
@@ -103,9 +105,9 @@ public class FontMeasurer {
 		return height;
 	}
 
-	public Font getFontFor(int maxWidth, String string) {
+	public Font getFontFor(int maxWidth, String string) throws FontFormatException, IOException {
 		float size = 12;
-		Font currentFont = new Font(fontFamilyName, Font.BOLD, (int) size);
+		Font currentFont = createFont((int) size);
 		//ascent is the distance between the baseline and the tallest character
 		int width = getWidthFor(string, currentFont);
 
@@ -141,9 +143,14 @@ public class FontMeasurer {
 		return null;
 	}
 
-	public Font getFontFor(int pixelHeight, FontRenderContext frc) {
+	private Font createFont(float size) throws FontFormatException, IOException {
+		Font f = Font.createFont(Font.TRUETYPE_FONT, getClass().getResourceAsStream("font.ttf"));
+		return f.deriveFont(size);
+	}
+
+	public Font getFontFor(int pixelHeight, FontRenderContext frc) throws FontFormatException, IOException {
 		float size = 12;
-		Font currentFont = new Font(fontFamilyName, Font.BOLD, (int) size);
+		Font currentFont = createFont((int) size);
 		//		Font currentFont = new Font("Times", Font.BOLD, (int) size);
 		if (DEBUG) {
 			System.out.println(currentFont.getFontName());

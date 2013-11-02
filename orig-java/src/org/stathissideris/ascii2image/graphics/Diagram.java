@@ -22,7 +22,9 @@ package org.stathissideris.ascii2image.graphics;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.FontFormatException;
 import java.awt.geom.Rectangle2D;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -93,9 +95,11 @@ public class Diagram {
 	 * <p>
 	 * Finally, the text processing occurs: [pending]
 	 * </p>
+	 * @throws IOException
+	 * @throws FontFormatException
 	 *
 	 */
-	public Diagram(TextGrid textGrid, ConversionOptions options) {
+	public Diagram(TextGrid textGrid, ConversionOptions options) throws FontFormatException, IOException {
 
 		ggrid = new GraphicalGrid(textGrid, options.renderingOptions);
 

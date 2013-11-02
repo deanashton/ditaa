@@ -1,6 +1,6 @@
 /*
  * DiTAA - Diagrams Through Ascii Art
- * 
+ *
  * Copyright (C) 2004 Efstathios Sideris
  *
  * This program is free software; you can redistribute it and/or
@@ -16,10 +16,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *   
+ *
  */
 package org.stathissideris.ascii2image.core;
 
+import java.awt.FontFormatException;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
@@ -27,12 +28,12 @@ import org.stathissideris.ascii2image.graphics.Diagram;
 import org.stathissideris.ascii2image.text.TextGrid;
 
 /**
- * 
+ *
  * @author Efstathios Sideris
  */
 public class PerformanceTester {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws FontFormatException {
 
 		String inputFilename = "tests/text/ditaa_bug.txt";
 		ConversionOptions options = new ConversionOptions();

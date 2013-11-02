@@ -22,6 +22,7 @@
 
 package org.stathissideris.ascii2image.core;
 
+import java.awt.FontFormatException;
 import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
@@ -194,7 +195,15 @@ public class JavadocTaglet implements Taglet {
 			return strBuf.toString();
 		} else {
 			File outputFile = getOutputFile(tag.position().file(), figureName);
-			generateImage(figureText, outputFile);
+			try {
+				generateImage(figureText, outputFile);
+			} catch (FontFormatException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 
 			StringBuffer strBuf = new StringBuffer();
 			strBuf.append("<img src=\"");
@@ -296,8 +305,10 @@ public class JavadocTaglet implements Taglet {
 	 *                the ascii art text.
 	 * @param outputFile
 	 *                the file name of the image that is generated.
+	 * @throws IOException
+	 * @throws FontFormatException
 	 */
-	private void generateImage(String text, File outputFile) {
+	private void generateImage(String text, File outputFile) throws FontFormatException, IOException {
 		ConversionOptions options = new ConversionOptions();
 		TextGrid textGrid = new TextGrid();
 		try {

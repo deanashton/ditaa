@@ -2,24 +2,39 @@ package main
 
 import (
 	"bufio"
+	"code.google.com/p/freetype-go/freetype"
+	"code.google.com/p/freetype-go/freetype/truetype"
 	"encoding/xml"
 	"fmt"
 	"image"
 	"image/png"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 )
 
 const (
-	sources = "../orig-java/tests/xmls"
-	results = "imgs"
+	sources  = "../orig-java/tests/xmls"
+	results  = "imgs"
+	fontpath = "../orig-java/src/org/stathissideris/ascii2image/graphics/font.ttf"
 )
+
+type Label struct {
+	Text         string  `xml:"text"`
+	FontSize     float64 `xml:"font>size"`
+	X            int     `xml:"xPos"`
+	Y            int     `xml:"yPos"`
+	Color        Color   `xml:"color"`
+	OnLine       bool    `xml:"isTextOnLine"`
+	Outline      bool    `xml:"hasOutline"`
+	OutlineColor Color   `xml:"outlineColor"`
+}
 
 type Diagram struct {
 	XMLName xml.Name `xml:"diagram"`
 	Grid    Grid     `xml:"grid"`
 	Shapes  []Shape  `xml:"shapes>shape"`
-	//TODO: []Text
+	Labels  []Label  `xml:"texts>text"`
 }
 
 type Options struct{}
@@ -37,10 +52,23 @@ func LoadDiagram(path string) (*Diagram, error) {
 		return nil, fmt.Errorf("decoding diagram from '%s': %s", path, err)
 	}
 	//panic(fmt.Sprintf("%s: %#v", path, diagram))
+	//if len(diagram.Labels)>0 {
+	//	panic(fmt.Sprintf("%s: %#v", path, diagram.Labels))
+	//}
 	return &diagram, nil
 }
 
 func RenderDiagram(img *image.RGBA, diagram *Diagram, opt Options) error {
+	fontfile, err := ioutil.ReadFile(fontpath)
+	if err != nil {
+		return err
+	}
+	font, err := truetype.Parse(fontfile)
+	if err != nil {
+		return err
+	}
+	_ = font
+
 	for y := 0; y < diagram.Grid.H; y++ {
 		for x := 0; x < diagram.Grid.W; x++ {
 			img.SetRGBA(x, y, WHITE)
@@ -93,7 +121,18 @@ func RenderDiagram(img *image.RGBA, diagram *Diagram, opt Options) error {
 		Fill(img, outer, shape.StrokeColor.RGBA())
 		Fill(img, inner, WHITE)
 	}
-	//TODO: handle text
+
+	// handle text
+	for _, label := range diagram.Labels {
+		ctx := freetype.NewContext()
+		ctx.SetFont(font)
+		ctx.SetFontSize(label.FontSize)
+		ctx.SetSrc(image.NewUniform(label.Color.RGBA()))
+		ctx.SetDst(img)
+		ctx.SetClip(img.Bounds())
+		//TODO: handle outline
+		ctx.DrawString(label.Text, P(Point{X: float64(label.X), Y: float64(label.Y)}))
+	}
 	return nil
 }
 
