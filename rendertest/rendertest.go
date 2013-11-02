@@ -12,14 +12,61 @@ const (
 	results = "imgs"
 )
 
+type Ref struct {
+	From string `xml:"reference,attr"`
+}
+
 type Grid struct {
-	XMLName xml.Name `xml:"grid"`
-	W       int      `xml:"width,attr"`
-	H       int      `xml:"height,attr"`
+	W     int `xml:"width"`
+	H     int `xml:"height"`
+	CellW int `xml:"cellWidth"`
+	CellH int `xml:"cellHeight"`
+}
+
+type ShapeType int
+
+const (
+	TYPE_SIMPLE ShapeType = iota
+	TYPE_ARROWHEAD
+	TYPE_POINT_MARKER
+	TYPE_DOCUMENT
+	TYPE_STORAGE
+	TYPE_IO
+	TYPE_DECISION
+	TYPE_MANUAL_OPERATION // upside-down trapezoid
+	TYPE_TRAPEZOID        // rightside-up trapezoid
+	TYPE_ELLIPSE
+	TYPE_CUSTOM ShapeType = 9999
+)
+
+type Color struct {
+	R int `xml:"r,attr"`
+	G int `xml:"g,attr"`
+	B int `xml:"b,attr"`
+	A int `xml:"a,attr"`
+	Ref
+}
+
+type Point struct {
+	X      float64 `xml:"x,attr"`
+	Y      float64 `xml:"y,attr"`
+	Locked bool    `xml:"locked,attr"`
+	Type   int     `xml:"type,attr"`
+}
+
+type Shape struct {
+	Type        int     `xml:"type"`
+	FillColor   Color   `xml:"fillColor"`
+	StrokeColor Color   `xml:"strokeColor"`
+	Closed      bool    `xml:"isClosed"`
+	Dashed      bool    `xml:"isStrokeDashed"`
+	Points      []Point `xml:"points>point"`
 }
 
 type Diagram struct {
 	XMLName xml.Name `xml:"diagram"`
+	Grid    Grid     `xml:"grid"`
+	Shapes  []Shape  `xml:"shapes>shape"`
 }
 
 func LoadDiagram(path string) (*Diagram, error) {
@@ -32,6 +79,7 @@ func LoadDiagram(path string) (*Diagram, error) {
 	if err != nil {
 		return nil, fmt.Errorf("decoding diagram from '%s': %s", path, err)
 	}
+	panic(fmt.Sprintf("%s: %#v", path, diagram))
 	return &diagram, nil
 }
 
