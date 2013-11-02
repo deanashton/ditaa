@@ -14,9 +14,11 @@ import (
 )
 
 const (
-	sources      = "../orig-java/tests/xmls"
-	results      = "imgs"
-	STROKE_WIDTH = 1 << 8
+	sources = "../orig-java/tests/xmls"
+	results = "imgs"
+
+	STROKE_WIDTH float64 = 1
+	MAGIC_K      float64 = 0.5522847498
 )
 
 type Grid struct {
@@ -93,42 +95,50 @@ func P(p Point) raster.Point {
 	}
 }
 
+func ftofix(f float64) raster.Fix32 {
+	//TODO: verify this is OK
+	a := math.Trunc(f)
+	b := math.Ldexp(math.Abs(f-a), 8)
+	return raster.Fix32(a)<<8 + raster.Fix32(b)
+}
+
 func Circle(x, y, r float64) raster.Path {
 	//panic(fmt.Sprint(x, y, r))
-	F := func(f float64) raster.Fix32 {
-		//TODO: verify this is OK
-		a := math.Trunc(f)
-		b := math.Ldexp(math.Abs(f-a), 8)
-		return raster.Fix32(a)<<8 + raster.Fix32(b)
-	}
 	P := func(x, y float64) raster.Point {
-		return raster.Point{F(x), F(y)}
+		return raster.Point{ftofix(x), ftofix(y)}
 	}
 	p1 := P(x+r, y)
 	p2 := P(x, y+r)
 	p3 := P(x-r, y)
 	p4 := P(x, y-r)
+	kr := MAGIC_K * r
 	path := raster.Path{}
+	// see: http://hansmuller-flex.blogspot.com/2011/04/approximating-circular-arc-with-cubic.html
+	//  or: http://www.whizkidtech.redprince.net/bezier/circle/
+	// etc. -- google "drawing circle with cubic curves"
 	path.Start(p1)
-	path.Add2(p1, p2)
-	path.Add2(p2, p3)
-	path.Add2(p3, p4)
-	path.Add2(p4, p1)
+	path.Add3(P(x+r, y+kr), P(x+kr, y+r), p2)
+	path.Add3(P(x-kr, y+r), P(x-r, y+kr), p3)
+	path.Add3(P(x-r, y-kr), P(x-kr, y-r), p4)
+	path.Add3(P(x+kr, y-r), P(x+r, y-kr), p1)
 	return path
 }
 
-func (s *Shape) makeMarkerPath(g Grid) raster.Path {
+func (s *Shape) MakeMarkerPaths(g Grid) (outer, inner raster.Path) {
 	if len(s.Points) != 1 {
-		return nil
+		return nil, nil
 	}
 	center := s.Points[0]
 	diameter := 0.7 * math.Min(float64(g.CellW), float64(g.CellH))
-	return Circle(float64(center.X), float64(center.Y), diameter*0.5)
+	return Circle(float64(center.X), float64(center.Y), (diameter+STROKE_WIDTH)*0.5),
+		Circle(float64(center.X), float64(center.Y), (diameter-STROKE_WIDTH)*0.5)
 }
 
 func (s *Shape) MakeIntoRenderPath(g Grid, opt Options) raster.Path {
 	if s.Type == TYPE_POINT_MARKER {
-		return s.makeMarkerPath(g)
+		panic("please handle markers separately")
+		return nil
+		//return s.makeMarkerPath(g)
 	}
 	if len(s.Points) == 4 {
 		switch s.Type {
@@ -242,7 +252,7 @@ func RenderDiagram(img *image.RGBA, diagram *Diagram, opt Options) error {
 			//TODO: support dashed lines
 			g := raster.NewRasterizer(diagram.Grid.W, diagram.Grid.H)
 			//g.AddPath(path)
-			raster.Stroke(g, path, STROKE_WIDTH, nil, nil)
+			raster.Stroke(g, path, ftofix(STROKE_WIDTH), nil, nil)
 			painter := raster.NewRGBAPainter(img)
 			painter.SetColor(shape.StrokeColor.RGBA())
 			g.Rasterize(painter)
@@ -250,15 +260,16 @@ func RenderDiagram(img *image.RGBA, diagram *Diagram, opt Options) error {
 	}
 	//TODO: render point markers
 	for _, shape := range pointMarkers {
-		path := shape.MakeIntoRenderPath(diagram.Grid, opt)
+		outer, inner := shape.MakeMarkerPaths(diagram.Grid)
+		//path := shape.MakeIntoRenderPath(diagram.Grid, opt)
 		g := raster.NewRasterizer(diagram.Grid.W, diagram.Grid.H)
-		g.AddPath(path)
 		painter := raster.NewRGBAPainter(img)
-		painter.SetColor(WHITE)
+		g.AddPath(outer)
+		painter.SetColor(shape.StrokeColor.RGBA())
 		g.Rasterize(painter)
 		g.Clear()
-		raster.Stroke(g, path, STROKE_WIDTH, nil, nil)
-		painter.SetColor(shape.StrokeColor.RGBA())
+		g.AddPath(inner)
+		painter.SetColor(WHITE)
 		g.Rasterize(painter)
 	}
 	//TODO: handle text
