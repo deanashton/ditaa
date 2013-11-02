@@ -38,6 +38,10 @@ type Shape struct {
 	Points      []Point   `xml:"points>point"`
 }
 
+func (s *Shape) DropsShadow() bool {
+	return s.Closed && s.Type != TYPE_ARROWHEAD && s.Type != TYPE_POINT_MARKER && !s.Dashed
+}
+
 func (s *Shape) MakeMarkerPaths(g Grid) (outer, inner raster.Path) {
 	if len(s.Points) != 1 {
 		return nil, nil

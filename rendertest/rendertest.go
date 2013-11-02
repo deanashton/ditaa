@@ -4,9 +4,12 @@ import (
 	"bufio"
 	"code.google.com/p/freetype-go/freetype"
 	"code.google.com/p/freetype-go/freetype/truetype"
+	"code.google.com/p/graphics-go/graphics"
+	"code.google.com/p/graphics-go/graphics/interp"
 	"encoding/xml"
 	"fmt"
 	"image"
+	"image/color"
 	"image/png"
 	"io/ioutil"
 	"os"
@@ -37,7 +40,9 @@ type Diagram struct {
 	Labels  []Label  `xml:"texts>text"`
 }
 
-type Options struct{}
+type Options struct {
+	DropShadows bool
+}
 
 func LoadDiagram(path string) (*Diagram, error) {
 	r, err := os.Open(path)
@@ -58,6 +63,26 @@ func LoadDiagram(path string) (*Diagram, error) {
 	return &diagram, nil
 }
 
+func renderShadows(img *image.RGBA, shapes []Shape, g Grid, opt Options) {
+	for _, shape := range shapes {
+		if len(shape.Points) == 0 || !shape.DropsShadow() || shape.Type == TYPE_CUSTOM {
+			continue
+		}
+		path := shape.MakeIntoRenderPath(g, opt)
+		if path == nil {
+			continue
+		}
+		Fill(img, path, color.RGBA{150, 150, 150, 255})
+	}
+	offset := g.CellW
+	if g.CellH < offset {
+		offset = g.CellH
+	}
+	img2 := image.NewRGBA(image.Rect(0, 0, g.W, g.H))
+	graphics.I.Translate(float64(offset), float64(offset)).Transform(img2, img, interp.Bilinear)
+	*img = *img2
+}
+
 func RenderDiagram(img *image.RGBA, diagram *Diagram, opt Options) error {
 	fontfile, err := ioutil.ReadFile(fontpath)
 	if err != nil {
@@ -76,7 +101,12 @@ func RenderDiagram(img *image.RGBA, diagram *Diagram, opt Options) error {
 	}
 
 	//TODO: antialiasing options
-	//TODO: drop shadows
+
+	// drop shadows
+	if opt.DropShadows {
+		renderShadows(img, diagram.Shapes, diagram.Grid, opt)
+		//TODO: blur shadows
+	}
 
 	//render storage shapes
 	//special case since they are '3d' and should be
@@ -166,7 +196,7 @@ func runRender(src, dst string) error {
 		return err
 	}
 	img := image.NewRGBA(image.Rect(0, 0, diagram.Grid.W, diagram.Grid.H))
-	err = RenderDiagram(img, diagram, Options{})
+	err = RenderDiagram(img, diagram, Options{DropShadows: true})
 	if err != nil {
 		return err
 	}
