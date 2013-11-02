@@ -159,6 +159,7 @@ public class XmlTester {
 
 				try {
 					XStream xstream = new XStream(new DomDriver("utf-8"));
+					xstream.setMode(XStream.NO_REFERENCES);
 					xstream.alias("diagram", diagram.class);
 					xstream.alias("shape", DiagramShape.class);
 					xstream.alias("point", ShapePoint.class);
