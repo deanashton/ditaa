@@ -452,7 +452,6 @@ public class DiagramShape extends DiagramComponent {
 
 		GeneralPath path = new GeneralPath();
 		ShapePoint point = getPoints().get(0);
-		diagram.getCellFor(point);
 		ShapePoint previous = getPoints().get(size - 1);
 		ShapePoint next = getPoints().get(1);
 		ShapePoint entryPoint;
@@ -480,8 +479,6 @@ public class DiagramShape extends DiagramComponent {
 			} else {
 				next = getPoints().get(0);
 			}
-
-			diagram.getCellFor(point);
 
 			if (point.getType() == ShapePoint.TYPE_NORMAL) {
 				//if(!isPointLinesEnd(point))
