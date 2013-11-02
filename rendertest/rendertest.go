@@ -95,6 +95,9 @@ func P(p Point) raster.Point {
 }
 
 func (s *Shape) MakeIntoRenderPath(g Grid, opt Options) raster.Path {
+	if s.StrokeColor.From != "" && s.StrokeColor.From != "../../shape/strokeColor" && s.StrokeColor.From != "../fillColor" && s.StrokeColor.From != "../../shape/fillColor" {
+		panic(s.StrokeColor.From)
+	}
 	if s.Type == TYPE_POINT_MARKER {
 		panic("niy")
 		//TODO: fixme
@@ -159,6 +162,41 @@ func LoadDiagram(path string) (*Diagram, error) {
 	err = xml.NewDecoder(bufio.NewReader(r)).Decode(&diagram)
 	if err != nil {
 		return nil, fmt.Errorf("decoding diagram from '%s': %s", path, err)
+	}
+	var prevFill, prevStroke Color
+	for i := range diagram.Shapes {
+		shape := &diagram.Shapes[i]
+		switch shape.StrokeColor.From {
+		case "":
+			break
+		case "../fillColor":
+			shape.StrokeColor = *shape.FillColor
+		case "../../shape/strokeColor":
+			shape.StrokeColor = prevStroke
+		case "../../shape/fillColor":
+			shape.StrokeColor = prevFill
+		default:
+			panic(shape.StrokeColor.From)
+		}
+		prevStroke = shape.StrokeColor
+		if shape.FillColor == nil {
+			continue
+		}
+		switch shape.FillColor.From { // TODO: fixme
+		case "":
+			break
+		case "../../shape[2]/fillColor", "../../shape[3]/fillColor":
+			//TODO:fixme
+			fallthrough
+		case "../../shape/strokeColor":
+			prevFill = prevStroke
+			fallthrough
+		case "../../shape/fillColor":
+			shape.FillColor = &prevFill
+		default:
+			panic(shape.FillColor.From)
+		}
+		prevFill = *shape.FillColor
 	}
 	//panic(fmt.Sprintf("%s: %#v", path, diagram))
 	return &diagram, nil
