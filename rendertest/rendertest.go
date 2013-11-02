@@ -86,7 +86,7 @@ func renderShadows(img *image.RGBA, shapes []Shape, g Grid, opt Options) {
 }
 
 func blurShadows(img *image.RGBA) {
-	radius := 6
+	radius := 4
 	StackBlur(img, radius, true)
 
 	// remove blur artifacts from the top-left border of image
