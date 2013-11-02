@@ -8,6 +8,7 @@ import (
 	"image"
 	"image/color"
 	"image/png"
+	"math"
 	"os"
 	"path/filepath"
 )
@@ -52,6 +53,8 @@ func (c Color) RGBA() color.RGBA {
 	return color.RGBA{c.R, c.G, c.B, c.A}
 }
 
+var WHITE = color.RGBA{255, 255, 255, 255}
+
 type PointType int
 
 const (
@@ -90,11 +93,42 @@ func P(p Point) raster.Point {
 	}
 }
 
+func Circle(x, y, r float64) raster.Path {
+	//panic(fmt.Sprint(x, y, r))
+	F := func(f float64) raster.Fix32 {
+		//TODO: verify this is OK
+		a := math.Trunc(f)
+		b := math.Ldexp(math.Abs(f-a), 8)
+		return raster.Fix32(a)<<8 + raster.Fix32(b)
+	}
+	P := func(x, y float64) raster.Point {
+		return raster.Point{F(x), F(y)}
+	}
+	p1 := P(x+r, y)
+	p2 := P(x, y+r)
+	p3 := P(x-r, y)
+	p4 := P(x, y-r)
+	path := raster.Path{}
+	path.Start(p1)
+	path.Add2(p1, p2)
+	path.Add2(p2, p3)
+	path.Add2(p3, p4)
+	path.Add2(p4, p1)
+	return path
+}
+
+func (s *Shape) makeMarkerPath(g Grid) raster.Path {
+	if len(s.Points) != 1 {
+		return nil
+	}
+	center := s.Points[0]
+	diameter := 0.7 * math.Min(float64(g.CellW), float64(g.CellH))
+	return Circle(float64(center.X), float64(center.Y), diameter*0.5)
+}
+
 func (s *Shape) MakeIntoRenderPath(g Grid, opt Options) raster.Path {
 	if s.Type == TYPE_POINT_MARKER {
-		panic("niy")
-		//TODO: fixme
-		return nil
+		return s.makeMarkerPath(g)
 	}
 	if len(s.Points) == 4 {
 		switch s.Type {
@@ -163,7 +197,7 @@ func LoadDiagram(path string) (*Diagram, error) {
 func RenderDiagram(img *image.RGBA, diagram *Diagram, opt Options) error {
 	for y := 0; y < diagram.Grid.H; y++ {
 		for x := 0; x < diagram.Grid.W; x++ {
-			img.SetRGBA(x, y, color.RGBA{255, 255, 255, 255})
+			img.SetRGBA(x, y, WHITE)
 		}
 	}
 
@@ -198,7 +232,7 @@ func RenderDiagram(img *image.RGBA, diagram *Diagram, opt Options) error {
 			if shape.FillColor != nil {
 				painter.SetColor(shape.FillColor.RGBA())
 			} else {
-				painter.SetColor(color.RGBA{255, 255, 255, 255})
+				painter.SetColor(WHITE)
 			}
 			g.Rasterize(painter)
 		}
@@ -215,6 +249,18 @@ func RenderDiagram(img *image.RGBA, diagram *Diagram, opt Options) error {
 		}
 	}
 	//TODO: render point markers
+	for _, shape := range pointMarkers {
+		path := shape.MakeIntoRenderPath(diagram.Grid, opt)
+		g := raster.NewRasterizer(diagram.Grid.W, diagram.Grid.H)
+		g.AddPath(path)
+		painter := raster.NewRGBAPainter(img)
+		painter.SetColor(WHITE)
+		g.Rasterize(painter)
+		g.Clear()
+		raster.Stroke(g, path, STROKE_WIDTH, nil, nil)
+		painter.SetColor(shape.StrokeColor.RGBA())
+		g.Rasterize(painter)
+	}
 	//TODO: handle text
 	return nil
 }
