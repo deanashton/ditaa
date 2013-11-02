@@ -161,6 +161,30 @@ func (s *Shape) makeDecisionPath() raster.Path {
 	return path
 }
 
+func (s *Shape) makeStoragePath(g Grid) raster.Path {
+	if len(s.Points) != 4 {
+		return nil
+	}
+	bb := Bounds(s.Points)
+	p1, p2, p3, p4 := specPoints(bb)
+
+	//control point offset X, and Y
+	offx := (bb.Max.X - bb.Min.X) / 6
+	offytop := float64(g.CellH) / 2
+	offybottom := float64(g.CellH) * 10 / 14
+
+	path := raster.Path{}
+	//top of cylinder
+	path.Start(P(p1))
+	path.Add3(P(Point{X: p1.X + offx, Y: p1.Y + offytop}), P(Point{X: p2.X - offx, Y: p2.Y + offytop}), P(p2))
+	path.Add3(P(Point{X: p2.X - offx, Y: p2.Y - offytop}), P(Point{X: p1.X + offx, Y: p1.Y - offytop}), P(p1))
+	//side of cylinder
+	path.Add1(P(p4))
+	path.Add3(P(Point{X: p4.X + offx, Y: p4.Y + offybottom}), P(Point{X: p3.X - offx, Y: p3.Y + offybottom}), P(p3))
+	path.Add1(P(p2))
+	return path
+}
+
 func (s *Shape) MakeIntoRenderPath(g Grid, opt Options) raster.Path {
 	if s.Type == TYPE_POINT_MARKER {
 		panic("please handle markers separately")
@@ -179,7 +203,9 @@ func (s *Shape) MakeIntoRenderPath(g Grid, opt Options) raster.Path {
 			return s.makeTrapezoidPath(g, opt, false)
 		case TYPE_DECISION:
 			return s.makeDecisionPath()
-		case TYPE_STORAGE, TYPE_ELLIPSE:
+		case TYPE_STORAGE:
+			return s.makeStoragePath(g)
+		case TYPE_ELLIPSE:
 			_ = fmt.Sprintf
 			//panic(fmt.Sprintf("niy for type %d", s.Type))
 			//TODO: fixme

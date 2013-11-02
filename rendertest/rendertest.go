@@ -77,7 +77,31 @@ func RenderDiagram(img *image.RGBA, diagram *Diagram, opt Options) error {
 
 	//TODO: antialiasing options
 	//TODO: drop shadows
-	//TODO: special handling of storage shapes
+
+	//render storage shapes
+	//special case since they are '3d' and should be
+	//rendered bottom to top
+	//TODO: known bug: if a storage object is within a bigger normal box, it will be overwritten in the main drawing loop
+	//(BUT this is not possible since tags are applied to all shapes overlaping shapes)
+	storageShapes := []Shape{}
+	for _, shape := range diagram.Shapes {
+		if shape.Type == TYPE_STORAGE {
+			//TODO: freetype-go doesn't implement stroking cubic paths -- need to fix or walk around
+			//storageShapes = append(storageShapes, shape)
+		}
+	}
+	//TODO: sort storage shapes
+	for _, shape := range storageShapes {
+		path := shape.MakeIntoRenderPath(diagram.Grid, opt)
+		//TODO: handle dashed
+		color := WHITE
+		if shape.FillColor != nil {
+			color = shape.FillColor.RGBA()
+		}
+		Fill(img, path, color)
+		Stroke(img, path, shape.StrokeColor.RGBA())
+	}
+
 	//TODO: sorting of shapes (largest first)
 
 	// render rest of shapes + collect point markers
