@@ -5,6 +5,7 @@ import (
 	"code.google.com/p/freetype-go/freetype"
 	"code.google.com/p/freetype-go/freetype/truetype"
 	"code.google.com/p/graphics-go/graphics"
+	//	"code.google.com/p/graphics-go/graphics/convolve"
 	"code.google.com/p/graphics-go/graphics/interp"
 	"encoding/xml"
 	"fmt"
@@ -78,9 +79,35 @@ func renderShadows(img *image.RGBA, shapes []Shape, g Grid, opt Options) {
 	if g.CellH < offset {
 		offset = g.CellH
 	}
-	img2 := image.NewRGBA(image.Rect(0, 0, g.W, g.H))
-	graphics.I.Translate(float64(offset), float64(offset)).Transform(img2, img, interp.Bilinear)
+	offsetf := float64(offset) / 3.3333
+	img2 := image.NewRGBA(img.Bounds())
+	graphics.I.Translate(float64(offsetf), float64(offsetf)).Transform(img2, img, interp.Bilinear)
 	*img = *img2
+}
+
+func blurShadows(img *image.RGBA) {
+	/* // the blurring/convolution from go-graphics pkg is SLOOOOOOOOOW
+	if true {
+		img2 := image.NewRGBA(img.Bounds())
+		graphics.Blur(img2, img, &graphics.BlurOptions{StdDev:2})
+		*img=*img2
+	}
+	radius := 5
+	radius2 := radius*radius
+	weight := 1/float64(radius2)
+	elements := make([]float64, radius2)
+	for k := range elements {
+		elements[k] = weight
+	}
+	kernel, err := convolve.NewKernel(elements)
+	if err!=nil{panic(err)}
+	img2 := image.NewRGBA(img.Bounds())
+	err = convolve.Convolve(img2, img, kernel)
+	if err!=nil{return //ignoring - ok?
+	}
+	*img=*img2
+	//TODO: fix to remove blurring of borders
+	*/
 }
 
 func RenderDiagram(img *image.RGBA, diagram *Diagram, opt Options) error {
@@ -105,7 +132,11 @@ func RenderDiagram(img *image.RGBA, diagram *Diagram, opt Options) error {
 	// drop shadows
 	if opt.DropShadows {
 		renderShadows(img, diagram.Shapes, diagram.Grid, opt)
+
 		//TODO: blur shadows
+		if true {
+			blurShadows(img)
+		}
 	}
 
 	//render storage shapes
