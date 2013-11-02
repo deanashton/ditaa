@@ -2,8 +2,8 @@ package main
 
 import (
 	"code.google.com/p/freetype-go/freetype/raster"
+	"fmt"
 	"math"
-	//"fmt"
 )
 
 type Grid struct {
@@ -72,12 +72,17 @@ func Bounds(pp []Point) Rect {
 	return r
 }
 
+func specPoints(bb Rect) (p1, p2, p3, p4 Point) {
+	p1 = Point{X: bb.Min.X, Y: bb.Min.Y}
+	p2 = Point{X: bb.Max.X, Y: bb.Min.Y}
+	p3 = Point{X: bb.Max.X, Y: bb.Max.Y}
+	p4 = Point{X: bb.Min.X, Y: bb.Max.Y}
+	return
+}
+
 func (s *Shape) makeDocumentPath() raster.Path {
 	bb := Bounds(s.Points)
-	p1 := Point{X: bb.Min.X, Y: bb.Min.Y}
-	p2 := Point{X: bb.Max.X, Y: bb.Min.Y}
-	p3 := Point{X: bb.Max.X, Y: bb.Max.Y}
-	p4 := Point{X: bb.Min.X, Y: bb.Max.Y}
+	p1, p2, p3, p4 := specPoints(bb)
 	pmid := Point{X: 0.5 * (bb.Min.X + bb.Max.X), Y: bb.Max.Y}
 
 	path := raster.Path{}
@@ -93,6 +98,24 @@ func (s *Shape) makeDocumentPath() raster.Path {
 	return path
 }
 
+func (s *Shape) makeIOPath(g Grid, opt Options) raster.Path {
+	if len(s.Points) != 4 {
+		return nil
+	}
+	bb := Bounds(s.Points)
+	p1, p2, p3, p4 := specPoints(bb)
+	//TODO: handle opt.FixedSlope
+	offset := float64(g.CellW) * 0.5
+
+	path := raster.Path{}
+	path.Start(P(Point{X: p1.X + offset, Y: p1.Y}))
+	path.Add1(P(Point{X: p2.X + offset, Y: p2.Y}))
+	path.Add1(P(Point{X: p3.X - offset, Y: p3.Y}))
+	path.Add1(P(Point{X: p4.X - offset, Y: p4.Y}))
+	path.Add1(P(Point{X: p1.X + offset, Y: p1.Y})) // close path
+	return path
+}
+
 func (s *Shape) MakeIntoRenderPath(g Grid, opt Options) raster.Path {
 	if s.Type == TYPE_POINT_MARKER {
 		panic("please handle markers separately")
@@ -103,7 +126,10 @@ func (s *Shape) MakeIntoRenderPath(g Grid, opt Options) raster.Path {
 		switch s.Type {
 		case TYPE_DOCUMENT:
 			return s.makeDocumentPath()
-		case TYPE_STORAGE, TYPE_IO, TYPE_DECISION, TYPE_MANUAL_OPERATION, TYPE_TRAPEZOID, TYPE_ELLIPSE:
+		case TYPE_IO:
+			return s.makeIOPath(g, opt)
+		case TYPE_STORAGE, TYPE_DECISION, TYPE_MANUAL_OPERATION, TYPE_TRAPEZOID, TYPE_ELLIPSE:
+			_ = fmt.Sprintf
 			//panic(fmt.Sprintf("niy for type %d", s.Type))
 			//TODO: fixme
 			return nil
