@@ -38,6 +38,20 @@ type Shape struct {
 	Points      []Point   `xml:"points>point"`
 }
 
+func (s *Shape) CalcArea() float64 {
+	// See http://mathworld.wolfram.com/PolygonArea.html
+	if len(s.Points) == 0 {
+		return 0
+	}
+	area := float64(0)
+	for i := range s.Points {
+		p1, p2 := s.Points[i], s.Points[(i+1)%len(s.Points)]
+		area += float64(p1.X * p2.Y)
+		area -= float64(p2.X * p1.Y)
+	}
+	return math.Abs(area * 0.5)
+}
+
 func (s *Shape) DropsShadow() bool {
 	return s.Closed && s.Type != TYPE_ARROWHEAD && s.Type != TYPE_POINT_MARKER && !s.Dashed
 }

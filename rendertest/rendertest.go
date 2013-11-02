@@ -15,6 +15,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"sort"
 )
 
 const (
@@ -110,6 +111,16 @@ func blurShadows(img *image.RGBA) {
 	*/
 }
 
+type LargeFirst []Shape
+
+func (t LargeFirst) Len() int           { return len(t) }
+func (t LargeFirst) Less(i, j int) bool { return t[i].CalcArea() > t[j].CalcArea() }
+func (t LargeFirst) Swap(i, j int) {
+	tmp := t[i]
+	t[i] = t[j]
+	t[j] = tmp
+}
+
 func RenderDiagram(img *image.RGBA, diagram *Diagram, opt Options) error {
 	fontfile, err := ioutil.ReadFile(fontpath)
 	if err != nil {
@@ -163,7 +174,7 @@ func RenderDiagram(img *image.RGBA, diagram *Diagram, opt Options) error {
 		Stroke(img, path, shape.StrokeColor.RGBA())
 	}
 
-	//TODO: sorting of shapes (largest first)
+	sort.Sort(LargeFirst(diagram.Shapes))
 
 	// render rest of shapes + collect point markers
 	pointMarkers := []Shape{}
