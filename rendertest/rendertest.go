@@ -5,7 +5,6 @@ import (
 	"code.google.com/p/freetype-go/freetype"
 	"code.google.com/p/freetype-go/freetype/truetype"
 	"code.google.com/p/graphics-go/graphics"
-	//	"code.google.com/p/graphics-go/graphics/convolve"
 	"code.google.com/p/graphics-go/graphics/interp"
 	"encoding/xml"
 	"fmt"
@@ -87,29 +86,22 @@ func renderShadows(img *image.RGBA, shapes []Shape, g Grid, opt Options) {
 }
 
 func blurShadows(img *image.RGBA) {
-	StackBlur(img, 6, true)
-	/* // the blurring/convolution from go-graphics pkg is SLOOOOOOOOOW
-	if true {
-		img2 := image.NewRGBA(img.Bounds())
-		graphics.Blur(img2, img, &graphics.BlurOptions{StdDev:2})
-		*img=*img2
+	radius := 6
+	StackBlur(img, radius, true)
+
+	// remove blur artifacts from the top-left border of image
+	bb := img.Rect
+	radius += 2
+	for y := bb.Min.Y; y <= bb.Min.Y+radius; y++ {
+		for x := bb.Min.X; x <= bb.Max.X; x++ {
+			img.SetRGBA(x, y, WHITE)
+		}
 	}
-	radius := 5
-	radius2 := radius*radius
-	weight := 1/float64(radius2)
-	elements := make([]float64, radius2)
-	for k := range elements {
-		elements[k] = weight
+	for y := bb.Min.Y + radius + 1; y <= bb.Max.Y; y++ {
+		for x := bb.Min.X; x <= bb.Min.X+radius; x++ {
+			img.SetRGBA(x, y, WHITE)
+		}
 	}
-	kernel, err := convolve.NewKernel(elements)
-	if err!=nil{panic(err)}
-	img2 := image.NewRGBA(img.Bounds())
-	err = convolve.Convolve(img2, img, kernel)
-	if err!=nil{return //ignoring - ok?
-	}
-	*img=*img2
-	//TODO: fix to remove blurring of borders
-	*/
 }
 
 type LargeFirst []Shape
