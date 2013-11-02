@@ -102,6 +102,23 @@ func ftofix(f float64) raster.Fix32 {
 	return raster.Fix32(a)<<8 + raster.Fix32(b)
 }
 
+func Stroke(img *image.RGBA, path raster.Path, color color.RGBA) {
+	//TODO: support dashed lines
+	g := raster.NewRasterizer(img.Rect.Max.X+1, img.Rect.Max.Y+1) //TODO: +1 or not?
+	raster.Stroke(g, path, ftofix(STROKE_WIDTH), nil, nil)
+	painter := raster.NewRGBAPainter(img)
+	painter.SetColor(color)
+	g.Rasterize(painter)
+}
+
+func Fill(img *image.RGBA, path raster.Path, color color.RGBA) {
+	g := raster.NewRasterizer(img.Rect.Max.X+1, img.Rect.Max.Y+1) //TODO: +1 or not?
+	g.AddPath(path)
+	painter := raster.NewRGBAPainter(img)
+	painter.SetColor(color)
+	g.Rasterize(painter)
+}
+
 func Circle(x, y, r float64) raster.Path {
 	//panic(fmt.Sprint(x, y, r))
 	P := func(x, y float64) raster.Point {
@@ -236,41 +253,24 @@ func RenderDiagram(img *image.RGBA, diagram *Diagram, opt Options) error {
 
 		// fill
 		if path != nil && shape.Closed && !shape.Dashed {
-			g := raster.NewRasterizer(diagram.Grid.W, diagram.Grid.H)
-			g.AddPath(path)
-			painter := raster.NewRGBAPainter(img)
+			color := WHITE
 			if shape.FillColor != nil {
-				painter.SetColor(shape.FillColor.RGBA())
-			} else {
-				painter.SetColor(WHITE)
+				color = shape.FillColor.RGBA()
 			}
-			g.Rasterize(painter)
+			Fill(img, path, color)
 		}
 
 		// draw
 		if shape.Type != TYPE_ARROWHEAD {
 			//TODO: support dashed lines
-			g := raster.NewRasterizer(diagram.Grid.W, diagram.Grid.H)
-			//g.AddPath(path)
-			raster.Stroke(g, path, ftofix(STROKE_WIDTH), nil, nil)
-			painter := raster.NewRGBAPainter(img)
-			painter.SetColor(shape.StrokeColor.RGBA())
-			g.Rasterize(painter)
+			Stroke(img, path, shape.StrokeColor.RGBA())
 		}
 	}
 	//TODO: render point markers
 	for _, shape := range pointMarkers {
 		outer, inner := shape.MakeMarkerPaths(diagram.Grid)
-		//path := shape.MakeIntoRenderPath(diagram.Grid, opt)
-		g := raster.NewRasterizer(diagram.Grid.W, diagram.Grid.H)
-		painter := raster.NewRGBAPainter(img)
-		g.AddPath(outer)
-		painter.SetColor(shape.StrokeColor.RGBA())
-		g.Rasterize(painter)
-		g.Clear()
-		g.AddPath(inner)
-		painter.SetColor(WHITE)
-		g.Rasterize(painter)
+		Fill(img, outer, shape.StrokeColor.RGBA())
+		Fill(img, inner, WHITE)
 	}
 	//TODO: handle text
 	return nil
