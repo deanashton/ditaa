@@ -3,6 +3,8 @@ package main
 import (
 	"encoding/xml"
 	"fmt"
+	"image"
+	"image/png"
 	"os"
 	"path/filepath"
 )
@@ -56,7 +58,7 @@ type Point struct {
 
 type Shape struct {
 	Type        int     `xml:"type"`
-	FillColor   Color   `xml:"fillColor"`
+	FillColor   *Color  `xml:"fillColor"`
 	StrokeColor Color   `xml:"strokeColor"`
 	Closed      bool    `xml:"isClosed"`
 	Dashed      bool    `xml:"isStrokeDashed"`
@@ -67,25 +69,46 @@ type Diagram struct {
 	XMLName xml.Name `xml:"diagram"`
 	Grid    Grid     `xml:"grid"`
 	Shapes  []Shape  `xml:"shapes>shape"`
+	//TODO: []Text
 }
+
+type Options struct{}
 
 func LoadDiagram(path string) (*Diagram, error) {
 	r, err := os.Open(path)
 	if err != nil {
 		return nil, fmt.Errorf("loading diagram from '%s': %s", path, err)
 	}
+	defer r.Close()
+
 	diagram := Diagram{}
 	err = xml.NewDecoder(r).Decode(&diagram)
 	if err != nil {
 		return nil, fmt.Errorf("decoding diagram from '%s': %s", path, err)
 	}
-	panic(fmt.Sprintf("%s: %#v", path, diagram))
+	//panic(fmt.Sprintf("%s: %#v", path, diagram))
 	return &diagram, nil
+}
+
+func RenderDiagram(img *image.NRGBA, diagram *Diagram, opt Options) error {
+	return nil
 }
 
 func runRender(src, dst string) error {
 	diagram, err := LoadDiagram(src)
-	_ = diagram
+	if err != nil {
+		return err
+	}
+	img := image.NewNRGBA(image.Rect(0, 0, diagram.Grid.W, diagram.Grid.H))
+	err = RenderDiagram(img, diagram, Options{})
+	if err != nil {
+		return err
+	}
+	w, err := os.Create(dst)
+	if err != nil {
+		return err
+	}
+	err = png.Encode(w, img)
 	return err
 }
 
@@ -103,7 +126,7 @@ func run() error {
 			return nil
 		}
 		fnames = append(fnames, info.Name())
-		return runRender(path, filepath.Join(results, info.Name()))
+		return runRender(path, filepath.Join(results, info.Name()+".png"))
 	})
 
 	if err != nil {
