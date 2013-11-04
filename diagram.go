@@ -55,8 +55,9 @@ func NewDiagram(grid *TextGrid) *Diagram {
 	d.W, d.H = len(grid.Rows[0])*CELL_WIDTH, len(grid.Rows)*CELL_HEIGHT
 
 	workGrid := CopyTextGrid(grid)
-	workGrid.replaceTypeOnLine()
-	workGrid.replacePointMarkersOnLine()
+	//TODO: workGrid.replaceTypeOnLine()
+	//TODO: workGrid.replacePointMarkersOnLine()
+	//TODO: rest...
 
 	return &d
 }
