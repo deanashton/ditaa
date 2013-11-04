@@ -261,6 +261,10 @@ func (s *Shape) MakeIntoRenderPath(g Grid, opt Options) raster.Path {
 			return nil
 		}
 	}
+	return s.makeOtherPath(g)
+}
+
+func (s *Shape) makeOtherPath(g Grid) raster.Path {
 	if len(s.Points) < 2 {
 		return nil
 	}
