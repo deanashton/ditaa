@@ -59,7 +59,8 @@ func NewDiagram(grid *TextGrid) *Diagram {
 	//TODO: workGrid.replacePointMarkersOnLine()
 
 	boundaries := getAllBoundaries(workGrid)
-	_ = boundaries
+	abstraction := NewAbstractionGrid(workGrid, boundaries)
+	_ = abstraction
 
 	//TODO: rest...
 
