@@ -7,25 +7,6 @@ import (
 	"unicode"
 )
 
-const (
-	text_boundaries             = `/\|-*=:`
-	text_undisputableBoundaries = `|-*=:`
-	text_horizontalLines        = `-=`
-	text_verticalLines          = `|:`
-	text_arrowHeads             = `<>^vV`
-	text_cornerChars            = `\/+`
-	text_pointMarkers           = `*`
-	text_dashedLines            = `:~=`
-	text_entryPoints1           = `\`
-	text_entryPoints2           = `|:+\/`
-	text_entryPoints3           = `/`
-	text_entryPoints4           = `-=+\/`
-	text_entryPoints5           = `\`
-	text_entryPoints6           = `|:+\/`
-	text_entryPoints7           = `/`
-	text_entryPoints8           = `-=+\/`
-)
-
 const blankBorderSize = 2
 
 var humanColorCodes = map[string]string{
@@ -172,19 +153,25 @@ func (t *TextGrid) replaceHumanColorCodes() {
 	}
 }
 
-func (t *TextGrid) IsBullet(x, y int) bool {
-	ch := t.Get(x, y)
-	return (ch == 'o' || ch == '*') &&
-		t.IsBlankNon0(x+1, y) &&
-		t.IsBlankNon0(x-1, y) &&
-		isAlphNum(t.Get(x+2, y))
-}
-
-func (t *TextGrid) IsBlankNon0(x, y int) bool { return t.Get(x, y) == ' ' }
-
-func isAlphNum(ch rune) bool { return unicode.IsLetter(ch) || unicode.IsDigit(ch) }
-
 func (t *TextGrid) Set(x, y int, ch rune) { t.Rows[y][x] = ch }
 func (t *TextGrid) Get(x, y int) rune     { return t.Rows[y][x] }
 
-type Cell struct{ X, Y int }
+func (t *TextGrid) Height() int { return len(t.Rows) }
+func (t *TextGrid) Width() int {
+	if len(t.Rows) == 0 {
+		return 0
+	}
+	return len(t.Rows[0])
+}
+
+func (t *TextGrid) TestingSubGrid(c Cell) *TextGrid {
+	return t.SubGrid(c.X-1, c.Y-1, 3, 3)
+}
+func (t *TextGrid) SubGrid(x, y, w, h int) *TextGrid {
+	g := NewTextGrid()
+	for i := 0; i < h; i++ {
+		g.Rows = append(g.Rows, t.Rows[y+i][x:x+w])
+	}
+	return g
+
+}

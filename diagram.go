@@ -55,10 +55,26 @@ func NewDiagram(grid *TextGrid) *Diagram {
 	d.W, d.H = len(grid.Rows[0])*CELL_WIDTH, len(grid.Rows)*CELL_HEIGHT
 
 	workGrid := CopyTextGrid(grid)
-	_ = workGrid
 	//TODO: workGrid.replaceTypeOnLine()
 	//TODO: workGrid.replacePointMarkersOnLine()
+
+	boundaries := getAllBoundaries(workGrid)
+	_ = boundaries
+
 	//TODO: rest...
 
 	return &d
+}
+
+func getAllBoundaries(g *TextGrid) *CellSet {
+	set := NewCellSet()
+	for y, row := range g.Rows {
+		for x := range row {
+			c := Cell{x, y}
+			if g.IsBoundary(c) {
+				set.Add(c)
+			}
+		}
+	}
+	return set
 }

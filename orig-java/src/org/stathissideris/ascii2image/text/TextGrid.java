@@ -1404,10 +1404,6 @@ public class TextGrid {
 		return matchesAny(cell, GridPatternGroup.intersectionCriteria);
 	}
 
-	public boolean isIntersection(int x, int y) {
-		return isIntersection(new Cell(x, y));
-	}
-
 	public void copyCellsTo(CellSet cells, TextGrid grid) {
 		for (Cell cell : cells) {
 			grid.set(cell, this.get(cell));

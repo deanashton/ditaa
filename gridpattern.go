@@ -110,6 +110,14 @@ func NewCriteria(criteria ...Criteria) Criteria {
 	}
 	return c
 }
+func (c Criteria) AnyMatch(g *TextGrid) bool {
+	for _, p := range c {
+		if p.Match(g) {
+			return true
+		}
+	}
+	return false
+}
 
 func NewGridPattern(rowtop, rowmid, rowbot string) GridPattern {
 	return GridPattern{
@@ -138,6 +146,14 @@ func mustCompileRow(pattern string) *regexp.Regexp {
 		}
 	}
 	return regexp.MustCompile(re)
+}
+func (p *GridPattern) Match(t *TextGrid) bool {
+	for i, re := range *p {
+		if !re.MatchString(string(t.Rows[i])) {
+			return false
+		}
+	}
+	return true
 }
 
 var (
