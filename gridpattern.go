@@ -2,6 +2,10 @@
 
 package main
 
+import (
+	"regexp"
+)
+
 /*
 This is a TextGrid (usually 3x3) that contains the equivalent
 of a 2D reqular expression (which uses custom syntax to make
@@ -56,7 +60,7 @@ the end of its lines. For example:
 	etc.
 
 */
-var gridPatterns = map[byte]string{
+var gridPatternChars = map[byte]string{
 	'[':  "[^|:]",
 	'|':  "[|:]",
 	'-':  "[-=]",
@@ -82,7 +86,7 @@ var gridPatterns = map[byte]string{
 	'8': "[-=+\\/\\\\]",
 }
 
-var gridPatternsInv = map[byte]string{
+var gridPatternCharsInv = map[byte]string{
 	'1': "[^\\\\]",
 	'2': "[^|:+\\/\\\\]",
 	'3': "[^\\/]",
@@ -92,3 +96,117 @@ var gridPatternsInv = map[byte]string{
 	'7': "[^\\/]",
 	'8': "[^-=+\\/\\\\]",
 }
+
+type GridPattern [3]*regexp.Regexp
+type Criteria []GridPattern
+
+func NewCriterion(rowtop, rowmid, rowbot string) Criteria {
+	return Criteria{NewGridPattern(rowtop, rowmid, rowbot)}
+}
+func NewCriteria(criteria ...Criteria) Criteria {
+	c := Criteria{}
+	for _, newc := range criteria {
+		c = append(c, newc...)
+	}
+	return c
+}
+
+func NewGridPattern(rowtop, rowmid, rowbot string) GridPattern {
+	return GridPattern{
+		mustCompileRow(rowtop),
+		mustCompileRow(rowmid),
+		mustCompileRow(rowbot),
+	}
+}
+func mustCompileRow(pattern string) *regexp.Regexp {
+	re := ""
+	for i := 0; i < len(pattern); i++ {
+		c := pattern[i]
+		if elem, ok := gridPatternChars[c]; ok {
+			re += elem
+			continue
+		}
+		if c != '%' {
+			re += string(c)
+			continue
+		}
+		// c=='%' -- "negation" of following character
+		i++
+		c = pattern[i]
+		if elem, ok := gridPatternCharsInv[c]; ok {
+			re += elem
+		}
+	}
+	return regexp.MustCompile(re)
+}
+
+var (
+	crossCriteria    = NewCriterion(".6.", "4+8", ".2.")
+	KCriteria        = NewCriterion(".6.", "%4+8", ".2.")
+	inverseKCriteria = NewCriterion(".6.", "4+%8", ".2.")
+	TCriteria        = NewCriterion(".%6.", "4+8", ".2.")
+	inverseTCriteria = NewCriterion(".6.", "4+8", ".%2.")
+
+	// ****** normal corners *******
+	normalCorner1Criteria = NewCriterion(".[.", "~+(", ".^.")
+	normalCorner2Criteria = NewCriterion(".[.", "(+~", ".^.")
+	normalCorner3Criteria = NewCriterion(".^.", "(+~", ".[.")
+	normalCorner4Criteria = NewCriterion(".^.", "~+(", ".[.")
+
+	// ******* round corners *******
+	roundCorner1Criteria = NewCriterion(".[.", "~/4", ".2.")
+	roundCorner2Criteria = NewCriterion(".[.", "4\\~", ".2.")
+	roundCorner3Criteria = NewCriterion(".6.", "4/~", ".[.")
+	roundCorner4Criteria = NewCriterion(".6.", "~\\8", ".[.")
+
+	// stubs
+	stubCriteria = NewCriteria(
+		NewCriterion("!^!", "!+!", ".!."),
+		NewCriterion("!^!", "!+!", ".-."),
+		NewCriterion("!!.", "(+!", "!!."),
+		NewCriterion("!!.", "(+|", "!!."),
+		NewCriterion(".!.", "!+!", "!^!"),
+		NewCriterion(".-.", "!+!", "!^!"),
+		NewCriterion(".!!", "!+(", ".!!"),
+		NewCriterion(".!!", "|+(", ".!!"))
+
+	// ****** ends of lines ******
+	verticalLinesEndCriteria = NewCriteria(
+		NewCriterion(".^.", ".|.", ".!."),
+		NewCriterion(".^.", ".|.", ".-."),
+		NewCriterion(".!.", ".|.", ".^."),
+		NewCriterion(".-.", ".|.", ".^."))
+	horizontalLinesEndCriteria = NewCriteria(
+		NewCriterion("...", "(-!", "..."),
+		NewCriterion("...", "(-|", "..."),
+		NewCriterion("...", "!-(", "..."),
+		NewCriterion("...", "|-(", "..."))
+
+	// ****** others *******
+	horizontalCrossOnLineCriteria = NewCriterion("...", "(+(", "...")
+	verticalCrossOnLineCriteria   = NewCriterion(".^.", ".+.", ".^.")
+	horizontalStarOnLineCriteria  = NewCriteria(
+		NewCriterion("...", "(*(", "..."),
+		NewCriterion("...", "!*(", "..."),
+		NewCriterion("...", "(*!", "..."))
+	verticalStarOnLineCriteria = NewCriteria(
+		NewCriterion(".^.", ".*.", ".^."),
+		NewCriterion(".!.", ".*.", ".^."),
+		NewCriterion(".^.", ".*.", ".!."))
+	loneDiagonalCriteria = NewCriteria(
+		NewCriterion(".%6%7", "%4/%8", "%3%2."),
+		NewCriterion("%1%6.", "%4\\%8", ".%2%5"))
+
+	// groups
+	intersectionCriteria = NewCriteria(crossCriteria, KCriteria, TCriteria, inverseKCriteria, inverseTCriteria)
+	normalCornerCriteria = NewCriteria(normalCorner1Criteria, normalCorner2Criteria, normalCorner3Criteria, normalCorner4Criteria)
+	roundCornerCriteria  = NewCriteria(roundCorner1Criteria, roundCorner2Criteria, roundCorner3Criteria, roundCorner4Criteria)
+	corner1Criteria      = NewCriteria(normalCorner1Criteria, roundCorner1Criteria)
+	corner2Criteria      = NewCriteria(normalCorner2Criteria, roundCorner2Criteria)
+	corner3Criteria      = NewCriteria(normalCorner3Criteria, roundCorner3Criteria)
+	corner4Criteria      = NewCriteria(normalCorner4Criteria, roundCorner4Criteria)
+	cornerCriteria       = NewCriteria(normalCornerCriteria, roundCornerCriteria)
+	crossOnLineCriteria  = NewCriteria(horizontalCrossOnLineCriteria, verticalCrossOnLineCriteria)
+	starOnLineCriteria   = NewCriteria(horizontalStarOnLineCriteria, verticalStarOnLineCriteria)
+	linesEndCriteria     = NewCriteria(horizontalLinesEndCriteria, verticalLinesEndCriteria, stubCriteria)
+)

@@ -13,13 +13,13 @@ const (
 
 func main() {
 	if len(os.Args[1:]) != 2 {
-		fmt.Fprintf(os.Stderr, "USAGE: %0 INFILE OUTFILE.png", os.Args[0])
+		fmt.Fprintf(os.Stderr, "USAGE: %s INFILE OUTFILE.png\n", os.Args[0])
 		os.Exit(1)
 	}
 
 	err := run(os.Args[1], os.Args[2])
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "error: %s", err)
+		fmt.Fprintf(os.Stderr, "error: %s\n", err)
 		os.Exit(2)
 	}
 }
