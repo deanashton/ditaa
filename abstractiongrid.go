@@ -5,8 +5,7 @@ type AbstractionGrid struct {
 }
 
 func NewAbstractionGrid(t *TextGrid, cells *CellSet) *AbstractionGrid {
-	g := &AbstractionGrid{}
-	g.reset(3*t.Width(), 3*t.Height())
+	g := &AbstractionGrid{Rows: BlankRows(3*t.Width(), 3*t.Height())}
 	for c := range cells.Set {
 		if t.IsBlank(c) {
 			continue
@@ -21,16 +20,6 @@ func NewAbstractionGrid(t *TextGrid, cells *CellSet) *AbstractionGrid {
 	return g
 }
 
-func (g *AbstractionGrid) reset(w, h int) {
-	g.Rows = make([][]rune, h)
-	for y := range g.Rows {
-		g.Rows[y] = make([]rune, w)
-		for x := range g.Rows[y] {
-			g.Rows[y][x] = ' '
-		}
-	}
-}
-
 func (g *AbstractionGrid) Set(c Cell, brush AbstractCell) {
 	x, y := 3*c.X, 3*c.Y
 	for dy := 0; dy < 3; dy++ {
@@ -40,6 +29,29 @@ func (g *AbstractionGrid) Set(c Cell, brush AbstractCell) {
 			}
 		}
 	}
+}
+
+func (g *AbstractionGrid) Height() int {
+	return len(g.Rows) / 3
+}
+func (g *AbstractionGrid) Width() int {
+	if len(g.Rows) == 0 {
+		return 0
+	}
+	return len(g.Rows[0]) / 3
+}
+
+func (g *AbstractionGrid) GetAsTextGrid() *TextGrid {
+	t := NewTextGrid()
+	t.Rows = BlankRows(g.Width(), g.Height())
+	for y := range g.Rows {
+		for x, ch := range g.Rows[y] {
+			if ch != ' ' {
+				t.Set(x/3, y/3, '*')
+			}
+		}
+	}
+	return t
 }
 
 var abstractionChecks = []struct {

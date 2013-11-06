@@ -59,12 +59,44 @@ func NewDiagram(grid *TextGrid) *Diagram {
 	//TODO: workGrid.replacePointMarkersOnLine()
 
 	boundaries := getAllBoundaries(workGrid)
-	abstraction := NewAbstractionGrid(workGrid, boundaries)
-	_ = abstraction
+	boundarySetsStep1 := getDistinctShapes(NewAbstractionGrid(workGrid, boundaries))
+	_ = boundarySetsStep1
 
 	//TODO: rest...
 
 	return &d
+}
+
+func getDistinctShapes(g *AbstractionGrid) []*CellSet {
+	result := []*CellSet{}
+
+	tg := TextGrid{Rows: g.Rows}
+	nonBlank := tg.GetAllNonBlank()
+
+	distinct := breakIntoDistinctBoundaries(nonBlank)
+	for _, set := range distinct {
+		temp := AbstractionGrid{Rows: BlankRows(g.Width(), g.Height())}
+		FillCellsWith(temp.Rows, set, '*')
+		result = append(result, temp.GetAsTextGrid().GetAllNonBlank())
+	}
+	return result
+}
+
+func breakIntoDistinctBoundaries(cells *CellSet) []*CellSet {
+	result := []*CellSet{}
+	bb := cells.Bounds()
+	boundaryGrid := NewTextGrid()
+	boundaryGrid.Rows = BlankRows(bb.Max.X+2, bb.Max.Y+2)
+	FillCellsWith(boundaryGrid.Rows, cells, '*')
+
+	for c := range cells.Set {
+		if boundaryGrid.IsBlankXY(c.X, c.Y) {
+			continue
+		}
+		boundarySet := boundaryGrid.fillContinuousArea(c.X, c.Y, ' ')
+		result = append(result, boundarySet)
+	}
+	return result
 }
 
 func getAllBoundaries(g *TextGrid) *CellSet {

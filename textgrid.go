@@ -153,8 +153,10 @@ func (t *TextGrid) replaceHumanColorCodes() {
 	}
 }
 
-func (t *TextGrid) Set(x, y int, ch rune) { t.Rows[y][x] = ch }
-func (t *TextGrid) Get(x, y int) rune     { return t.Rows[y][x] }
+func (t *TextGrid) Set(x, y int, ch rune)   { t.Rows[y][x] = ch }
+func (t *TextGrid) Get(x, y int) rune       { return t.Rows[y][x] }
+func (t *TextGrid) SetCell(c Cell, ch rune) { t.Set(c.X, c.Y, ch) }
+func (t *TextGrid) GetCell(c Cell) rune     { return t.Get(c.X, c.Y) }
 
 func (t *TextGrid) Height() int { return len(t.Rows) }
 func (t *TextGrid) Width() int {
@@ -173,5 +175,101 @@ func (t *TextGrid) SubGrid(x, y, w, h int) *TextGrid {
 		g.Rows = append(g.Rows, t.Rows[y+i][x:x+w])
 	}
 	return g
+}
 
+func (t *TextGrid) GetAllNonBlank() *CellSet {
+	cells := NewCellSet()
+	for y := range t.Rows {
+		for x := range t.Rows[y] {
+			c := Cell{x, y}
+			if !t.IsBlank(c) {
+				cells.Add(c)
+			}
+		}
+	}
+	return cells
+}
+
+func BlankRows(w, h int) [][]rune {
+	rows := make([][]rune, h)
+	for y := range rows {
+		rows[y] = make([]rune, w)
+		for x := range rows[y] {
+			rows[y][x] = ' '
+		}
+	}
+	return rows
+}
+
+func FillCellsWith(rows [][]rune, cells *CellSet, ch rune) {
+	for c := range cells.Set {
+		switch {
+		case c.Y >= len(rows):
+			continue
+		case c.X >= len(rows[c.Y]):
+			continue
+		}
+		rows[c.Y][c.X] = ch
+	}
+}
+
+func (t *TextGrid) seedFillOld(seed Cell, newChar rune) *CellSet {
+	filled := NewCellSet()
+	oldChar := t.GetCell(seed)
+	if oldChar == newChar {
+		return filled
+	}
+	if t.IsOutOfBounds(seed) {
+		return filled
+	}
+
+	stack := []Cell{seed}
+
+	expand := func(c Cell) {
+		if t.GetCell(c) == oldChar {
+			stack = append(stack, c)
+		}
+	}
+
+	for len(stack) > 0 {
+		var c Cell
+		c, stack = stack[len(stack)-1], stack[:len(stack)-1]
+
+		t.SetCell(c, newChar)
+		filled.Add(c)
+
+		expand(c.North())
+		expand(c.South())
+		expand(c.East())
+		expand(c.West())
+	}
+	return filled
+}
+
+func (t *TextGrid) seedFill2(seed Cell, newChar rune) *CellSet {
+	filled := NewCellSet()
+	oldChar := t.GetCell(seed)
+	if t.IsOutOfBounds(seed) {
+		return filled
+	}
+
+	var expandDFS func(c Cell)
+	expandDFS = func(c Cell) {
+		if t.GetCell(c) != oldChar {
+			return
+		}
+		t.SetCell(c, newChar)
+		filled.Add(c)
+
+		expandDFS(c.North())
+		expandDFS(c.South())
+		expandDFS(c.East())
+		expandDFS(c.West())
+	}
+	expandDFS(seed)
+	return filled
+}
+
+func (t *TextGrid) fillContinuousArea(x, y int, ch rune) *CellSet {
+	return t.seedFillOld(Cell{x, y}, ch)
 }

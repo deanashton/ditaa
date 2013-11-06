@@ -6,14 +6,43 @@ import (
 )
 
 type Cell struct{ X, Y int }
+
+func (c Cell) North() Cell { return Cell{c.X, c.Y - 1} }
+func (c Cell) South() Cell { return Cell{c.X, c.Y + 1} }
+func (c Cell) East() Cell  { return Cell{c.X + 1, c.Y} }
+func (c Cell) West() Cell  { return Cell{c.X - 1, c.Y} }
+
 type CellSet struct {
 	Set map[Cell]struct{}
 }
+type CellBounds struct{ Min, Max Cell }
 
 func NewCellSet() *CellSet {
 	return &CellSet{Set: make(map[Cell]struct{})}
 }
 func (s *CellSet) Add(c Cell) { s.Set[c] = struct{}{} }
+func (s *CellSet) Bounds() CellBounds {
+	var bb *CellBounds
+	for c := range s.Set {
+		if bb == nil {
+			bb = &CellBounds{Min: c, Max: c}
+			continue
+		}
+		if c.X < bb.Min.X {
+			bb.Min.X = c.X
+		}
+		if c.X > bb.Max.X {
+			bb.Max.X = c.X
+		}
+		if c.Y < bb.Min.Y {
+			bb.Min.Y = c.Y
+		}
+		if c.Y > bb.Max.Y {
+			bb.Max.Y = c.Y
+		}
+	}
+	return *bb
+}
 
 func isAlphNum(ch rune) bool             { return unicode.IsLetter(ch) || unicode.IsDigit(ch) }
 func isOneOf(ch rune, group string) bool { return strings.ContainsRune(group, ch) }
@@ -26,11 +55,22 @@ func (t *TextGrid) IsBullet(x, y int) bool {
 		isAlphNum(t.Get(x+2, y))
 }
 
+func (t *TextGrid) IsOutOfBounds(c Cell) bool {
+	return c.X >= t.Width() || c.Y >= t.Height() || c.X < 0 || c.Y < 0
+}
+
 func (t *TextGrid) IsBlankNon0(x, y int) bool { return t.Get(x, y) == ' ' }
 func (t *TextGrid) IsBlank(c Cell) bool {
 	ch := t.Get(c.X, c.Y)
 	if ch == 0 {
 		return false // FIXME: should this be false, or true (see 'isBlank(x,y)' in Java)
+	}
+	return ch == ' '
+}
+func (t *TextGrid) IsBlankXY(x, y int) bool {
+	ch := t.Get(x, y)
+	if ch == 0 {
+		return true
 	}
 	return ch == ' '
 }
