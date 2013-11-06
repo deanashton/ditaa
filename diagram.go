@@ -62,6 +62,13 @@ func NewDiagram(grid *TextGrid) *Diagram {
 	boundarySetsStep1 := getDistinctShapes(NewAbstractionGrid(workGrid, boundaries))
 	_ = boundarySetsStep1
 
+	if DEBUG {
+		println("******* Distinct shapes found using AbstractionGrid *******")
+		for _, cells := range boundarySetsStep1 {
+			cells.printAsGrid()
+		}
+	}
+
 	//TODO: rest...
 
 	return &d
