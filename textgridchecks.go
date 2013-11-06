@@ -41,6 +41,9 @@ func (s *CellSet) Bounds() CellBounds {
 			bb.Max.Y = c.Y
 		}
 	}
+	if bb == nil {
+		return CellBounds{}
+	}
 	return *bb
 }
 

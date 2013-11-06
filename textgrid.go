@@ -89,6 +89,7 @@ func (t *TextGrid) LoadFrom(r io.Reader) error {
 		newrow = appendSpaces(newrow, blankBorderSize)
 		newrow = append(newrow, row...)
 		newrow = appendSpaces(newrow, cap(newrow)-len(newrow))
+		newrows = append(newrows, newrow)
 	}
 	for i := 0; i < blankBorderSize; i++ {
 		newrows = append(newrows, appendSpaces(nil, maxLen+2*blankBorderSize))
