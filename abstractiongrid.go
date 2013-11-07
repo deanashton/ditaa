@@ -4,8 +4,12 @@ type AbstractionGrid struct {
 	Rows [][]rune
 }
 
+func EmptyAbstractionGrid(w, h int) *AbstractionGrid {
+	return &AbstractionGrid{Rows: BlankRows(3*w, 3*h)}
+}
+
 func NewAbstractionGrid(t *TextGrid, cells *CellSet) *AbstractionGrid {
-	g := &AbstractionGrid{Rows: BlankRows(3*t.Width(), 3*t.Height())}
+	g := EmptyAbstractionGrid(3*t.Width(), 3*t.Height())
 	for c := range cells.Set {
 		if t.IsBlank(c) {
 			continue

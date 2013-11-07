@@ -82,7 +82,7 @@ func getDistinctShapes(g *AbstractionGrid) []*CellSet {
 
 	distinct := breakIntoDistinctBoundaries(nonBlank)
 	for _, set := range distinct {
-		temp := AbstractionGrid{Rows: BlankRows(g.Width(), g.Height())}
+		temp := EmptyAbstractionGrid(g.Width(), g.Height())
 		FillCellsWith(temp.Rows, set, '*')
 		result = append(result, temp.GetAsTextGrid().GetAllNonBlank())
 	}

@@ -17,8 +17,8 @@ func (s *CellSet) printAsGrid() {
 }
 
 func (t *TextGrid) printDebug() {
-	fmt.Println("    " + strings.Repeat("0123456789", (t.Width()+10)/1))
+	fmt.Println("    " + strings.Repeat("0123456789", t.Width()/10+1))
 	for i, row := range t.Rows {
-		fmt.Printf("%2d (%s)\n", i, row)
+		fmt.Printf("%2d (%s)\n", i, string(row))
 	}
 }
