@@ -29,7 +29,7 @@ func run(infile, outfile string) error {
 	if err != nil {
 		return err
 	}
-	grid := NewTextGrid()
+	grid := NewTextGrid(0, 0)
 	err = grid.LoadFrom(r)
 	if err != nil {
 		return err

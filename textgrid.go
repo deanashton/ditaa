@@ -34,8 +34,11 @@ type TextGrid struct {
 	Rows [][]rune
 }
 
-func NewTextGrid() *TextGrid {
-	return &TextGrid{}
+func NewTextGrid(w, h int) *TextGrid {
+	if h == 0 {
+		return &TextGrid{}
+	}
+	return &TextGrid{Rows: BlankRows(w, h)}
 }
 
 func CopyTextGrid(other *TextGrid) *TextGrid {
@@ -176,7 +179,7 @@ func (t *TextGrid) TestingSubGrid(c Cell) *TextGrid {
 	return t.SubGrid(c.X-1, c.Y-1, 3, 3)
 }
 func (t *TextGrid) SubGrid(x, y, w, h int) *TextGrid {
-	g := NewTextGrid()
+	g := NewTextGrid(0, 0)
 	for i := 0; i < h; i++ {
 		g.Rows = append(g.Rows, t.Rows[y+i][x:x+w])
 	}
@@ -278,4 +281,10 @@ func (t *TextGrid) seedFill2(seed Cell, newChar rune) *CellSet {
 
 func (t *TextGrid) fillContinuousArea(x, y int, ch rune) *CellSet {
 	return t.seedFillOld(Cell{x, y}, ch)
+}
+
+func CopySelectedCells(dst *TextGrid, cells *CellSet, src *TextGrid) {
+	for c := range cells.Set {
+		dst.SetCell(c, src.GetCell(c))
+	}
 }

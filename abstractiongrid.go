@@ -46,8 +46,7 @@ func (g *AbstractionGrid) Width() int {
 }
 
 func (g *AbstractionGrid) GetAsTextGrid() *TextGrid {
-	t := NewTextGrid()
-	t.Rows = BlankRows(g.Width(), g.Height())
+	t := NewTextGrid(g.Width(), g.Height())
 	for y := range g.Rows {
 		for x, ch := range g.Rows[y] {
 			if ch != ' ' {

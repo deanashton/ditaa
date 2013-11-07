@@ -76,8 +76,7 @@ func NewDiagram(grid *TextGrid) *Diagram {
 	for _, cells := range boundarySetsStep1 {
 		//the fill buffer keeps track of which cells have been
 		//filled already
-		fillBuffer := NewTextGrid()
-		fillBuffer.Rows = BlankRows(3*w, 3*h)
+		fillBuffer := NewTextGrid(3*w, 3*h)
 
 		for yi := 0; yi < 3*h; yi++ {
 			for xi := 0; xi < 3*w; xi++ {
@@ -85,7 +84,7 @@ func NewDiagram(grid *TextGrid) *Diagram {
 					continue
 				}
 
-				copyGrid := NewTextGrid()
+				copyGrid := NewTextGrid(0, 0)
 				copyGrid.Rows = NewAbstractionGrid(workGrid, cells).Rows
 
 				boundaries := findBoundariesExpandingFrom(copyGrid, Cell{xi, yi})
@@ -107,19 +106,96 @@ func NewDiagram(grid *TextGrid) *Diagram {
 		}
 	}
 
+	boundarySetsStep2 = removeDuplicateSets(boundarySetsStep2)
+	//TODO: debug print to verify duplicates removed
+
+	//split boundaries to open, closed and mixed
+	open, closed, mixed := []*CellSet{}, []*CellSet{}, []*CellSet{}
+	for _, set := range boundarySetsStep2 {
+		switch set.Type(workGrid) {
+		case SET_CLOSED:
+			closed = append(closed, set)
+		case SET_OPEN:
+			open = append(open, set)
+		case SET_MIXED:
+			mixed = append(mixed, set)
+		}
+	}
+
+	hadToEliminateMixed := false
+	if len(mixed) > 0 && len(closed) > 0 {
+		// mixed shapes can be eliminated by
+		// subtracting all the closed shapes from them
+		hadToEliminateMixed = true
+		//subtract from each of the mixed sets all the closed sets
+		for _, set := range mixed {
+			for _, closedSet := range closed {
+				set.SubtractSet(closedSet)
+			}
+			// this is necessary because some mixed sets produce
+			// several distinct open sets after you subtract the
+			// closed sets from them
+			if set.Type(workGrid) == SET_OPEN {
+				boundarySetsStep2 = remove(boundarySetsStep2, set)
+				boundarySetsStep2 = append(boundarySetsStep2, breakIntoDistinctBoundaries2(set, workGrid)...)
+			}
+		}
+	} else if len(mixed) > 0 && len(closed) == 0 {
+		// no closed shape exists, will have to
+		// handle mixed shape on its own
+		// an example of this case is the following:
+		// +-----+
+		// |  A  |C                 B
+		// +  ---+-------------------
+		// |     |
+		// +-----+
+		hadToEliminateMixed = true
+		for _, set := range mixed {
+			boundarySetsStep2 = remove(boundarySetsStep2, set)
+			boundarySetsStep2 = append(boundarySetsStep2, breakTrulyMixedBoundaries(set, workGrid)...)
+		}
+	}
+
+	_ = hadToEliminateMixed
+
 	//TODO: rest...
 
 	return &d
 }
 
+func remove(vec []*CellSet, elem *CellSet) []*CellSet {
+	// remove 'set' from vector, if found
+	for i := range vec {
+		if vec[i] == elem {
+			return append(vec[:i], vec[i+1:]...)
+		}
+	}
+	return vec
+}
+
+func removeDuplicateSets(list []*CellSet) []*CellSet {
+	uniques := []*CellSet{}
+	for _, set := range list {
+		original := true
+		for _, u := range uniques {
+			if set.Equals(u) {
+				original = false
+				break
+			}
+		}
+		if original {
+			uniques = append(uniques, set)
+		}
+	}
+	return uniques
+}
+
 func makeScaledOneThirdEquivalent(cells *CellSet) *CellSet {
 	bb := cells.Bounds()
-	gridBig := NewTextGrid()
-	gridBig.Rows = BlankRows(bb.Max.X+2, bb.Max.Y+2)
+	gridBig := NewTextGrid(bb.Max.X+2, bb.Max.Y+2)
 	FillCellsWith(gridBig.Rows, cells, '*')
 
-	gridSmall := NewTextGrid()
-	gridSmall.Rows = BlankRows((bb.Max.X+2)/3, (bb.Max.Y+2)/3)
+	gridSmall := NewTextGrid((bb.Max.X+2)/3, (bb.Max.Y+2)/3)
 	for y := 0; y < gridBig.Height(); y++ {
 		for x := 0; x < gridBig.Width(); x++ {
 			if !gridBig.IsBlank(Cell{x, y}) {
@@ -176,8 +252,7 @@ func getDistinctShapes(g *AbstractionGrid) []*CellSet {
 func breakIntoDistinctBoundaries(cells *CellSet) []*CellSet {
 	result := []*CellSet{}
 	bb := cells.Bounds()
-	boundaryGrid := NewTextGrid()
-	boundaryGrid.Rows = BlankRows(bb.Max.X+2, bb.Max.Y+2)
+	boundaryGrid := NewTextGrid(bb.Max.X+2, bb.Max.Y+2)
 	FillCellsWith(boundaryGrid.Rows, cells, '*')
 
 	for c := range cells.Set {
@@ -187,6 +262,87 @@ func breakIntoDistinctBoundaries(cells *CellSet) []*CellSet {
 		boundarySet := boundaryGrid.fillContinuousArea(c.X, c.Y, ' ')
 		result = append(result, boundarySet)
 	}
+	return result
+}
+
+func breakIntoDistinctBoundaries2(cells *CellSet, grid *TextGrid) []*CellSet {
+	return getDistinctShapes(NewAbstractionGrid(grid, cells))
+}
+
+/*
+Breaks that:
+
+	+-----+
+	|     |
+	+  ---+-------------------
+	|     |
+	+-----+
+
+into the following 3:
+
+	+-----+
+	|     |
+	+     +
+	|     |
+	+-----+
+
+	   ---
+	       -------------------
+
+Returns a list of boundaries that are either open or closed but not mixed.
+*/
+func breakTrulyMixedBoundaries(cells *CellSet, grid *TextGrid) []*CellSet {
+	result := []*CellSet{}
+	visitedEnds := NewCellSet()
+	workGrid := NewTextGrid(grid.Width(), grid.Height())
+	CopySelectedCells(workGrid, cells, grid)
+	for start := range cells.Set {
+		if !workGrid.IsLinesEnd(start) || visitedEnds.Contains(start) {
+			continue
+		}
+		set := NewCellSet()
+		set.Add(start)
+
+		prev := start
+		nexts := workGrid.FollowCell(prev, nil)
+		if len(nexts.Set) == 0 {
+			panic("This shape is either open but multipart or has only one cell, and cannot be processed by this method")
+		}
+		cell := nexts.SomeCell()
+		set.Add(cell)
+
+		finished := false
+		if workGrid.IsLinesEnd(cell) {
+			visitedEnds.Add(cell)
+			finished = true
+		}
+
+		for !finished {
+			nexts = workGrid.FollowCell(cell, &prev)
+			switch len(nexts.Set) {
+			case 0: // do nothing
+			case 1:
+				set.Add(cell)
+				prev = cell
+				cell = nexts.SomeCell()
+				if workGrid.IsLinesEnd(cell) {
+					visitedEnds.Add(cell)
+					finished = true
+				}
+			default:
+				finished = true
+			}
+		}
+		result = append(result, set)
+	}
+
+	//substract all boundary sets from this CellSet
+	whatsLeft := NewCellSet()
+	whatsLeft.AddAll(cells)
+	for _, set := range result {
+		whatsLeft.SubtractSet(set)
+	}
+	result = append(result, whatsLeft)
 	return result
 }
 

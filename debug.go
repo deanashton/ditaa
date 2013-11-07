@@ -9,9 +9,8 @@ import (
 var DEBUG = os.Getenv("DEBUG") != ""
 
 func (s *CellSet) printAsGrid() {
-	g := NewTextGrid()
 	bb := s.Bounds()
-	g.Rows = BlankRows(bb.Max.X+2, bb.Max.Y+2)
+	g := NewTextGrid(bb.Max.X+2, bb.Max.Y+2)
 	FillCellsWith(g.Rows, s, '*')
 	g.printDebug()
 }

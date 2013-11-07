@@ -12,41 +12,6 @@ func (c Cell) South() Cell { return Cell{c.X, c.Y + 1} }
 func (c Cell) East() Cell  { return Cell{c.X + 1, c.Y} }
 func (c Cell) West() Cell  { return Cell{c.X - 1, c.Y} }
 
-type CellSet struct {
-	Set map[Cell]struct{}
-}
-type CellBounds struct{ Min, Max Cell }
-
-func NewCellSet() *CellSet {
-	return &CellSet{Set: make(map[Cell]struct{})}
-}
-func (s *CellSet) Add(c Cell) { s.Set[c] = struct{}{} }
-func (s *CellSet) Bounds() CellBounds {
-	var bb *CellBounds
-	for c := range s.Set {
-		if bb == nil {
-			bb = &CellBounds{Min: c, Max: c}
-			continue
-		}
-		if c.X < bb.Min.X {
-			bb.Min.X = c.X
-		}
-		if c.X > bb.Max.X {
-			bb.Max.X = c.X
-		}
-		if c.Y < bb.Min.Y {
-			bb.Min.Y = c.Y
-		}
-		if c.Y > bb.Max.Y {
-			bb.Max.Y = c.Y
-		}
-	}
-	if bb == nil {
-		return CellBounds{}
-	}
-	return *bb
-}
-
 func isAlphNum(ch rune) bool             { return unicode.IsLetter(ch) || unicode.IsDigit(ch) }
 func isOneOf(ch rune, group string) bool { return strings.ContainsRune(group, ch) }
 
@@ -120,8 +85,16 @@ func (t *TextGrid) IsCorner2(c Cell) bool    { return corner2Criteria.AnyMatch(t
 func (t *TextGrid) IsCorner3(c Cell) bool    { return corner3Criteria.AnyMatch(t.TestingSubGrid(c)) }
 func (t *TextGrid) IsCorner4(c Cell) bool    { return corner4Criteria.AnyMatch(t.TestingSubGrid(c)) }
 func (t *TextGrid) IsStarOnLine(c Cell) bool { return starOnLineCriteria.AnyMatch(t.TestingSubGrid(c)) }
+func (t *TextGrid) IsLinesEnd(c Cell) bool   { return linesEndCriteria.AnyMatch(t.TestingSubGrid(c)) }
+func (t *TextGrid) IsHorizontalCrossOnLine(c Cell) bool {
+	return horizontalCrossOnLineCriteria.AnyMatch(t.TestingSubGrid(c))
+}
+func (t *TextGrid) IsVerticalCrossOnLine(c Cell) bool {
+	return verticalCrossOnLineCriteria.AnyMatch(t.TestingSubGrid(c))
+}
 
 // func (t *TextGrid) Is(c Cell) bool { return .AnyMatch(t.TestingSubGrid(c))}
+
 func (t *TextGrid) IsCorner(c Cell) bool { return t.IsNormalCorner(c) || t.IsRoundCorner(c) }
 func (t *TextGrid) IsHorizontalLine(c Cell) bool {
 	ch := t.Get(c.X, c.Y)
@@ -136,6 +109,139 @@ func (t *TextGrid) IsVerticalLine(c Cell) bool {
 		return false
 	}
 	return isOneOf(ch, text_verticalLines)
+}
+func (t *TextGrid) IsLine(c Cell) bool { return t.IsHorizontalLine(c) || t.IsVerticalLine(c) }
+
+func (t *TextGrid) FollowCell(c Cell, blocked *Cell) *CellSet {
+	switch {
+	case t.IsIntersection(c):
+		return t.followIntersection(c, blocked)
+	case t.IsCorner(c):
+		return t.followCorner(c, blocked)
+	case t.IsLine(c):
+		return t.followLine(c, blocked)
+	case t.IsStub(c):
+		return t.followStub(c, blocked)
+	case t.IsCrossOnLine(c):
+		return t.followCrossOnLine(c, blocked)
+	}
+	panic("Cannot follow cell: cannot determine cell type")
+}
+
+func (t *TextGrid) followIntersection(c Cell, blocked *Cell) *CellSet {
+	result := NewCellSet()
+	check := func(c Cell, entry int) {
+		if t.hasEntryPoint(c, entry) {
+			result.Add(c)
+		}
+	}
+	check(c.North(), 6)
+	check(c.South(), 2)
+	check(c.East(), 8)
+	check(c.West(), 4)
+	if blocked != nil {
+		result.Remove(*blocked)
+	}
+	return result
+}
+
+func (t *TextGrid) followCorner(c Cell, blocked *Cell) *CellSet {
+	switch {
+	case t.IsCorner1(c):
+		return t.followCornerX(c.South(), c.East(), blocked)
+	case t.IsCorner2(c):
+		return t.followCornerX(c.South(), c.West(), blocked)
+	case t.IsCorner3(c):
+		return t.followCornerX(c.North(), c.West(), blocked)
+	case t.IsCorner4(c):
+		return t.followCornerX(c.North(), c.East(), blocked)
+	}
+	return nil
+}
+
+func (t *TextGrid) followCornerX(c1, c2 Cell, blocked *Cell) *CellSet {
+	result := NewCellSet()
+	if blocked == nil || *blocked != c1 {
+		result.Add(c1)
+	}
+	if blocked == nil || *blocked != c2 {
+		result.Add(c2)
+	}
+	return result
+}
+
+func (t *TextGrid) followLine(c Cell, blocked *Cell) *CellSet {
+	switch {
+	case t.IsHorizontalLine(c):
+		return t.followBoundariesX(blocked, c.East(), c.West())
+	case t.IsVerticalLine(c):
+		return t.followBoundariesX(blocked, c.North(), c.South())
+	}
+	return nil
+}
+
+func (t *TextGrid) followStub(c Cell, blocked *Cell) *CellSet {
+	// [akavel] in original code, the condition quit when first boundary found, but that probably shouldn't matter
+	return t.followBoundariesX(blocked, c.East(), c.West(), c.North(), c.South())
+}
+
+func (t *TextGrid) followBoundariesX(blocked *Cell, boundaries ...Cell) *CellSet {
+	result := NewCellSet()
+	for _, c := range boundaries {
+		if blocked != nil && *blocked == c {
+			continue
+		}
+		if t.IsBoundary(c) {
+			result.Add(c)
+		}
+	}
+	return result
+}
+
+func (t *TextGrid) followCrossOnLine(c Cell, blocked *Cell) *CellSet {
+	result := NewCellSet()
+	switch {
+	case t.IsHorizontalCrossOnLine(c):
+		result.Add(c.East())
+		result.Add(c.West())
+	case t.IsVerticalCrossOnLine(c):
+		result.Add(c.North())
+		result.Add(c.South())
+	}
+	if blocked != nil {
+		result.Remove(*blocked)
+	}
+	return result
+}
+
+func (t *TextGrid) hasEntryPoint(c Cell, entryid int) bool {
+	entries := []string{
+		text_entryPoints1,
+		text_entryPoints2,
+		text_entryPoints3,
+		text_entryPoints4,
+		text_entryPoints5,
+		text_entryPoints6,
+		text_entryPoints7,
+		text_entryPoints8,
+	}
+	entryid--
+	if entryid >= len(entries) {
+		return false
+	}
+	return isOneOf(t.GetCell(c), entries[entryid])
+}
+
+func (t *TextGrid) HasBlankCells() bool {
+	w, h := t.Width(), t.Height()
+	for y := 0; y < h; y++ {
+		for x := 0; x < w; x++ {
+			if t.IsBlank(Cell{x, y}) {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 const (
