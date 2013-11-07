@@ -154,8 +154,13 @@ func (t *TextGrid) replaceHumanColorCodes() {
 	}
 }
 
-func (t *TextGrid) Set(x, y int, ch rune)   { t.Rows[y][x] = ch }
-func (t *TextGrid) Get(x, y int) rune       { return t.Rows[y][x] }
+func (t *TextGrid) Set(x, y int, ch rune) { t.Rows[y][x] = ch }
+func (t *TextGrid) Get(x, y int) rune {
+	if x >= t.Width() || y >= t.Height() || x < 0 || y < 0 {
+		return 0
+	}
+	return t.Rows[y][x]
+}
 func (t *TextGrid) SetCell(c Cell, ch rune) { t.Set(c.X, c.Y, ch) }
 func (t *TextGrid) GetCell(c Cell) rune     { return t.Get(c.X, c.Y) }
 

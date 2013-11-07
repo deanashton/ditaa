@@ -69,9 +69,93 @@ func NewDiagram(grid *TextGrid) *Diagram {
 		}
 	}
 
+	//Find all the boundaries by using the special version of the filling method
+	//(fills in a different buffer than the buffer it reads from)
+	w, h := grid.Width(), grid.Height()
+	boundarySetsStep2 := []*CellSet{}
+	for _, cells := range boundarySetsStep1 {
+		//the fill buffer keeps track of which cells have been
+		//filled already
+		fillBuffer := NewTextGrid()
+		fillBuffer.Rows = BlankRows(3*w, 3*h)
+
+		for yi := 0; yi < 3*h; yi++ {
+			for xi := 0; xi < 3*w; xi++ {
+				if !fillBuffer.IsBlankXY(xi, yi) {
+					continue
+				}
+
+				copyGrid := NewTextGrid()
+				copyGrid.Rows = NewAbstractionGrid(workGrid, cells).Rows
+
+				boundaries := findBoundariesExpandingFrom(copyGrid, Cell{xi, yi})
+				if len(boundaries.Set) == 0 {
+					continue //i'm not sure why these occur
+				}
+				boundarySetsStep2 = append(boundarySetsStep2, makeScaledOneThirdEquivalent(boundaries))
+
+				copyGrid.Rows = NewAbstractionGrid(workGrid, cells).Rows
+				filled := copyGrid.fillContinuousArea(xi, yi, '*')
+				FillCellsWith(fillBuffer.Rows, filled, '*')
+				FillCellsWith(fillBuffer.Rows, boundaries, '-')
+
+				if DEBUG {
+					makeScaledOneThirdEquivalent(boundaries).printAsGrid()
+					println("----------------------------------------")
+				}
+			}
+		}
+	}
+
 	//TODO: rest...
 
 	return &d
+}
+
+func makeScaledOneThirdEquivalent(cells *CellSet) *CellSet {
+	bb := cells.Bounds()
+	gridBig := NewTextGrid()
+	gridBig.Rows = BlankRows(bb.Max.X+2, bb.Max.Y+2)
+	FillCellsWith(gridBig.Rows, cells, '*')
+
+	gridSmall := NewTextGrid()
+	gridSmall.Rows = BlankRows((bb.Max.X+2)/3, (bb.Max.Y+2)/3)
+	for y := 0; y < gridBig.Height(); y++ {
+		for x := 0; x < gridBig.Width(); x++ {
+			if !gridBig.IsBlank(Cell{x, y}) {
+				gridSmall.Set(x/3, y/3, '*')
+			}
+		}
+	}
+	return gridSmall.GetAllNonBlank()
+}
+
+func findBoundariesExpandingFrom(grid *TextGrid, seed Cell) *CellSet {
+	boundaries := NewCellSet()
+	if grid.IsOutOfBounds(seed) {
+		return boundaries
+	}
+	oldChar := grid.GetCell(seed)
+	newChar := rune(1) //TODO: kludge
+	stack := []Cell{seed}
+	expand := func(c Cell) {
+		switch grid.GetCell(c) {
+		case oldChar:
+			stack = append(stack, c)
+		case '*':
+			boundaries.Add(c)
+		}
+	}
+	for len(stack) > 0 {
+		var c Cell
+		c, stack = stack[len(stack)-1], stack[:len(stack)-1]
+		grid.SetCell(c, newChar)
+		expand(c.North())
+		expand(c.South())
+		expand(c.East())
+		expand(c.West())
+	}
+	return boundaries
 }
 
 func getDistinctShapes(g *AbstractionGrid) []*CellSet {
