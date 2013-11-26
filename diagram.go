@@ -1,7 +1,12 @@
 package main
 
+import (
+	"github.com/akavel/ditaa/graphical"
+)
+
 type Diagram struct {
 	W, H int
+	G    graphical.Diagram
 }
 
 /*
@@ -109,7 +114,7 @@ func NewDiagram(grid *TextGrid) *Diagram {
 	boundarySetsStep2 = removeDuplicateSets(boundarySetsStep2)
 	//TODO: debug print to verify duplicates removed
 
-	open, closed, mixed := categorizeBoundaries(boundarySetsStep2,workGrid)
+	open, closed, mixed := categorizeBoundaries(boundarySetsStep2, workGrid)
 
 	hadToEliminateMixed := false
 	if len(mixed) > 0 && len(closed) > 0 {
@@ -146,10 +151,56 @@ func NewDiagram(grid *TextGrid) *Diagram {
 	}
 
 	if hadToEliminateMixed {
-		open, closed, mixed = categorizeBoundaries(boundarySetsStep2,workGrid)
+		open, closed, mixed = categorizeBoundaries(boundarySetsStep2, workGrid)
 	}
-	
+
 	closed = removeObsoleteShapes(workGrid, closed)
+
+	//TODO: handle allCornersRound commandline option
+	allCornersRound := false
+
+	d.G.Grid = graphical.Grid{}
+	closedShapes := []interface{}{}
+	for _, set := range closed {
+		shape := createClosedComponentFromBoundaryCells(workGrid, set, ggrid.CellW, ggrid.CellH, allCornersRound)
+		switch shape := shape.(type) {
+		case graphical.Shape:
+			d.G.Shapes = append(d.G.Shapes, shape)
+			d.closedShapes = append(d.closedShapes, shape)
+		case CompositeShape:
+			d.compositeShapes = append(d.compositeShapes, shape)
+		}
+	}
+
+	//TODO: handle opt.performSeparationOfCommonEdges
+
+	//make open shapes
+	for _, set := range open {
+		switch len(set.Map) {
+		case 1: //single cell "shape"
+			c := set.SomeCell()
+			if grid.cellContainsDashedLineChar(c) {
+				break
+			}
+			shape := createSmallLine(workGrid, c, d.G.Grid.CellW, d.G.Grid.CellH)
+			if shape != nil {
+				d.G.Shapes = append(d.G.Shapes, shape)
+				shape.ConnectEndsToAnchors(workGrid, d.G.Grid)
+			}
+		default: //normal shape
+			shape := createOpenFromBoundaryCells(workGrid, set, d.G.Grid.CellW, d.G.Grid.CellH, allCornersRound)
+			switch shape := shape.(type) {
+			case CompositeShape:
+				d.compositeShapes = append(d.compositeShapes, shape)
+				shape.ConnectEndsToAnchors(workGrid, d.G.Grid)
+			case graphical.Shape:
+				d.G.Shapes = append(d.G.Shapes, shape)
+				shape.ConnectEndsToAnchors(workGrid, d.G.Grid)
+				shape.MoveEndsToCellEdges(textGrid, d.G.Grid)
+			}
+
+		}
+	}
 
 	//TODO: rest...
 
@@ -158,85 +209,101 @@ func NewDiagram(grid *TextGrid) *Diagram {
 
 func removeObsoleteShapes(grid *TextGrid, sets []*CellSet) []*CellSet {
 	filleds := []*CellSet{}
-	
-		//make filled versions of all the boundary sets
+
+	//make filled versions of all the boundary sets
 	for _, set := range sets {
 		set = getFilledEquivalent(set, grid)
-		if set==nil {
+		if set == nil {
 			return sets
 		}
 		filleds = append(filleds, set)
 	}
-	
+
 	toRemove := map[int]bool{}
-	for _,set:=range filleds {
-			//find the other sets that have common cells with set
+	for _, set := range filleds {
+		//find the other sets that have common cells with set
 		common := []*CellSet{set}
-		for _,set2 := range filleds {
-			if set!=set2 && set.HasCommonCells(set2) {
+		for _, set2 := range filleds {
+			if set != set2 && set.HasCommonCells(set2) {
 				common = append(common, set2)
 			}
 		}
-			//it only makes sense for more than 2 sets
-		if len(common)==2 {
+		//it only makes sense for more than 2 sets
+		if len(common) == 2 {
 			continue
 		}
-	
+
 		//find largest set
 		largest := set
-		for _,set2:=range common {
-			if len(set2.Set)>len(largest.Set) {
+		for _, set2 := range common {
+			if len(set2.Set) > len(largest.Set) {
 				largest = set2
 			}
 		}
 
 		//see if largest is sum of others
 		common = remove(common, largest)
-		
+
 		//make the sum set of the small sets on a grid
 		bb := largest.Bounds()
 		gridOfSmalls := NewTextGrid(bb.Max.X+2, bb.Max.Y+2)
-		for _,set2:=range common {
-			FillCellsWith(gridOfSmalls.Rows,set2,'*')
+		for _, set2 := range common {
+			FillCellsWith(gridOfSmalls.Rows, set2, '*')
 		}
 		gridLargest := NewTextGrid(bb.Max.X+2, bb.Max.Y+2)
-		FillCellsWith(gridLargest.Rows,largest,'*')
-		
+		FillCellsWith(gridLargest.Rows, largest, '*')
+
 		idx := indexof(filleds, largest)
 		if gridLargest.Equals(gridOfSmalls) {
 			toRemove[idx] = true
 		}
 	}
-	
+
 	setsToRemove := []*CellSet{}
 	for i := range toRemove {
 		setsToRemove = append(setsToRemove, sets[i])
 	}
-	
-	for _,set := range setsToRemove {
+
+	for _, set := range setsToRemove {
 		sets = remove(sets, set)
 	}
 	return sets
 }
 
 func getFilledEquivalent(cells *CellSet, grid *TextGrid) *CellSet {
-	if cells.Type(grid)==SET_OPEN {
+	if cells.Type(grid) == SET_OPEN {
 		result := NewCellSet()
 		result.AddAll(cells)
 		return result
 	}
 	bb := cells.Bounds()
 	grid = NewTextGrid(bb.Max.X+2, bb.Max.Y+2)
-	FillCellsWith(grid.Rows,cells,'*')
-	
-		//find a cell that has a blank both on the east and the west
+	FillCellsWith(grid.Rows, cells, '*')
 
-asdfasdfasdfasdfasdf NYI asdfasdfasdf TODO asdfasdfasdaf
+	//find a cell that has a blank both on the east and the west
+	for y := 0; y < grid.Height(); y++ {
+		for x := 0; x < grid.Width(); x++ {
+			c := Cell{x, y}
+			if grid.IsBlank(c) || !grid.IsBlank(c.East()) || !grid.IsBlank(c.West()) {
+				continue
+			}
+			// found
+			c = c.East()
+			if grid.IsOutOfBounds(c) {
+				newcells := NewCellSet()
+				newcells.AddAll(cells)
+				return newcells
+			}
+			grid.fillContinuousArea(c.X, c.Y, '*')
+			return grid.GetAllNonBlank()
+		}
+	}
+	panic("Unexpected error, cannot find the filled equivalent of CellSet")
 }
 
 func indexof(vec []*CellSet, elem *CellSet) int {
-	for i:=range vec {
-		if vec[i]==elem {
+	for i := range vec {
+		if vec[i] == elem {
 			return i
 		}
 	}
