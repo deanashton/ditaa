@@ -25,21 +25,21 @@ const (
 )
 
 type Label struct {
-	Text         string  `xml:"text"`
-	FontSize     float64 `xml:"font>size"`
-	X            int     `xml:"xPos"`
-	Y            int     `xml:"yPos"`
-	Color        graphical.Color   `xml:"color"`
-	OnLine       bool    `xml:"isTextOnLine"`
-	Outline      bool    `xml:"hasOutline"`
-	OutlineColor graphical.Color   `xml:"outlineColor"`
+	Text         string          `xml:"text"`
+	FontSize     float64         `xml:"font>size"`
+	X            int             `xml:"xPos"`
+	Y            int             `xml:"yPos"`
+	Color        graphical.Color `xml:"color"`
+	OnLine       bool            `xml:"isTextOnLine"`
+	Outline      bool            `xml:"hasOutline"`
+	OutlineColor graphical.Color `xml:"outlineColor"`
 }
 
 type Diagram struct {
-	XMLName xml.Name `xml:"diagram"`
-	Grid    graphical.Grid     `xml:"grid"`
-	Shapes  []graphical.Shape  `xml:"shapes>shape"`
-	Labels  []Label  `xml:"texts>text"`
+	XMLName xml.Name          `xml:"diagram"`
+	Grid    graphical.Grid    `xml:"grid"`
+	Shapes  []graphical.Shape `xml:"shapes>shape"`
+	Labels  []Label           `xml:"texts>text"`
 }
 
 type Options struct {
@@ -70,7 +70,7 @@ func renderShadows(img *image.RGBA, shapes []graphical.Shape, g graphical.Grid, 
 		if len(shape.Points) == 0 || !shape.DropsShadow() || shape.Type == graphical.TYPE_CUSTOM {
 			continue
 		}
-		path := shape.MakeIntoRenderPath(g/*, opt*/)
+		path := shape.MakeIntoRenderPath(g /*, opt*/)
 		if path == nil {
 			continue
 		}
@@ -158,7 +158,7 @@ func RenderDiagram(img *image.RGBA, diagram *Diagram, opt Options) error {
 	}
 	//TODO: sort storage shapes
 	for _, shape := range storageShapes {
-		path := shape.MakeIntoRenderPath(diagram.Grid/*, opt*/)
+		path := shape.MakeIntoRenderPath(diagram.Grid /*, opt*/)
 		//TODO: handle dashed
 		color := graphical.WHITE
 		if shape.FillColor != nil {
@@ -187,7 +187,7 @@ func RenderDiagram(img *image.RGBA, diagram *Diagram, opt Options) error {
 			continue
 		}
 
-		path := shape.MakeIntoRenderPath(diagram.Grid/*, opt*/)
+		path := shape.MakeIntoRenderPath(diagram.Grid /*, opt*/)
 
 		// fill
 		if path != nil && shape.Closed && !shape.Dashed {

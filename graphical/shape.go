@@ -147,7 +147,7 @@ func (s *Shape) makeIOPath(g Grid /*, opt Options*/) raster.Path {
 	return path
 }
 
-func (s *Shape) makeTrapezoidPath(g Grid/*, opt Options*/, inverted bool) raster.Path {
+func (s *Shape) makeTrapezoidPath(g Grid /*, opt Options*/, inverted bool) raster.Path {
 	if len(s.Points) != 4 {
 		return nil
 	}
@@ -247,9 +247,9 @@ func (s *Shape) MakeIntoRenderPath(g Grid /*, opt Options*/) raster.Path {
 		case TYPE_IO:
 			return s.makeIOPath(g /*, opt*/)
 		case TYPE_MANUAL_OPERATION:
-			return s.makeTrapezoidPath(g/*, opt*/, true)
+			return s.makeTrapezoidPath(g /*, opt*/, true)
 		case TYPE_TRAPEZOID:
-			return s.makeTrapezoidPath(g/*, opt*/, false)
+			return s.makeTrapezoidPath(g /*, opt*/, false)
 		case TYPE_DECISION:
 			return s.makeDecisionPath()
 		//case TYPE_STORAGE:
