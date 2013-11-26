@@ -109,18 +109,7 @@ func NewDiagram(grid *TextGrid) *Diagram {
 	boundarySetsStep2 = removeDuplicateSets(boundarySetsStep2)
 	//TODO: debug print to verify duplicates removed
 
-	//split boundaries to open, closed and mixed
-	open, closed, mixed := []*CellSet{}, []*CellSet{}, []*CellSet{}
-	for _, set := range boundarySetsStep2 {
-		switch set.Type(workGrid) {
-		case SET_CLOSED:
-			closed = append(closed, set)
-		case SET_OPEN:
-			open = append(open, set)
-		case SET_MIXED:
-			mixed = append(mixed, set)
-		}
-	}
+	open, closed, mixed := categorizeBoundaries(boundarySetsStep2,workGrid)
 
 	hadToEliminateMixed := false
 	if len(mixed) > 0 && len(closed) > 0 {
@@ -156,11 +145,117 @@ func NewDiagram(grid *TextGrid) *Diagram {
 		}
 	}
 
-	_ = hadToEliminateMixed
+	if hadToEliminateMixed {
+		open, closed, mixed = categorizeBoundaries(boundarySetsStep2,workGrid)
+	}
+	
+	closed = removeObsoleteShapes(workGrid, closed)
 
 	//TODO: rest...
 
 	return &d
+}
+
+func removeObsoleteShapes(grid *TextGrid, sets []*CellSet) []*CellSet {
+	filleds := []*CellSet{}
+	
+		//make filled versions of all the boundary sets
+	for _, set := range sets {
+		set = getFilledEquivalent(set, grid)
+		if set==nil {
+			return sets
+		}
+		filleds = append(filleds, set)
+	}
+	
+	toRemove := map[int]bool{}
+	for _,set:=range filleds {
+			//find the other sets that have common cells with set
+		common := []*CellSet{set}
+		for _,set2 := range filleds {
+			if set!=set2 && set.HasCommonCells(set2) {
+				common = append(common, set2)
+			}
+		}
+			//it only makes sense for more than 2 sets
+		if len(common)==2 {
+			continue
+		}
+	
+		//find largest set
+		largest := set
+		for _,set2:=range common {
+			if len(set2.Set)>len(largest.Set) {
+				largest = set2
+			}
+		}
+
+		//see if largest is sum of others
+		common = remove(common, largest)
+		
+		//make the sum set of the small sets on a grid
+		bb := largest.Bounds()
+		gridOfSmalls := NewTextGrid(bb.Max.X+2, bb.Max.Y+2)
+		for _,set2:=range common {
+			FillCellsWith(gridOfSmalls.Rows,set2,'*')
+		}
+		gridLargest := NewTextGrid(bb.Max.X+2, bb.Max.Y+2)
+		FillCellsWith(gridLargest.Rows,largest,'*')
+		
+		idx := indexof(filleds, largest)
+		if gridLargest.Equals(gridOfSmalls) {
+			toRemove[idx] = true
+		}
+	}
+	
+	setsToRemove := []*CellSet{}
+	for i := range toRemove {
+		setsToRemove = append(setsToRemove, sets[i])
+	}
+	
+	for _,set := range setsToRemove {
+		sets = remove(sets, set)
+	}
+	return sets
+}
+
+func getFilledEquivalent(cells *CellSet, grid *TextGrid) *CellSet {
+	if cells.Type(grid)==SET_OPEN {
+		result := NewCellSet()
+		result.AddAll(cells)
+		return result
+	}
+	bb := cells.Bounds()
+	grid = NewTextGrid(bb.Max.X+2, bb.Max.Y+2)
+	FillCellsWith(grid.Rows,cells,'*')
+	
+		//find a cell that has a blank both on the east and the west
+
+asdfasdfasdfasdfasdf NYI asdfasdfasdf TODO asdfasdfasdaf
+}
+
+func indexof(vec []*CellSet, elem *CellSet) int {
+	for i:=range vec {
+		if vec[i]==elem {
+			return i
+		}
+	}
+	return -1
+}
+
+func categorizeBoundaries(sets []*CellSet, grid *TextGrid) (open, closed, mixed []*CellSet) {
+	//split boundaries to open, closed and mixed
+	for _, set := range sets {
+		switch set.Type(grid) {
+		case SET_CLOSED:
+			closed = append(closed, set)
+		case SET_OPEN:
+			open = append(open, set)
+		case SET_MIXED:
+			mixed = append(mixed, set)
+		}
+	}
+	return
 }
 
 func remove(vec []*CellSet, elem *CellSet) []*CellSet {

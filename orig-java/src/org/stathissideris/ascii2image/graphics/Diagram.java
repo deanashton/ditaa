@@ -579,8 +579,6 @@ public class Diagram {
 
 		ArrayList<CellSet> filledSets = new ArrayList<CellSet>();
 
-		Iterator<?> it;
-
 		if (DEBUG_VERBOSE) {
 			System.out.println("******* Sets before *******");
 			for (CellSet set : sets) {
@@ -636,7 +634,6 @@ public class Diagram {
 
 			//make the sum set of the small sets on a grid
 			TextGrid gridOfSmalls = new TextGrid(largest.getMaxX() + 2, largest.getMaxY() + 2);
-			new CellSet();
 			for (CellSet set2 : common) {
 				if (DEBUG_VERBOSE) {
 					System.out.println("One of smalls:");
