@@ -1,4 +1,4 @@
-package main
+package graphical
 
 import (
 	"code.google.com/p/freetype-go/freetype/raster"

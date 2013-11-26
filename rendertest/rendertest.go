@@ -8,6 +8,7 @@ import (
 	"code.google.com/p/graphics-go/graphics/interp"
 	"encoding/xml"
 	"fmt"
+	"github.com/akavel/ditaa/graphical"
 	"image"
 	"image/color"
 	"image/png"
@@ -28,16 +29,16 @@ type Label struct {
 	FontSize     float64 `xml:"font>size"`
 	X            int     `xml:"xPos"`
 	Y            int     `xml:"yPos"`
-	Color        Color   `xml:"color"`
+	Color        graphical.Color   `xml:"color"`
 	OnLine       bool    `xml:"isTextOnLine"`
 	Outline      bool    `xml:"hasOutline"`
-	OutlineColor Color   `xml:"outlineColor"`
+	OutlineColor graphical.Color   `xml:"outlineColor"`
 }
 
 type Diagram struct {
 	XMLName xml.Name `xml:"diagram"`
-	Grid    Grid     `xml:"grid"`
-	Shapes  []Shape  `xml:"shapes>shape"`
+	Grid    graphical.Grid     `xml:"grid"`
+	Shapes  []graphical.Shape  `xml:"shapes>shape"`
 	Labels  []Label  `xml:"texts>text"`
 }
 
@@ -64,16 +65,16 @@ func LoadDiagram(path string) (*Diagram, error) {
 	return &diagram, nil
 }
 
-func renderShadows(img *image.RGBA, shapes []Shape, g Grid, opt Options) {
+func renderShadows(img *image.RGBA, shapes []graphical.Shape, g graphical.Grid, opt Options) {
 	for _, shape := range shapes {
-		if len(shape.Points) == 0 || !shape.DropsShadow() || shape.Type == TYPE_CUSTOM {
+		if len(shape.Points) == 0 || !shape.DropsShadow() || shape.Type == graphical.TYPE_CUSTOM {
 			continue
 		}
-		path := shape.MakeIntoRenderPath(g, opt)
+		path := shape.MakeIntoRenderPath(g/*, opt*/)
 		if path == nil {
 			continue
 		}
-		Fill(img, path, color.RGBA{150, 150, 150, 255})
+		graphical.Fill(img, path, color.RGBA{150, 150, 150, 255})
 	}
 	offset := g.CellW
 	if g.CellH < offset {
@@ -94,17 +95,17 @@ func blurShadows(img *image.RGBA) {
 	radius += 2
 	for y := bb.Min.Y; y <= bb.Min.Y+radius; y++ {
 		for x := bb.Min.X; x <= bb.Max.X; x++ {
-			img.SetRGBA(x, y, WHITE)
+			img.SetRGBA(x, y, graphical.WHITE)
 		}
 	}
 	for y := bb.Min.Y + radius + 1; y <= bb.Max.Y; y++ {
 		for x := bb.Min.X; x <= bb.Min.X+radius; x++ {
-			img.SetRGBA(x, y, WHITE)
+			img.SetRGBA(x, y, graphical.WHITE)
 		}
 	}
 }
 
-type LargeFirst []Shape
+type LargeFirst []graphical.Shape
 
 func (t LargeFirst) Len() int           { return len(t) }
 func (t LargeFirst) Less(i, j int) bool { return t[i].CalcArea() > t[j].CalcArea() }
@@ -127,7 +128,7 @@ func RenderDiagram(img *image.RGBA, diagram *Diagram, opt Options) error {
 
 	for y := 0; y < diagram.Grid.H; y++ {
 		for x := 0; x < diagram.Grid.W; x++ {
-			img.SetRGBA(x, y, WHITE)
+			img.SetRGBA(x, y, graphical.WHITE)
 		}
 	}
 
@@ -148,37 +149,37 @@ func RenderDiagram(img *image.RGBA, diagram *Diagram, opt Options) error {
 	//rendered bottom to top
 	//TODO: known bug: if a storage object is within a bigger normal box, it will be overwritten in the main drawing loop
 	//(BUT this is not possible since tags are applied to all shapes overlaping shapes)
-	storageShapes := []Shape{}
+	storageShapes := []graphical.Shape{}
 	for _, shape := range diagram.Shapes {
-		if shape.Type == TYPE_STORAGE {
+		if shape.Type == graphical.TYPE_STORAGE {
 			//TODO: freetype-go doesn't implement stroking cubic paths -- need to fix or walk around
 			//storageShapes = append(storageShapes, shape)
 		}
 	}
 	//TODO: sort storage shapes
 	for _, shape := range storageShapes {
-		path := shape.MakeIntoRenderPath(diagram.Grid, opt)
+		path := shape.MakeIntoRenderPath(diagram.Grid/*, opt*/)
 		//TODO: handle dashed
-		color := WHITE
+		color := graphical.WHITE
 		if shape.FillColor != nil {
 			color = shape.FillColor.RGBA()
 		}
-		Fill(img, path, color)
-		Stroke(img, path, shape.StrokeColor.RGBA())
+		graphical.Fill(img, path, color)
+		graphical.Stroke(img, path, shape.StrokeColor.RGBA())
 	}
 
 	sort.Sort(LargeFirst(diagram.Shapes))
 
 	// render rest of shapes + collect point markers
-	pointMarkers := []Shape{}
+	pointMarkers := []graphical.Shape{}
 	for _, shape := range diagram.Shapes {
 		switch shape.Type {
-		case TYPE_POINT_MARKER:
+		case graphical.TYPE_POINT_MARKER:
 			pointMarkers = append(pointMarkers, shape)
 			continue
-		case TYPE_STORAGE:
+		case graphical.TYPE_STORAGE:
 			continue
-		case TYPE_CUSTOM:
+		case graphical.TYPE_CUSTOM:
 			//TODO: render custom shape
 			continue
 		}
@@ -186,29 +187,29 @@ func RenderDiagram(img *image.RGBA, diagram *Diagram, opt Options) error {
 			continue
 		}
 
-		path := shape.MakeIntoRenderPath(diagram.Grid, opt)
+		path := shape.MakeIntoRenderPath(diagram.Grid/*, opt*/)
 
 		// fill
 		if path != nil && shape.Closed && !shape.Dashed {
-			color := WHITE
+			color := graphical.WHITE
 			if shape.FillColor != nil {
 				color = shape.FillColor.RGBA()
 			}
-			Fill(img, path, color)
+			graphical.Fill(img, path, color)
 		}
 
 		// draw
-		if shape.Type != TYPE_ARROWHEAD {
+		if shape.Type != graphical.TYPE_ARROWHEAD {
 			//TODO: support dashed lines
-			Stroke(img, path, shape.StrokeColor.RGBA())
+			graphical.Stroke(img, path, shape.StrokeColor.RGBA())
 		}
 	}
 
 	// render point markers
 	for _, shape := range pointMarkers {
 		outer, inner := shape.MakeMarkerPaths(diagram.Grid)
-		Fill(img, outer, shape.StrokeColor.RGBA())
-		Fill(img, inner, WHITE)
+		graphical.Fill(img, outer, shape.StrokeColor.RGBA())
+		graphical.Fill(img, inner, graphical.WHITE)
 	}
 
 	// handle text
@@ -220,7 +221,7 @@ func RenderDiagram(img *image.RGBA, diagram *Diagram, opt Options) error {
 		ctx.SetDst(img)
 		ctx.SetClip(img.Bounds())
 		//TODO: handle outline
-		ctx.DrawString(label.Text, P(Point{X: float64(label.X), Y: float64(label.Y)}))
+		ctx.DrawString(label.Text, graphical.P(graphical.Point{X: float64(label.X), Y: float64(label.Y)}))
 	}
 	return nil
 }
