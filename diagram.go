@@ -10,7 +10,7 @@ type Diagram struct {
 }
 
 /*
-An outline of the inner workings of this very important (and monstrous)
+An outline of the inner wor210kings of this very important (and monstrous)
 constructor is presented here. Boundary processing is the first step
 of the process:
 
@@ -162,7 +162,7 @@ func NewDiagram(grid *TextGrid) *Diagram {
 	d.G.Grid = graphical.Grid{}
 	closedShapes := []interface{}{}
 	for _, set := range closed {
-		shape := createClosedComponentFromBoundaryCells(workGrid, set, ggrid.CellW, ggrid.CellH, allCornersRound)
+		shape := createClosedComponentFromBoundaryCells(workGrid, set, d.G.Grid.CellW, d.G.Grid.CellH, allCornersRound)
 		switch shape := shape.(type) {
 		case graphical.Shape:
 			d.G.Shapes = append(d.G.Shapes, shape)
@@ -205,6 +205,53 @@ func NewDiagram(grid *TextGrid) *Diagram {
 	//TODO: rest...
 
 	return &d
+}
+
+func createClosedComponentFromBoundaryCells(grid *TextGrid, cells *CellSet, cellw, cellh int, allCornersRound bool) interface{} {
+	if cells.Type(grid) == SET_OPEN {
+		panic("CellSet is closed and cannot be handled by this method")
+	}
+	if len(cells.Set) < 2 {
+		return nil
+	}
+
+	shape := graphical.Shape{Closed: true}
+	if grid.containsAtLeastOneDashedLine(cells) {
+		shape.Dashed = true
+	}
+
+	workGrid := NewTextGrid(grid.Width(), grid.Height())
+	grid.copyCellsTo(cells, workGrid)
+
+	start := cells.SomeCell()
+	if workGrid.IsCorner(start) {
+		shape.Points = append(shape.Points, makePointForCell(start, workGrid, cellw, cellh, allCornersRound))
+	}
+	prev := start
+	nextCells := workGrid.FollowCell(prev, nil)
+	if len(nextCells.Set) == 0 {
+		return nil
+	}
+	cell := nextCells.SomeCell()
+	if workGrid.IsCorner(cell) {
+		shape.Points = append(shape.Points, makePointForCell(cell, workgrid, cellw, cellh, allCornersRound))
+	}
+
+	for cell != start {
+		nextCells = workGrid.FollowCell(cell, prev)
+		if len(nextCells.Set) > 1 {
+			return nil
+		}
+		if len(nextCells.Set) == 1 {
+			prev = cell
+			cell = nextCells.SomeCell()
+			if cell != start && workGrid.IsCorner(cell) {
+				shape.Points = append(shape.Points, makePointForCell(cell, workGrid, cellw, cellh, allCornersRound))
+			}
+		}
+	}
+
+	return shape
 }
 
 func removeObsoleteShapes(grid *TextGrid, sets []*CellSet) []*CellSet {
