@@ -215,12 +215,15 @@ func createClosedComponentFromBoundaryCells(grid *TextGrid, cells *CellSet, cell
 	}
 
 	shape := graphical.Shape{Closed: true}
-	if grid.containsAtLeastOneDashedLine(cells) {
-		shape.Dashed = true
+	for c := range cells.Set {
+		if isOneOf(grid.GetCell(c), text_dashedLines) {
+			shape.Dashed = true
+			break
+		}
 	}
 
 	workGrid := NewTextGrid(grid.Width(), grid.Height())
-	grid.copyCellsTo(cells, workGrid)
+	CopySelectedCells(workGrid, cells, grid)
 
 	start := cells.SomeCell()
 	if workGrid.IsCorner(start) {

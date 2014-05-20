@@ -85,3 +85,24 @@ func createOpenFromBoundaryCells(grid *TextGrid, cells *CellSet, cellw, cellh in
 
 	return shapes
 }
+
+func makePointForCell(c Cell, grid *TextGrid, cellw, cellh int, allCornersRound bool) graphical.Point {
+	var typ graphical.PointType
+	switch {
+	case grid.IsCorner(c) && allCornersRound:
+		typ = POINT_ROUND
+	case grid.IsNormalCorner(c):
+		typ = POINT_NORMAL
+	case grid.IsRoundCorner(c):
+		typ = POINT_ROUND
+	case grid.IsLinesEnd(c) || grid.IsIntersection(c):
+		typ = POINT_NORMAL
+	default:
+		panic(fmt.Sprint("Cannot make point for cell", c))
+	}
+	return graphical.Point{
+		X:    c.X*cellw + cellw/2,
+		Y:    c.Y*cellh + cellh/2,
+		Type: typ,
+	}
+}
