@@ -166,7 +166,7 @@ func NewDiagram(grid *TextGrid) *Diagram {
 		switch shape := shape.(type) {
 		case graphical.Shape:
 			d.G.Shapes = append(d.G.Shapes, shape)
-			d.closedShapes = append(d.closedShapes, shape)
+			closedShapes = append(closedShapes, shape)
 		case CompositeShape:
 			d.compositeShapes = append(d.compositeShapes, shape)
 		}
@@ -176,10 +176,10 @@ func NewDiagram(grid *TextGrid) *Diagram {
 
 	//make open shapes
 	for _, set := range open {
-		switch len(set.Map) {
+		switch len(set.Set) {
 		case 1: //single cell "shape"
 			c := set.SomeCell()
-			if grid.cellContainsDashedLineChar(c) {
+			if grid.CellContainsDashedLineChar(c) {
 				break
 			}
 			shape := createSmallLine(workGrid, c, d.G.Grid.CellW, d.G.Grid.CellH)

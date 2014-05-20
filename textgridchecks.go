@@ -244,6 +244,10 @@ func (t *TextGrid) HasBlankCells() bool {
 	return false
 }
 
+func (t *TextGrid) CellContainsDashedLineChar(c Cell) bool {
+	return isOneOf(t.GetCell(c), text_dashedLines)
+}
+
 const (
 	text_boundaries             = `/\|-*=:`
 	text_undisputableBoundaries = `|-*=:`
