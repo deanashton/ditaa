@@ -33,6 +33,15 @@ func (s *CellSet) AddAll(s2 *CellSet) {
 	}
 }
 
+func (s *CellSet) HasCommonCells(s2 *CellSet) bool {
+	for c := range s2.Set {
+		if s.Contains(c) {
+			return true
+		}
+	}
+	return false
+}
+
 func (s *CellSet) Bounds() CellBounds {
 	var bb *CellBounds
 	for c := range s.Set {

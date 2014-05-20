@@ -240,7 +240,7 @@ func createClosedComponentFromBoundaryCells(grid *TextGrid, cells *CellSet, cell
 	}
 
 	for cell != start {
-		nextCells = workGrid.FollowCell(cell, prev)
+		nextCells = workGrid.FollowCell(cell, &prev)
 		if len(nextCells.Set) > 1 {
 			return nil
 		}
@@ -253,7 +253,7 @@ func createClosedComponentFromBoundaryCells(grid *TextGrid, cells *CellSet, cell
 		}
 	}
 
-	return shape
+	return &shape
 }
 
 func removeObsoleteShapes(grid *TextGrid, sets []*CellSet) []*CellSet {
