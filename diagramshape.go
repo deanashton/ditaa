@@ -4,24 +4,25 @@ import (
 	"github.com/akavel/ditaa/graphical"
 )
 
-func NewSmallLine(grid *TextGrid, c Cell, cellw, cellh int) *graphical.Shape {
+func NewSmallLine(grid *TextGrid, c Cell, gg graphical.Grid) *graphical.Shape {
+	cc := graphical.Cell(c)
 	switch {
 	case grid.IsHorizontalLine(c):
-		return graphical.Shape{Points: []graphical.Point{
-			{X: c.X * cellw, Y: c.Y*cellh + cellh/2},
-			{X: c.X*cellw + cellw - 1, Y: c.Y*cellh + cellh/2},
+		return &graphical.Shape{Points: []graphical.Point{
+			{X: gg.CellMinX(cc), Y: gg.CellMidY(cc)},
+			{X: gg.CellMaxX(cc) - 1, Y: gg.CellMidY(cc)},
 		}}
 	case grid.IsVerticalLine(c):
-		return graphical.Shape{Points: []graphical.Point{
-			{X: c.X*cellw + cellw/2, Y: c.Y * cellh},
-			{X: c.X*cellw + cellw/2, Y: c.Y*cellh + cellh - 1},
+		return &graphical.Shape{Points: []graphical.Point{
+			{X: gg.CellMidX(cc), Y: gg.CellMinY(cc)},
+			{X: gg.CellMidX(cc), Y: gg.CellMaxY(cc) - 1},
 		}}
 	}
 	return nil
 }
 
-func ConnectEndsToAnchors(s *Shape, grid *TextGrid, gg *graphical.Grid) {
-	if s.IsClosed() {
+func ConnectEndsToAnchors(s *graphical.Shape, grid *TextGrid, gg graphical.Grid) {
+	if s.Closed {
 		return
 	}
 	n := len(s.Points)
@@ -29,19 +30,20 @@ func ConnectEndsToAnchors(s *Shape, grid *TextGrid, gg *graphical.Grid) {
 		{&s.Points[0], &s.Points[1]},
 		{&s.Points[n-1], &s.Points[n-2]},
 	} {
-		var x, y int
+		var x, y float64
 		switch {
-		case line.next.NorthOf(line.end):
-			x, y = line.end.X, line.end.Y+gg.CellH
-		case line.next.SouthOf(line.end):
-			x, y = line.end.X, line.end.Y-gg.CellH
-		case line.next.WestOf(line.end):
-			x, y = line.end.X+gg.CellW, line.end.Y
-		case line.next.EastOf(line.end):
-			x, y = line.end.X-gg.CellW, line.end.Y
+		case line.next.NorthOf(*line.end):
+			x, y = line.end.X, line.end.Y+float64(gg.CellH)
+		case line.next.SouthOf(*line.end):
+			x, y = line.end.X, line.end.Y-float64(gg.CellH)
+		case line.next.WestOf(*line.end):
+			x, y = line.end.X+float64(gg.CellW), line.end.Y
+		case line.next.EastOf(*line.end):
+			x, y = line.end.X-float64(gg.CellW), line.end.Y
 		}
 		anchor := gg.CellFor(graphical.Point{X: x, Y: y})
-		if grid.IsArrowhead(anchor) || grid.IsCorner(anchor) || grid.IsIntersection(anchor) {
+		c := Cell(anchor)
+		if grid.IsArrowhead(c) || grid.IsCorner(c) || grid.IsIntersection(c) {
 			line.end.X, line.end.Y = gg.CellMidX(anchor), gg.CellMidY(anchor)
 			line.end.Locked = true
 		}

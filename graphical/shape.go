@@ -21,12 +21,12 @@ func (g Grid) CellFor(p Point) Cell {
 	return Cell{int(p.X) / g.CellW, int(p.Y) / g.CellH}
 }
 
-func (g Grid) CellMinX(cell Cell) int { return cell.X * g.CellW }
-func (g Grid) CellMaxX(cell Cell) int { return (cell.X + 1) * g.CellW }
-func (g Grid) CellMinY(cell Cell) int { return cell.Y * g.CellH }
-func (g Grid) CellMaxY(cell Cell) int { return (cell.Y + 1) * g.CellH }
-func (g Grid) CellMidX(cell Cell) int { return cell.X*g.CellW + g.CellW/2 }
-func (g Grid) CellMidY(cell Cell) int { return cell.Y*g.CellH + g.CellH/2 }
+func (g Grid) CellMinX(cell Cell) float64 { return float64(cell.X * g.CellW) }
+func (g Grid) CellMaxX(cell Cell) float64 { return float64((cell.X + 1) * g.CellW) }
+func (g Grid) CellMinY(cell Cell) float64 { return float64(cell.Y * g.CellH) }
+func (g Grid) CellMaxY(cell Cell) float64 { return float64((cell.Y + 1) * g.CellH) }
+func (g Grid) CellMidX(cell Cell) float64 { return float64(cell.X*g.CellW + g.CellW/2) }
+func (g Grid) CellMidY(cell Cell) float64 { return float64(cell.Y*g.CellH + g.CellH/2) }
 
 type ShapeType int
 

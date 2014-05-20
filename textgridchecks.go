@@ -3,9 +3,11 @@ package main
 import (
 	"strings"
 	"unicode"
+
+	"github.com/akavel/ditaa/graphical"
 )
 
-type Cell struct{ X, Y int }
+type Cell graphical.Cell //struct{ X, Y int }
 
 func (c Cell) North() Cell { return Cell{c.X, c.Y - 1} }
 func (c Cell) South() Cell { return Cell{c.X, c.Y + 1} }

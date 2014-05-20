@@ -185,7 +185,7 @@ func NewDiagram(grid *TextGrid) *Diagram {
 			if grid.CellContainsDashedLineChar(c) {
 				break
 			}
-			shape := NewSmallLine(workGrid, c, d.G.Grid.CellW, d.G.Grid.CellH)
+			shape := NewSmallLine(workGrid, c, d.G.Grid)
 			if shape != nil {
 				d.G.Shapes = append(d.G.Shapes, *shape)
 				ConnectEndsToAnchors(shape, workGrid, d.G.Grid)
