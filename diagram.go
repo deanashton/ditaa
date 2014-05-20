@@ -303,7 +303,7 @@ func removeObsoleteShapes(grid *TextGrid, sets []*CellSet) []*CellSet {
 		FillCellsWith(gridLargest.Rows, largest, '*')
 
 		idx := indexof(filleds, largest)
-		if gridLargest.Equals(gridOfSmalls) {
+		if gridLargest.Equals(*gridOfSmalls) {
 			toRemove[idx] = true
 		}
 	}

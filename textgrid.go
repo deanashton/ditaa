@@ -50,6 +50,23 @@ func CopyTextGrid(other *TextGrid) *TextGrid {
 	return &t
 }
 
+func (t1 TextGrid) Equals(t2 TextGrid) bool {
+	if len(t1) != len(t2) {
+		return false
+	}
+	for i := range t1.Rows {
+		if len(t1.Rows[i]) != len(t2.Rows[i]) {
+			return false
+		}
+		for j := range t1.Rows[i] {
+			if t1.Rows[i][j] != t2.Rows[i][j] {
+				return false
+			}
+		}
+	}
+	return true
+}
+
 func (t *TextGrid) LoadFrom(r io.Reader) error {
 	lines := [][]rune{}
 	scanner := bufio.NewScanner(r)
