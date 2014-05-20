@@ -162,7 +162,7 @@ func NewDiagram(grid *TextGrid) *Diagram {
 	d.G.Grid = graphical.Grid{}
 	closedShapes := []interface{}{}
 	for _, set := range closed {
-		shape := createClosedComponentFromBoundaryCells(workGrid, set, d.G.Grid.CellW, d.G.Grid.CellH, allCornersRound)
+		shape := createClosedComponentFromBoundaryCells(workGrid, set, d.G.Grid, allCornersRound)
 		if shape == nil {
 			continue
 		}
@@ -206,7 +206,7 @@ func NewDiagram(grid *TextGrid) *Diagram {
 	return &d
 }
 
-func createClosedComponentFromBoundaryCells(grid *TextGrid, cells *CellSet, cellw, cellh int, allCornersRound bool) *graphical.Shape {
+func createClosedComponentFromBoundaryCells(grid *TextGrid, cells *CellSet, gg graphical.Grid, allCornersRound bool) *graphical.Shape {
 	if cells.Type(grid) == SET_OPEN {
 		panic("CellSet is open and cannot be handled by this method")
 	}
@@ -227,7 +227,7 @@ func createClosedComponentFromBoundaryCells(grid *TextGrid, cells *CellSet, cell
 
 	start := cells.SomeCell()
 	if workGrid.IsCorner(start) {
-		shape.Points = append(shape.Points, makePointForCell(start, workGrid, cellw, cellh, allCornersRound))
+		shape.Points = append(shape.Points, makePointForCell(start, workGrid, gg, allCornersRound))
 	}
 	prev := start
 	nextCells := workGrid.FollowCell(prev, nil)
@@ -236,7 +236,7 @@ func createClosedComponentFromBoundaryCells(grid *TextGrid, cells *CellSet, cell
 	}
 	cell := nextCells.SomeCell()
 	if workGrid.IsCorner(cell) {
-		shape.Points = append(shape.Points, makePointForCell(cell, workGrid, cellw, cellh, allCornersRound))
+		shape.Points = append(shape.Points, makePointForCell(cell, workGrid, gg, allCornersRound))
 	}
 
 	for cell != start {
@@ -248,7 +248,7 @@ func createClosedComponentFromBoundaryCells(grid *TextGrid, cells *CellSet, cell
 			prev = cell
 			cell = nextCells.SomeCell()
 			if cell != start && workGrid.IsCorner(cell) {
-				shape.Points = append(shape.Points, makePointForCell(cell, workGrid, cellw, cellh, allCornersRound))
+				shape.Points = append(shape.Points, makePointForCell(cell, workGrid, gg, allCornersRound))
 			}
 		}
 	}

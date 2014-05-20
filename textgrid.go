@@ -51,7 +51,7 @@ func CopyTextGrid(other *TextGrid) *TextGrid {
 }
 
 func (t1 TextGrid) Equals(t2 TextGrid) bool {
-	if len(t1) != len(t2) {
+	if len(t1.Rows) != len(t2.Rows) {
 		return false
 	}
 	for i := range t1.Rows {
