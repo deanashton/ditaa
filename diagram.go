@@ -163,13 +163,16 @@ func NewDiagram(grid *TextGrid) *Diagram {
 	closedShapes := []interface{}{}
 	for _, set := range closed {
 		shape := createClosedComponentFromBoundaryCells(workGrid, set, d.G.Grid.CellW, d.G.Grid.CellH, allCornersRound)
-		switch shape := shape.(type) {
-		case graphical.Shape:
-			d.G.Shapes = append(d.G.Shapes, shape)
-			closedShapes = append(closedShapes, shape)
-		case CompositeShape:
-			d.compositeShapes = append(d.compositeShapes, shape)
+		if shape == nil {
+			continue
 		}
+		//switch shape := shape.(type) {
+		//case graphical.Shape:
+		d.G.Shapes = append(d.G.Shapes, *shape)
+		closedShapes = append(closedShapes, *shape)
+		//case CompositeShape:
+		//	d.compositeShapes = append(d.compositeShapes, shape)
+		//}
 	}
 
 	//TODO: handle opt.performSeparationOfCommonEdges
@@ -188,17 +191,13 @@ func NewDiagram(grid *TextGrid) *Diagram {
 				ConnectEndsToAnchors(shape, workGrid, d.G.Grid)
 			}
 		default: //normal shape
-			shape := createOpenFromBoundaryCells(workGrid, set, d.G.Grid.CellW, d.G.Grid.CellH, allCornersRound)
-			switch shape := shape.(type) {
-			case CompositeShape:
-				d.compositeShapes = append(d.compositeShapes, shape)
-				shape.ConnectEndsToAnchors(workGrid, d.G.Grid)
-			case graphical.Shape:
-				d.G.Shapes = append(d.G.Shapes, shape)
-				shape.ConnectEndsToAnchors(workGrid, d.G.Grid)
-				shape.MoveEndsToCellEdges(textGrid, d.G.Grid)
+			shapes := createOpenFromBoundaryCells(workGrid, set, d.G.Grid.CellW, d.G.Grid.CellH, allCornersRound)
+			for i := range shapes {
+				if !shapes[i].Closed {
+					ConnectEndsToAnchors(&shapes[i], workGrid, d.G.Grid)
+				}
 			}
-
+			d.G.Shapes = append(d.G.Shapes, shapes...)
 		}
 	}
 
@@ -207,9 +206,9 @@ func NewDiagram(grid *TextGrid) *Diagram {
 	return &d
 }
 
-func createClosedComponentFromBoundaryCells(grid *TextGrid, cells *CellSet, cellw, cellh int, allCornersRound bool) interface{} {
+func createClosedComponentFromBoundaryCells(grid *TextGrid, cells *CellSet, cellw, cellh int, allCornersRound bool) *graphical.Shape {
 	if cells.Type(grid) == SET_OPEN {
-		panic("CellSet is closed and cannot be handled by this method")
+		panic("CellSet is open and cannot be handled by this method")
 	}
 	if len(cells.Set) < 2 {
 		return nil
@@ -234,7 +233,7 @@ func createClosedComponentFromBoundaryCells(grid *TextGrid, cells *CellSet, cell
 	}
 	cell := nextCells.SomeCell()
 	if workGrid.IsCorner(cell) {
-		shape.Points = append(shape.Points, makePointForCell(cell, workgrid, cellw, cellh, allCornersRound))
+		shape.Points = append(shape.Points, makePointForCell(cell, workGrid, cellw, cellh, allCornersRound))
 	}
 
 	for cell != start {

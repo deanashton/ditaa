@@ -47,3 +47,41 @@ func ConnectEndsToAnchors(s *Shape, grid *TextGrid, gg *graphical.Grid) {
 		}
 	}
 }
+
+func createOpenFromBoundaryCells(grid *TextGrid, cells *CellSet, cellw, cellh int, allCornersRound bool) []graphical.Shape {
+	if cells.Type(grid) != SET_OPEN {
+		panic("CellSet is closed and cannot be handled by this method")
+	}
+	if len(cells.Set) == 0 {
+		return []graphical.Shape{}
+	}
+
+	shapes := []graphical.Shape{}
+	workGrid := NewTextGrid(grid.Width(), grid.Height())
+	CopySelectedCells(workGrid, cells, grid)
+
+	visited := NewCellSet()
+	for c := range cells.Set {
+		if workGrid.IsLinesEnd(c) {
+			nextCells := workGrid.FollowCell(c, nil)
+			shapes = append(shapes, growEdgesFromCell(workGrid, cellw, cellh, allCornersRound, nextCells.SomeCell(), c, visited)...)
+			break
+		}
+	}
+
+	//dashed shapes should "infect" the rest of the shapes
+	dashedShapeExists := false
+	for _, s := range shapes {
+		if s.Dashed {
+			dashedShapeExists = true
+			break
+		}
+	}
+	if dashedShapeExists {
+		for i := range shapes {
+			shapes[i].Dashed = true
+		}
+	}
+
+	return shapes
+}
