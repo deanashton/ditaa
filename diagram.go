@@ -182,10 +182,10 @@ func NewDiagram(grid *TextGrid) *Diagram {
 			if grid.CellContainsDashedLineChar(c) {
 				break
 			}
-			shape := createSmallLine(workGrid, c, d.G.Grid.CellW, d.G.Grid.CellH)
+			shape := NewSmallLine(workGrid, c, d.G.Grid.CellW, d.G.Grid.CellH)
 			if shape != nil {
-				d.G.Shapes = append(d.G.Shapes, shape)
-				shape.ConnectEndsToAnchors(workGrid, d.G.Grid)
+				d.G.Shapes = append(d.G.Shapes, *shape)
+				ConnectEndsToAnchors(shape, workGrid, d.G.Grid)
 			}
 		default: //normal shape
 			shape := createOpenFromBoundaryCells(workGrid, set, d.G.Grid.CellW, d.G.Grid.CellH, allCornersRound)

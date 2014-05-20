@@ -248,6 +248,17 @@ func (t *TextGrid) CellContainsDashedLineChar(c Cell) bool {
 	return isOneOf(t.GetCell(c), text_dashedLines)
 }
 
+func (t *TextGrid) IsArrowhead(c Cell) bool {
+	return t.IsNorthArrowhead(c) || t.IsSouthArrowhead(c) || t.IsWestArrowhead(c) || t.IsEastArrowhead(c)
+}
+
+func (t *TextGrid) IsNorthArrowhead(c Cell) bool { return t.GetCell(c) == '^' }
+func (t *TextGrid) IsWestArrowhead(c Cell) bool  { return t.GetCell(c) == '<' }
+func (t *TextGrid) IsEastArrowhead(c Cell) bool  { return t.GetCell(c) == '>' }
+func (t *TextGrid) IsSouthArrowhead(c Cell) bool {
+	return isOneOf(t.GetCell(c), "Vv") && t.IsVerticalLine(c.North())
+}
+
 const (
 	text_boundaries             = `/\|-*=:`
 	text_undisputableBoundaries = `|-*=:`
