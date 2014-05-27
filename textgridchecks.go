@@ -261,6 +261,10 @@ func (t *TextGrid) IsSouthArrowhead(c Cell) bool {
 	return isOneOf(t.GetCell(c), "Vv") && t.IsVerticalLine(c.North())
 }
 
+func (t *TextGrid) IsPointCell(c Cell) bool {
+	return t.IsCorner(c) || t.IsIntersection(c) || t.IsStub(c) || t.IsLinesEnd(c)
+}
+
 const (
 	text_boundaries             = `/\|-*=:`
 	text_undisputableBoundaries = `|-*=:`

@@ -52,7 +52,7 @@ func ConnectEndsToAnchors(s *graphical.Shape, grid *TextGrid, gg graphical.Grid)
 	}
 }
 
-func createOpenFromBoundaryCells(grid *TextGrid, cells *CellSet, cellw, cellh int, allCornersRound bool) []graphical.Shape {
+func createOpenFromBoundaryCells(grid *TextGrid, cells *CellSet, gg graphical.Grid, allCornersRound bool) []graphical.Shape {
 	if cells.Type(grid) != SET_OPEN {
 		panic("CellSet is closed and cannot be handled by this method")
 	}
@@ -68,7 +68,7 @@ func createOpenFromBoundaryCells(grid *TextGrid, cells *CellSet, cellw, cellh in
 	for c := range cells.Set {
 		if workGrid.IsLinesEnd(c) {
 			nextCells := workGrid.FollowCell(c, nil)
-			shapes = append(shapes, growEdgesFromCell(workGrid, cellw, cellh, allCornersRound, nextCells.SomeCell(), c, visited)...)
+			shapes = append(shapes, growEdgesFromCell(workGrid, gg, allCornersRound, nextCells.SomeCell(), c, visited)...)
 			break
 		}
 	}
@@ -88,6 +88,43 @@ func createOpenFromBoundaryCells(grid *TextGrid, cells *CellSet, cellw, cellh in
 	}
 
 	return shapes
+}
+
+func growEdgesFromCell(grid *TextGrid, gg graphical.Grid, allCornersRound bool, c, prev Cell, visited *CellSet) []graphical.Shape {
+	result := []graphical.Shape{}
+	visited.Add(prev)
+	shape := graphical.Shape{
+		Points: []graphical.Point{makePointForCell(prev, grid, gg, allCornersRound)},
+	}
+	if grid.CellContainsDashedLineChar(prev) {
+		shape.Dashed = true
+	}
+
+	for finished := false; finished; {
+		visited.Add(c)
+		if grid.IsPointCell(c) {
+			shape.Points = append(shape.Points, makePointForCell(c, grid, gg, allCornersRound))
+		}
+		if grid.CellContainsDashedLineChar(c) {
+			shape.Dashed = true
+		}
+		if grid.IsLinesEnd(c) {
+			finished = true
+		}
+		nextCells := grid.FollowCell(c, &prev)
+		if len(nextCells.Set) == 1 {
+			prev = c
+			c = nextCells.SomeCell()
+		} else { // 3- or 4- way intersection
+			finished = true
+			for nextCell := range nextCells.Set {
+				result = append(result, growEdgesFromCell(grid, gg, allCornersRound, nextCell, c, visited)...)
+			}
+		}
+	}
+
+	result = append(result, shape)
+	return result
 }
 
 func makePointForCell(c Cell, grid *TextGrid, gg graphical.Grid, allCornersRound bool) graphical.Point {
