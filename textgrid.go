@@ -3,8 +3,11 @@ package main
 import (
 	"bufio"
 	"io"
+	"regexp"
 	"strings"
 	"unicode"
+
+	"github.com/akavel/ditaa/graphical"
 )
 
 const blankBorderSize = 2
@@ -298,6 +301,102 @@ func (t *TextGrid) seedFill2(seed Cell, newChar rune) *CellSet {
 
 func (t *TextGrid) fillContinuousArea(x, y int, ch rune) *CellSet {
 	return t.seedFillOld(Cell{x, y}, ch)
+}
+
+// Makes blank all the cells that contain non-text elements.
+func (t *TextGrid) RemoveNonText() {
+	w, h := t.Width(), t.Height()
+
+	//the following order is significant
+	//since the south-pointing arrowheads
+	//are determined based on the surrounding boundaries
+
+	// remove arrowheads
+	for yi := 0; yi < h; yi++ {
+		for xi := 0; xi < w; xi++ {
+			c := Cell{xi, yi}
+			if t.IsArrowhead(c) {
+				t.SetCell(c, ' ')
+			}
+		}
+	}
+
+	// remove color codes
+	for _, pair := range t.FindColorCodes() {
+		c := pair.Cell
+		t.SetCell(c, ' ')
+		c = c.East()
+		t.SetCell(c, ' ')
+		c = c.East()
+		t.SetCell(c, ' ')
+		c = c.East()
+		t.SetCell(c, ' ')
+	}
+
+	// remove boundaries
+	rm := []Cell{}
+	for yi := 0; yi < h; yi++ {
+		for xi := 0; xi < w; xi++ {
+			c := Cell{xi, yi}
+			if t.IsBoundary(c) {
+				rm = append(rm, c)
+			}
+		}
+	}
+	for _, c := range rm {
+		t.SetCell(c, ' ')
+	}
+
+	// remove markup tags
+	for _, pair := range findMarkupTags() {
+		tag := pair.tag
+		if tag == "" {
+			continue
+		}
+		length := 2 + len(tag)
+		t.WriteStringTo(pair.cell, strings.Repeat(" ", length))
+	}
+}
+
+type Color uint32
+
+type CellColorPair struct {
+	Cell
+	graphical.Color
+}
+
+var (
+	colorCodePattern = regexp.MustCompile(`c[A-F0-9]{3}`)
+)
+
+func unhex(c byte) uint8 {
+	if '0' <= c && c <= '9' {
+		return c - '0'
+	}
+	return 10 + c - 'A'
+}
+
+func (t *TextGrid) FindColorCodes() []CellColorPair {
+	result := []CellColorPair{}
+	w, h := t.Width(), t.Height()
+	for yi := 0; yi < h; yi++ {
+		for xi := 0; xi < w; xi++ {
+			c := Cell{xi, yi}
+			s := t.GetStringAt(c, 4)
+			if colorCodePattern.MatchString(s) {
+				cR, cG, cB := s[1], s[2], s[3]
+				result = append(result, CellColorPair{
+					Cell: c,
+					Color: graphical.Color{
+						R: unhex(cR) * 17,
+						G: unhex(cG) * 17,
+						B: unhex(cB) * 17,
+					},
+				})
+			}
+		}
+	}
+	return result
 }
 
 func CopySelectedCells(dst *TextGrid, cells *CellSet, src *TextGrid) {

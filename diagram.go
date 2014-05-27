@@ -220,6 +220,10 @@ func NewDiagram(grid *TextGrid) *Diagram {
 
 	d.G.Shapes = removeDuplicateShapes(d.G.Shapes)
 
+	//copy again
+	workGrid = CopyTextGrid(grid)
+	workGrid.RemoveNonText()
+
 	//TODO: rest...
 
 	return &d
