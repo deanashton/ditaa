@@ -201,9 +201,46 @@ func NewDiagram(grid *TextGrid) *Diagram {
 		}
 	}
 
+	//assign color codes to shapes
+	//TODO: text on line should not change its color
+
+	//[MC] TODO: colors
+
+	//assign markup to shapes
+
+	//[MC] TODO: markup shapes
+
+	//make arrowheads
+
+	//[MC] TODO: arrowheads
+
+	//make point markers
+
+	//[MC] TODO: point markers
+
+	d.G.Shapes = removeDuplicateShapes(d.G.Shapes)
+
 	//TODO: rest...
 
 	return &d
+}
+
+func removeDuplicateShapes(shapes []graphical.Shape) []graphical.Shape {
+	origShapes := []graphical.Shape{}
+	for _, s := range shapes {
+		isOrig := true
+		for _, o := range origShapes {
+			if s.Equals(o) {
+				isOrig = false
+				break
+			}
+		}
+		if isOrig {
+			origShapes = append(origShapes, s)
+		}
+	}
+
+	return origShapes
 }
 
 func createClosedComponentFromBoundaryCells(grid *TextGrid, cells *CellSet, gg graphical.Grid, allCornersRound bool) *graphical.Shape {

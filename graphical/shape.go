@@ -81,6 +81,22 @@ func (s *Shape) MakeMarkerPaths(g Grid) (outer, inner raster.Path) {
 		Circle(float64(center.X), float64(center.Y), (diameter-STROKE_WIDTH)*0.5)
 }
 
+func (s1 Shape) Equals(s2 Shape) bool {
+	if len(s1.Points) != len(s2.Points) {
+		return false
+	}
+	pts1 := map[Point]struct{}{}
+	for _, p := range s1.Points {
+		pts1[p] = struct{}{}
+	}
+	for _, p := range s2.Points {
+		if _, ok := pts1[p]; !ok {
+			return false
+		}
+	}
+	return true
+}
+
 type Rect struct{ Min, Max Point }
 
 func Bounds(pp []Point) Rect {
