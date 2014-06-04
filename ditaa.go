@@ -1,8 +1,13 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"image"
+	"image/png"
 	"os"
+
+	"github.com/akavel/ditaa/graphical"
 )
 
 const (
@@ -35,8 +40,23 @@ func run(infile, outfile string) error {
 		return err
 	}
 	diagram := NewDiagram(grid)
-	image := NewBitmapRenderer().RenderToImage(diagram)
-	// TODO: write .png to outfile
-	_ = image
-	return nil
+
+	img := image.NewRGBA(image.Rect(0, 0, diagram.G.Grid.W, diagram.G.Grid.H))
+	err = graphical.RenderDiagram(img, &diagram.G, graphical.Options{DropShadows: true}, "orig-java/src/org/stathissideris/ascii2image/graphics/font.ttf")
+	if err != nil {
+		return err
+	}
+	w, err := os.Create(outfile)
+	if err != nil {
+		return err
+	}
+	defer w.Close()
+
+	wbuf := bufio.NewWriter(w)
+	err = png.Encode(wbuf, img)
+	if err != nil {
+		return err
+	}
+	err = wbuf.Flush()
+	return err
 }

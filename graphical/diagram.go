@@ -12,10 +12,6 @@ import (
 	"sort"
 )
 
-const (
-	fontpath = "../orig-java/src/org/stathissideris/ascii2image/graphics/font.ttf"
-)
-
 type Label struct {
 	Text         string  `xml:"text"`
 	FontSize     float64 `xml:"font>size"`
@@ -88,7 +84,7 @@ func (t LargeFirst) Swap(i, j int) {
 	t[j] = tmp
 }
 
-func RenderDiagram(img *image.RGBA, diagram *Diagram, opt Options) error {
+func RenderDiagram(img *image.RGBA, diagram *Diagram, opt Options, fontpath string) error {
 	fontfile, err := ioutil.ReadFile(fontpath)
 	if err != nil {
 		return err
