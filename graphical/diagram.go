@@ -12,6 +12,8 @@ import (
 	"sort"
 )
 
+const DEBUG = true
+
 type Label struct {
 	Text         string  `xml:"text"`
 	FontSize     float64 `xml:"font>size"`

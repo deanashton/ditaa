@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/akavel/ditaa/graphical"
 )
 
@@ -69,10 +71,11 @@ func NewDiagram(grid *TextGrid) *Diagram {
 	_ = boundarySetsStep1
 
 	if DEBUG {
-		println("******* Distinct shapes found using AbstractionGrid *******")
+		fmt.Println("******* Distinct shapes found using AbstractionGrid *******")
 		for _, cells := range boundarySetsStep1 {
 			cells.printAsGrid()
 		}
+		fmt.Println("******* Same set of shapes after processing them by filling *******")
 	}
 
 	//Find all the boundaries by using the special version of the filling method
@@ -106,7 +109,7 @@ func NewDiagram(grid *TextGrid) *Diagram {
 
 				if DEBUG {
 					makeScaledOneThirdEquivalent(boundaries).printAsGrid()
-					println("----------------------------------------")
+					fmt.Println("----------------------------------------")
 				}
 			}
 		}

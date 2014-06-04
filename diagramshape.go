@@ -28,6 +28,7 @@ func ConnectEndsToAnchors(s *graphical.Shape, grid *TextGrid, gg graphical.Grid)
 		return
 	}
 	n := len(s.Points)
+	println(n)
 	for _, line := range []struct{ end, next *graphical.Point }{
 		{&s.Points[0], &s.Points[1]},
 		{&s.Points[n-1], &s.Points[n-2]},

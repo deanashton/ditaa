@@ -2,6 +2,8 @@ package main
 
 import (
 	"bufio"
+	"bytes"
+	"fmt"
 	"io"
 	"regexp"
 	"strings"
@@ -449,4 +451,13 @@ func CopySelectedCells(dst *TextGrid, cells *CellSet, src *TextGrid) {
 	for c := range cells.Set {
 		dst.SetCell(c, src.GetCell(c))
 	}
+}
+
+func (t *TextGrid) DEBUG() string {
+	var buf bytes.Buffer
+	buf.WriteString("    " + strings.Repeat("0123456789", t.Width()/10+1) + "\n")
+	for i, row := range t.Rows {
+		buf.WriteString(fmt.Sprintf("%2d (%s)\n", i, string(row)))
+	}
+	return buf.String()
 }
