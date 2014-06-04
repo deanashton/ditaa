@@ -118,6 +118,9 @@ func NewDiagram(grid *TextGrid) *Diagram {
 	boundarySetsStep2 = removeDuplicateSets(boundarySetsStep2)
 	//TODO: debug print to verify duplicates removed
 
+	if DEBUG {
+		fmt.Println("******* First evaluation of openess *******")
+	}
 	open, closed, mixed := categorizeBoundaries(boundarySetsStep2, workGrid)
 
 	hadToEliminateMixed := false
@@ -410,10 +413,22 @@ func categorizeBoundaries(sets []*CellSet, grid *TextGrid) (open, closed, mixed 
 	for _, set := range sets {
 		switch set.Type(grid) {
 		case SET_CLOSED:
+			if DEBUG {
+				fmt.Println("Closed boundaries:")
+				set.printAsGrid()
+			}
 			closed = append(closed, set)
 		case SET_OPEN:
+			if DEBUG {
+				fmt.Println("Open boundaries:")
+				set.printAsGrid()
+			}
 			open = append(open, set)
 		case SET_MIXED:
+			if DEBUG {
+				fmt.Println("Mixed boundaries:")
+				set.printAsGrid()
+			}
 			mixed = append(mixed, set)
 		}
 	}
