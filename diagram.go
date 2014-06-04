@@ -57,6 +57,7 @@ Finally, the text processing occurs: [pending]
 */
 func NewDiagram(grid *TextGrid) *Diagram {
 	d := Diagram{}
+	d.G.Grid.CellW, d.G.Grid.CellH = CELL_WIDTH, CELL_HEIGHT
 	d.W, d.H = len(grid.Rows[0])*CELL_WIDTH, len(grid.Rows)*CELL_HEIGHT
 
 	workGrid := CopyTextGrid(grid)
