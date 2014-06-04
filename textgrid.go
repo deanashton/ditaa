@@ -365,6 +365,13 @@ func (t *TextGrid) WriteStringTo(c Cell, s string) {
 	copy(t.Rows[c.Y][c.X:], []rune(s))
 }
 
+func (t *TextGrid) GetStringAt(c Cell, length int) string {
+	if t.IsOutOfBounds(c) {
+		return ""
+	}
+	return string(t.Rows[c.Y][c.X : c.X+length])
+}
+
 var tagPattern = regexp.MustCompile(`\{(.+?)\}`)
 
 type CellTagPair struct {
