@@ -348,13 +348,44 @@ func (t *TextGrid) RemoveNonText() {
 	}
 
 	// remove markup tags
-	for _, pair := range findMarkupTags() {
-		tag := pair.tag
+	for _, pair := range t.findMarkupTags() {
+		tag := pair.Tag
 		if tag == "" {
 			continue
 		}
 		length := 2 + len(tag)
 		t.WriteStringTo(pair.cell, strings.Repeat(" ", length))
+	}
+}
+
+var tagPattern = regexp.MustCompile(`\{(.+?)\}`)
+
+type CellTagPair struct {
+	graphical.Cell
+	Tag string
+}
+
+func (t *TextGrid) findMarkupTags() []CellTagPair {
+	result := []CellTagPair{}
+	w, h := t.Width(), t.Height()
+	for y := 0; y < h; y++ {
+		for x := 0; x < w-3; x++ {
+			cell := graphical.Cell{x, y}
+			c := t.GetCell(cell)
+			if c != '{' {
+				continue
+			}
+			rowPart := string(t.Rows[y][x:])
+			m := tagPattern.FindStringSubmatch(rowPart)
+			if len(m) == 0 {
+				continue
+			}
+			tagName := m[1]
+			if _, ok := markupTags[tagName]; !ok {
+				continue
+			}
+			result = append(result, CellTagPair{cell, tagName})
+		}
 	}
 }
 

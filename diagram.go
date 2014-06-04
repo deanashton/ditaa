@@ -224,7 +224,8 @@ func NewDiagram(grid *TextGrid) *Diagram {
 	workGrid = CopyTextGrid(grid)
 	workGrid.RemoveNonText()
 
-	//TODO: rest...
+	// ****** handle text *******
+	//[MC] TODO
 
 	return &d
 }
