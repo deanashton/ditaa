@@ -354,14 +354,21 @@ func (t *TextGrid) RemoveNonText() {
 			continue
 		}
 		length := 2 + len(tag)
-		t.WriteStringTo(pair.cell, strings.Repeat(" ", length))
+		t.WriteStringTo(pair.Cell, strings.Repeat(" ", length))
 	}
+}
+
+func (t *TextGrid) WriteStringTo(c Cell, s string) {
+	if t.IsOutOfBounds(c) {
+		return
+	}
+	copy(t.Rows[c.Y][c.X:], []rune(s))
 }
 
 var tagPattern = regexp.MustCompile(`\{(.+?)\}`)
 
 type CellTagPair struct {
-	graphical.Cell
+	Cell
 	Tag string
 }
 
@@ -370,7 +377,7 @@ func (t *TextGrid) findMarkupTags() []CellTagPair {
 	w, h := t.Width(), t.Height()
 	for y := 0; y < h; y++ {
 		for x := 0; x < w-3; x++ {
-			cell := graphical.Cell{x, y}
+			cell := Cell{x, y}
 			c := t.GetCell(cell)
 			if c != '{' {
 				continue
@@ -387,6 +394,7 @@ func (t *TextGrid) findMarkupTags() []CellTagPair {
 			result = append(result, CellTagPair{cell, tagName})
 		}
 	}
+	return result
 }
 
 type Color uint32
