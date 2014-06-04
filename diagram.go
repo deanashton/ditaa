@@ -57,7 +57,7 @@ Finally, the text processing occurs: [pending]
 */
 func NewDiagram(grid *TextGrid) *Diagram {
 	d := Diagram{}
-	d.G.Grid.CellW, d.G.Grid.CellH = CELL_WIDTH, CELL_HEIGHT
+	//	d.G.Grid.CellW, d.G.Grid.CellH = CELL_WIDTH, CELL_HEIGHT
 	d.W, d.H = len(grid.Rows[0])*CELL_WIDTH, len(grid.Rows)*CELL_HEIGHT
 
 	workGrid := CopyTextGrid(grid)
@@ -160,7 +160,7 @@ func NewDiagram(grid *TextGrid) *Diagram {
 	//TODO: handle allCornersRound commandline option
 	allCornersRound := false
 
-	d.G.Grid = graphical.Grid{}
+	d.G.Grid = graphical.Grid{CellW: CELL_WIDTH, CellH: CELL_HEIGHT}
 	closedShapes := []interface{}{}
 	for _, set := range closed {
 		shape := createClosedComponentFromBoundaryCells(workGrid, set, d.G.Grid, allCornersRound)
