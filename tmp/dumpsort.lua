@@ -20,16 +20,22 @@ function main()
 	local fh = io.stdin
 
 	local imgs = {}
-	local img
+	local img, prefix
 
 	for line in fh:lines() do
-		if line:match '^    0123456789' then
+		if line == "Closed boundaries:" or line == "Open boundaries:" then
+			prefix = line
+		elseif line:match '^    0123456789' then
 			--print("START")
 			-- store previous img
 			if img then
 				imgs[#imgs+1] = img
 			end
-			img = line
+			if not prefix then
+				prefix = ""
+			end
+			img = prefix .. '\n' .. line
+			prefix = nil
 			--print(line)
 		elseif line:match '^ *[0-9]+ %(' or line:match '^%-%-%-' then
 			--print("CONT")
