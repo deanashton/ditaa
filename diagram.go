@@ -202,6 +202,9 @@ func NewDiagram(grid *TextGrid) *Diagram {
 				ConnectEndsToAnchors(shape, workGrid, d.G.Grid)
 			}
 		default: //normal shape
+			if DEBUG {
+				fmt.Println(set.GetCellsAsString())
+			}
 			shapes := createOpenFromBoundaryCells(workGrid, set, d.G.Grid, allCornersRound)
 			for i := range shapes {
 				if !shapes[i].Closed {

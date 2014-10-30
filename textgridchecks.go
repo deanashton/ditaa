@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"strings"
 	"unicode"
 
@@ -13,6 +14,8 @@ func (c Cell) North() Cell { return Cell{c.X, c.Y - 1} }
 func (c Cell) South() Cell { return Cell{c.X, c.Y + 1} }
 func (c Cell) East() Cell  { return Cell{c.X + 1, c.Y} }
 func (c Cell) West() Cell  { return Cell{c.X - 1, c.Y} }
+
+func (c Cell) String() string { return fmt.Sprintf("(%d, %d)", c.X, c.Y) }
 
 func isAlphNum(ch rune) bool             { return unicode.IsLetter(ch) || unicode.IsDigit(ch) }
 func isOneOf(ch rune, group string) bool { return strings.ContainsRune(group, ch) }

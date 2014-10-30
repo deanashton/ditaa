@@ -212,3 +212,14 @@ const (
 	SET_HAS_CLOSED_AREA
 	SET_UNDETERMINED
 )
+
+func (s CellSet) GetCellsAsString() string {
+	out := ""
+	for c := range s.Set {
+		out += "/" + c.String()
+	}
+	if out == "" {
+		return out
+	}
+	return out[1:]
+}
