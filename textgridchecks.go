@@ -283,3 +283,11 @@ const (
 	text_entryPoints7           = `/`
 	text_entryPoints8           = `-=+\/`
 )
+
+func (t *TextGrid) isOnHorizontalLine(x, y int) bool {
+	return t.IsHorizontalLine(Cell{x - 1, y}) && t.IsHorizontalLine(Cell{x + 1, y})
+}
+
+func (t *TextGrid) isOnVerticalLine(x, y int) bool {
+	return t.IsVerticalLine(Cell{x, y - 1}) && t.IsVerticalLine(Cell{x, y + 1})
+}

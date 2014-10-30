@@ -461,3 +461,28 @@ func (t *TextGrid) DEBUG() string {
 	}
 	return buf.String()
 }
+
+// ReplaceTypeOnLine replaces letters or numbers that are on horizontal
+// or vertical lines, with the appropriate character that will make the
+// line continuous (| for vertical and - for horizontal lines)
+func (t *TextGrid) ReplaceTypeOnLine() {
+	w, h := t.Width(), t.Height()
+	for yi := 0; yi < h; yi++ {
+		for xi := 0; xi < w; xi++ {
+			ch := t.Get(xi, yi)
+			if !unicode.In(ch, unicode.Digit, unicode.Letter) {
+				continue
+			}
+			onH := t.isOnHorizontalLine(xi, yi)
+			onV := t.isOnVerticalLine(xi, yi)
+			switch {
+			case onH && onV:
+				t.Set(xi, yi, '+')
+			case onH:
+				t.Set(xi, yi, '-')
+			case onV:
+				t.Set(xi, yi, '|')
+			}
+		}
+	}
+}

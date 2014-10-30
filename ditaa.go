@@ -42,7 +42,7 @@ func run(infile, outfile string) error {
 	if DEBUG {
 		fmt.Println("Using grid:")
 		fmt.Print(grid.DEBUG())
-		fmt.Print(grid.DEBUG()) // why this gets printed twice in Java code?
+		//fmt.Print(grid.DEBUG()) // why this gets printed twice in Java code?
 	}
 	diagram := NewDiagram(grid)
 

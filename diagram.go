@@ -63,8 +63,12 @@ func NewDiagram(grid *TextGrid) *Diagram {
 	d.W, d.H = len(grid.Rows[0])*CELL_WIDTH, len(grid.Rows)*CELL_HEIGHT
 
 	workGrid := CopyTextGrid(grid)
-	//TODO: workGrid.replaceTypeOnLine()
+	workGrid.ReplaceTypeOnLine()
 	//TODO: workGrid.replacePointMarkersOnLine()
+
+	if DEBUG {
+		fmt.Print(workGrid.DEBUG())
+	}
 
 	boundaries := getAllBoundaries(workGrid)
 	boundarySetsStep1 := getDistinctShapes(NewAbstractionGrid(workGrid, boundaries))
@@ -109,7 +113,7 @@ func NewDiagram(grid *TextGrid) *Diagram {
 
 				if DEBUG {
 					makeScaledOneThirdEquivalent(boundaries).printAsGrid()
-					fmt.Println("----------------------------------------")
+					fmt.Println("-----------------------------------")
 				}
 			}
 		}
