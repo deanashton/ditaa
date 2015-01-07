@@ -271,7 +271,8 @@ func createClosedComponentFromBoundaryCells(grid *TextGrid, cells *CellSet, gg g
 		return nil
 	}
 
-	shape := graphical.Shape{Closed: true}
+	shape := graphical.NewShape()
+	shape.Closed = true
 	for c := range cells.Set {
 		if isOneOf(grid.GetCell(c), text_dashedLines) {
 			shape.Dashed = true
@@ -310,7 +311,7 @@ func createClosedComponentFromBoundaryCells(grid *TextGrid, cells *CellSet, gg g
 		}
 	}
 
-	return &shape
+	return shape
 }
 
 func removeObsoleteShapes(grid *TextGrid, sets []*CellSet) []*CellSet {

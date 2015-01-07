@@ -53,6 +53,13 @@ type Shape struct {
 	Points      []Point   `xml:"points>point"`
 }
 
+func NewShape(points ...Point) *Shape {
+	return &Shape{
+		Points:      points,
+		StrokeColor: Color{A: 255}, // black by default
+	}
+}
+
 func (s *Shape) CalcArea() float64 {
 	// See http://mathworld.wolfram.com/PolygonArea.html
 	if len(s.Points) == 0 {

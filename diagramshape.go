@@ -10,15 +10,15 @@ func NewSmallLine(grid *TextGrid, c Cell, gg graphical.Grid) *graphical.Shape {
 	cc := graphical.Cell(c)
 	switch {
 	case grid.IsHorizontalLine(c):
-		return &graphical.Shape{Points: []graphical.Point{
-			{X: gg.CellMinX(cc), Y: gg.CellMidY(cc)},
-			{X: gg.CellMaxX(cc) - 1, Y: gg.CellMidY(cc)},
-		}}
+		return graphical.NewShape(
+			graphical.Point{X: gg.CellMinX(cc), Y: gg.CellMidY(cc)},
+			graphical.Point{X: gg.CellMaxX(cc) - 1, Y: gg.CellMidY(cc)},
+		)
 	case grid.IsVerticalLine(c):
-		return &graphical.Shape{Points: []graphical.Point{
-			{X: gg.CellMidX(cc), Y: gg.CellMinY(cc)},
-			{X: gg.CellMidX(cc), Y: gg.CellMaxY(cc) - 1},
-		}}
+		return graphical.NewShape(
+			graphical.Point{X: gg.CellMidX(cc), Y: gg.CellMinY(cc)},
+			graphical.Point{X: gg.CellMidX(cc), Y: gg.CellMaxY(cc) - 1},
+		)
 	}
 	return nil
 }
@@ -107,9 +107,7 @@ func createOpenFromBoundaryCells(grid *TextGrid, cells *CellSet, gg graphical.Gr
 func growEdgesFromCell(grid *TextGrid, gg graphical.Grid, allCornersRound bool, c, prev Cell, visited *CellSet) []graphical.Shape {
 	result := []graphical.Shape{}
 	visited.Add(prev)
-	shape := graphical.Shape{
-		Points: []graphical.Point{makePointForCell(prev, grid, gg, allCornersRound)},
-	}
+	shape := graphical.NewShape(makePointForCell(prev, grid, gg, allCornersRound))
 	// if DEBUG {
 	// 	fmt.Printf("point at %s (call from line: %d)", prev, callfromline())
 	// }
@@ -140,7 +138,7 @@ func growEdgesFromCell(grid *TextGrid, gg graphical.Grid, allCornersRound bool, 
 		}
 	}
 
-	result = append(result, shape)
+	result = append(result, *shape)
 	return result
 }
 
