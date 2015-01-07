@@ -65,10 +65,18 @@ func createOpenFromBoundaryCells(grid *TextGrid, cells *CellSet, gg graphical.Gr
 	workGrid := NewTextGrid(grid.Width(), grid.Height())
 	CopySelectedCells(workGrid, cells, grid)
 
+	// if DEBUG {
+	// 	fmt.Println("Making composite shape from grid:")
+	// 	workGrid.printDebug()
+	// }
+
 	visited := NewCellSet()
 	for c := range cells.Set {
+		// fmt.Println("cell", c)
 		if workGrid.IsLinesEnd(c) {
+			// fmt.Println("- is lines end")
 			nextCells := workGrid.FollowCell(c, nil)
+			// fmt.Println("- nextCells", nextCells)
 			shapes = append(shapes, growEdgesFromCell(workGrid, gg, allCornersRound, nextCells.SomeCell(), c, visited)...)
 			break
 		}
@@ -91,17 +99,25 @@ func createOpenFromBoundaryCells(grid *TextGrid, cells *CellSet, gg graphical.Gr
 	return shapes
 }
 
+// func callfromline() int {
+// 	_, _, line, _ := runtime.Caller(1)
+// 	return line
+// }
+
 func growEdgesFromCell(grid *TextGrid, gg graphical.Grid, allCornersRound bool, c, prev Cell, visited *CellSet) []graphical.Shape {
 	result := []graphical.Shape{}
 	visited.Add(prev)
 	shape := graphical.Shape{
 		Points: []graphical.Point{makePointForCell(prev, grid, gg, allCornersRound)},
 	}
+	// if DEBUG {
+	// 	fmt.Printf("point at %s (call from line: %d)", prev, callfromline())
+	// }
 	if grid.CellContainsDashedLineChar(prev) {
 		shape.Dashed = true
 	}
 
-	for finished := false; finished; {
+	for finished := false; !finished; {
 		visited.Add(c)
 		if grid.IsPointCell(c) {
 			shape.Points = append(shape.Points, makePointForCell(c, grid, gg, allCornersRound))

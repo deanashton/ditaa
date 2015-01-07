@@ -428,7 +428,7 @@ func (t *TextGrid) FindColorCodes() []CellColorPair {
 	result := []CellColorPair{}
 	w, h := t.Width(), t.Height()
 	for yi := 0; yi < h; yi++ {
-		for xi := 0; xi < w; xi++ {
+		for xi := 0; xi < w-3; xi++ {
 			c := Cell{xi, yi}
 			s := t.GetStringAt(c, 4)
 			if colorCodePattern.MatchString(s) {
