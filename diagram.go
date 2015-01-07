@@ -7,8 +7,7 @@ import (
 )
 
 type Diagram struct {
-	W, H int
-	G    graphical.Diagram
+	G graphical.Diagram
 }
 
 /*
@@ -58,10 +57,6 @@ Finally, the text processing occurs: [pending]
 
 */
 func NewDiagram(grid *TextGrid) *Diagram {
-	d := Diagram{}
-	//	d.G.Grid.CellW, d.G.Grid.CellH = CELL_WIDTH, CELL_HEIGHT
-	d.W, d.H = len(grid.Rows[0])*CELL_WIDTH, len(grid.Rows)*CELL_HEIGHT
-
 	workGrid := CopyTextGrid(grid)
 	workGrid.ReplaceTypeOnLine()
 	//TODO: workGrid.replacePointMarkersOnLine()
@@ -170,7 +165,13 @@ func NewDiagram(grid *TextGrid) *Diagram {
 	//TODO: handle allCornersRound commandline option
 	allCornersRound := false
 
-	d.G.Grid = graphical.Grid{CellW: CELL_WIDTH, CellH: CELL_HEIGHT}
+	d := Diagram{}
+	d.G.Grid = graphical.Grid{
+		CellW: CELL_WIDTH,
+		CellH: CELL_HEIGHT,
+		W:     len(grid.Rows[0]) * CELL_WIDTH,
+		H:     len(grid.Rows) * CELL_HEIGHT,
+	}
 	closedShapes := []interface{}{}
 	for _, set := range closed {
 		shape := createClosedComponentFromBoundaryCells(workGrid, set, d.G.Grid, allCornersRound)
