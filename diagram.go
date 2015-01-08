@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/akavel/ditaa/graphical"
 )
@@ -230,8 +231,14 @@ func NewDiagram(grid *TextGrid) *Diagram {
 	//[MC] TODO: markup shapes
 
 	//make arrowheads
-
-	//[MC] TODO: arrowheads
+	for _, c := range workGrid.FindArrowheads() {
+		s := createArrowhead(workGrid, c, d.G.Grid)
+		if s != nil {
+			d.G.Shapes = append(d.G.Shapes, *s)
+		} else {
+			fmt.Fprintf(os.Stderr, "Could not create arrowhead shape. Unexpected error.")
+		}
+	}
 
 	//make point markers
 

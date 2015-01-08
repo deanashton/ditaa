@@ -486,3 +486,17 @@ func (t *TextGrid) ReplaceTypeOnLine() {
 		}
 	}
 }
+
+func (t *TextGrid) FindArrowheads() []Cell {
+	result := []Cell{}
+	w, h := t.Width(), t.Height()
+	for yi := 0; yi < h; yi++ {
+		for xi := 0; xi < w; xi++ {
+			c := Cell{xi, yi}
+			if t.IsArrowhead(c) {
+				result = append(result, c)
+			}
+		}
+	}
+	return result
+}

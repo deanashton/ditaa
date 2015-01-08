@@ -162,3 +162,47 @@ func makePointForCell(c Cell, grid *TextGrid, gg graphical.Grid, allCornersRound
 		Type: typ,
 	}
 }
+
+func createArrowhead(grid *TextGrid, c Cell, gg graphical.Grid) *graphical.Shape {
+	if !grid.IsArrowhead(c) {
+		return nil
+	}
+
+	BLACK := graphical.Color{A: 255}
+	s := graphical.Shape{
+		Closed:      true,
+		FillColor:   &BLACK,
+		StrokeColor: BLACK,
+		Type:        graphical.TYPE_ARROWHEAD,
+	}
+	cc := graphical.Cell(c)
+	switch {
+	case grid.IsNorthArrowhead(c):
+		s.Points = []graphical.Point{
+			{X: gg.CellMidX(cc), Y: gg.CellMinY(cc)},
+			{X: gg.CellMinX(cc), Y: gg.CellMaxY(cc)},
+			{X: gg.CellMaxX(cc), Y: gg.CellMaxY(cc)},
+		}
+	case grid.IsSouthArrowhead(c):
+		s.Points = []graphical.Point{
+			{X: gg.CellMinX(cc), Y: gg.CellMinY(cc)},
+			{X: gg.CellMidX(cc), Y: gg.CellMaxY(cc)},
+			{X: gg.CellMaxX(cc), Y: gg.CellMinY(cc)},
+		}
+	case grid.IsWestArrowhead(c):
+		s.Points = []graphical.Point{
+			{X: gg.CellMaxX(cc), Y: gg.CellMinY(cc)},
+			{X: gg.CellMinX(cc), Y: gg.CellMidY(cc)},
+			{X: gg.CellMaxX(cc), Y: gg.CellMaxY(cc)},
+		}
+	case grid.IsEastArrowhead(c):
+		s.Points = []graphical.Point{
+			{X: gg.CellMinX(cc), Y: gg.CellMinY(cc)},
+			{X: gg.CellMaxX(cc), Y: gg.CellMidY(cc)},
+			{X: gg.CellMinX(cc), Y: gg.CellMaxY(cc)},
+		}
+	default:
+		return nil
+	}
+	return &s
+}
