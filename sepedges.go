@@ -2,6 +2,9 @@ package main
 
 import (
 	"fmt"
+
+	"github.com/akavel/polyclip-go"
+
 	"github.com/akavel/ditaa/graphical"
 )
 
@@ -23,23 +26,24 @@ func separateCommonEdges(gg graphical.Grid, shapes []graphical.Shape) []graphica
 	edges := []edge{}
 
 	// get all edges
-	for _, s := range shapes {
+	for i := range shapes {
+		s := &shapes[i]
 		n := len(s.Points)
 		if n == 1 {
 			continue
 		}
-		for i := 0; i < n-1; i++ {
+		for j := 0; j < n-1; j++ {
 			edges = append(edges, edge{
-				start: &s.Points[i],
-				end:   &s.Points[i+1],
-				owner: &s,
+				start: &s.Points[j],
+				end:   &s.Points[j+1],
+				owner: s,
 			})
 		}
 		if s.Closed {
 			edges = append(edges, edge{
 				start: &s.Points[n-1],
 				end:   &s.Points[0],
-				owner: &s,
+				owner: s,
 			})
 		}
 	}
@@ -214,11 +218,14 @@ func (e *edge) MoveInwardsBy(offset float64) {
 		X: (e.start.X + e.end.X) / 2,
 		Y: (e.start.Y + e.end.Y) / 2,
 	}
-	path := e.owner.MakeIntoPath()
+	path := shapeToPath(e.owner)
+	if path == nil {
+		return
+	}
 	switch t {
 	case edgeHorizontal:
-		up := graphical.Point{X: middle.X, Y: middle.Y - 0.05}
-		down := graphical.Point{X: middle.X, Y: middle.Y + 0.05}
+		up := polyclip.Point{X: middle.X, Y: middle.Y - 0.05}
+		down := polyclip.Point{X: middle.X, Y: middle.Y + 0.05}
 		switch {
 		case path.Contains(up):
 			yoff = -offset
@@ -226,8 +233,8 @@ func (e *edge) MoveInwardsBy(offset float64) {
 			yoff = offset
 		}
 	case edgeVertical:
-		left := graphical.Point{X: middle.X - 0.05, Y: middle.Y}
-		right := graphical.Point{X: middle.X + 0.05, Y: middle.Y}
+		left := polyclip.Point{X: middle.X - 0.05, Y: middle.Y}
+		right := polyclip.Point{X: middle.X + 0.05, Y: middle.Y}
 		switch {
 		case path.Contains(left):
 			xoff = -offset
@@ -240,4 +247,16 @@ func (e *edge) MoveInwardsBy(offset float64) {
 	e.start.Y += yoff
 	e.end.X += xoff
 	e.end.Y += yoff
+}
+
+func shapeToPath(s *graphical.Shape) polyclip.Contour {
+	if len(s.Points) < 2 {
+		return nil
+	}
+
+	c := polyclip.Contour{}
+	for _, p := range s.Points {
+		c.Add(polyclip.Point{X: p.X, Y: p.Y})
+	}
+	return c
 }

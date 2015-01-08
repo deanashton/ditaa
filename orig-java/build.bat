@@ -12,6 +12,10 @@ for %%f in (lib\*.jar) do (
   call set cp=%%cp%%;..\%%f
 )
 
+for /r src %%f in (*.class) do (
+  del "%%f"
+)
+
 rem echo %cp%
 cd src
 %JAVAC% -cp .%cp% org\stathissideris\ascii2image\core\CommandLineConverter.java 2> tmpx
