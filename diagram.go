@@ -172,7 +172,7 @@ func NewDiagram(grid *TextGrid) *Diagram {
 		W:     len(grid.Rows[0]) * CELL_WIDTH,
 		H:     len(grid.Rows) * CELL_HEIGHT,
 	}
-	closedShapes := []interface{}{}
+	//closedShapes := []interface{}{}
 	for _, set := range closed {
 		shape := createClosedComponentFromBoundaryCells(workGrid, set, d.G.Grid, allCornersRound)
 		if shape == nil {
@@ -181,13 +181,17 @@ func NewDiagram(grid *TextGrid) *Diagram {
 		//switch shape := shape.(type) {
 		//case graphical.Shape:
 		d.G.Shapes = append(d.G.Shapes, *shape)
-		closedShapes = append(closedShapes, *shape)
+		//closedShapes = append(closedShapes, *shape)
 		//case CompositeShape:
 		//	d.compositeShapes = append(d.compositeShapes, shape)
 		//}
 	}
 
 	//TODO: handle opt.performSeparationOfCommonEdges
+	if true { // TODO: enabled by default, disabled if opt.performSeparationOfCommonEdges != default true
+		// FIXME(akavel): as of now, we have only closed shapes here, but this might change with compositeShapes
+		d.G.Shapes = separateCommonEdges(d.G.Grid, d.G.Shapes)
+	}
 
 	//make open shapes
 	for _, set := range open {

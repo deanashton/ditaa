@@ -28,6 +28,8 @@ func (g Grid) CellMaxY(cell Cell) float64 { return float64((cell.Y + 1) * g.Cell
 func (g Grid) CellMidX(cell Cell) float64 { return float64(cell.X*g.CellW + g.CellW/2) }
 func (g Grid) CellMidY(cell Cell) float64 { return float64(cell.Y*g.CellH + g.CellH/2) }
 
+func (g Grid) MinimumOfCellDimensions() float64 { return math.Min(float64(g.CellW), float64(g.CellH)) }
+
 type ShapeType int
 
 const (
