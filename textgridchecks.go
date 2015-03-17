@@ -268,6 +268,10 @@ func (t *TextGrid) IsPointCell(c Cell) bool {
 	return t.IsCorner(c) || t.IsIntersection(c) || t.IsStub(c) || t.IsLinesEnd(c)
 }
 
+func (t *TextGrid) IsBlankBetweenCharacters(c Cell) bool {
+	return t.IsBlank(c) && !t.IsBlank(c.East()) && !t.IsBlank(c.West())
+}
+
 const (
 	text_boundaries             = `/\|-*=:`
 	text_undisputableBoundaries = `|-*=:`

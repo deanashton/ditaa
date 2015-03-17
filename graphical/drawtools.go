@@ -1,7 +1,7 @@
 package graphical
 
 import (
-	"code.google.com/p/freetype-go/freetype/raster"
+	"code.google.com/p/jamslam-freetype-go/freetype/raster"
 	"image"
 	"image/color"
 	"math"

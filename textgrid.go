@@ -221,6 +221,19 @@ func (t *TextGrid) GetAllNonBlank() *CellSet {
 	return cells
 }
 
+func (t *TextGrid) GetAllBlanksBetweenCharacters() *CellSet {
+	cells := NewCellSet()
+	for y := range t.Rows {
+		for x := range t.Rows[y] {
+			c := Cell{x, y}
+			if t.IsBlankBetweenCharacters(c) {
+				cells.Add(c)
+			}
+		}
+	}
+	return cells
+}
+
 func BlankRows(w, h int) [][]rune {
 	rows := make([][]rune, h)
 	for y := range rows {
@@ -499,4 +512,71 @@ func (t *TextGrid) FindArrowheads() []Cell {
 		}
 	}
 	return result
+}
+
+type CellStringPair struct {
+	C Cell
+	S string
+}
+
+func (t *TextGrid) FindStrings() []CellStringPair {
+	result := []CellStringPair{}
+	for y := range t.Rows {
+		for x := 0; x < len(t.Rows[y]); x++ {
+			start := Cell{x, y}
+			if t.IsBlank(start) {
+				continue
+			}
+			s := string(t.Get(x, y))
+			x++
+			c := t.Get(x, y)
+			for {
+				s += string(c)
+				x++
+				c = t.Get(x, y)
+				next := t.Get(x+1, y)
+				if (c == ' ' || c == 0) && (next == ' ' || next == 0) {
+					break
+				}
+			}
+			result = append(result, CellStringPair{start, s})
+		}
+	}
+	return result
+}
+
+func (t *TextGrid) OtherStringsStartInTheSameColumn(c Cell) int {
+	if !t.IsStringsStart(c) {
+		return 0
+	}
+	result := 0
+	for y := range t.Rows {
+		cc := Cell{c.X, y}
+		if cc != c && t.IsStringsStart(cc) {
+			result++
+		}
+	}
+	return result
+}
+
+func (t *TextGrid) IsStringsStart(c Cell) bool {
+	return !t.IsBlank(c) && t.IsBlank(c.West())
+}
+
+func (t *TextGrid) OtherStringsEndInTheSameColumn(c Cell) int {
+	if !t.IsStringsEnd(c) {
+		return 0
+	}
+	result := 0
+	for y := range t.Rows {
+		cc := Cell{c.X, y}
+		if cc != c && t.IsStringsEnd(cc) {
+			result++
+		}
+	}
+	return result
+}
+
+func (t *TextGrid) IsStringsEnd(c Cell) bool {
+	return !t.IsBlank(c) && t.IsBlank(c.East())
 }

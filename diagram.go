@@ -4,6 +4,10 @@ import (
 	"fmt"
 	"os"
 
+	"code.google.com/p/jamslam-freetype-go/freetype"
+
+	"github.com/akavel/ditaa/embd"
+	"github.com/akavel/ditaa/fontmeasure"
 	"github.com/akavel/ditaa/graphical"
 )
 
@@ -58,6 +62,11 @@ Finally, the text processing occurs: [pending]
 
 */
 func NewDiagram(grid *TextGrid) *Diagram {
+	baseFont, err := freetype.ParseFont(embd.File_font_ttf)
+	if err != nil {
+		panic(err)
+	}
+
 	workGrid := CopyTextGrid(grid)
 	workGrid.ReplaceTypeOnLine()
 	//TODO: workGrid.replacePointMarkersOnLine()
@@ -251,6 +260,81 @@ func NewDiagram(grid *TextGrid) *Diagram {
 	workGrid.RemoveNonText()
 
 	// ****** handle text *******
+	//break up text into groups
+	textGroupGrid := CopyTextGrid(workGrid)
+	gaps := textGroupGrid.GetAllBlanksBetweenCharacters()
+	//kludge
+	for c := range gaps.Set {
+		textGroupGrid.SetCell(c, '|')
+	}
+	nonBlank := textGroupGrid.GetAllNonBlank()
+	textGroups := breakIntoDistinctBoundaries(nonBlank)
+	if DEBUG {
+		fmt.Println(len(textGroups), "text groups found")
+	}
+
+	font := fontmeasure.GetFontForHeight(baseFont, d.G.Grid.CellH)
+
+	for _, textGroupCellSet := range textGroups {
+		isolationGrid := NewTextGrid(w, h)
+		CopySelectedCells(isolationGrid, textGroupCellSet, workGrid)
+		strings := isolationGrid.FindStrings()
+		for _, pair := range strings {
+			cell := graphical.Cell(pair.C)
+			s := pair.S
+			if DEBUG {
+				fmt.Println("Found string", s)
+			}
+			lastCell := graphical.Cell{cell.X + len(s) - 1, cell.Y}
+
+			minX := d.G.Grid.CellMinX(cell)
+			y := d.G.Grid.CellMaxY(cell)
+			maxX := d.G.Grid.CellMaxX(lastCell)
+
+			textObject := graphical.Label{
+				Text:     s,
+				FontSize: font.Size,
+				X:        int(minX + 0.5),
+				Y:        int(y + 0.5),
+				Color:    graphical.Color{A: 255},
+			}
+			if float64(font.WidthFor(s)) > maxX-minX { // does not fit horizontally
+				lessWideFont := fontmeasure.GetFontForWidth(baseFont, int(maxX-minX+0.5), s)
+				textObject.FontSize = lessWideFont.Size
+			}
+
+			textObject.CenterVerticallyBetween(int(d.G.Grid.CellMinY(cell)), int(d.G.Grid.CellMaxY(cell)), font)
+
+			//TODO: if the strings start with bullets they should be aligned to the left
+
+			// position text correctly
+			otherStart := isolationGrid.OtherStringsStartInTheSameColumn(Cell(cell))
+			otherEnd := isolationGrid.OtherStringsEndInTheSameColumn(Cell(lastCell))
+			if otherStart == 0 && otherEnd == 0 {
+				textObject.CenterHorizontallyBetween(int(minX), int(maxX), font)
+			} else if otherEnd > 0 && otherStart == 0 {
+				textObject.AlignRightEdgeTo(int(maxX), font)
+			} else if otherEnd > 0 && otherStart > 0 {
+				if otherEnd > otherStart {
+					textObject.AlignRightEdgeTo(int(maxX), font)
+				} else if otherEnd == otherStart {
+					textObject.CenterHorizontallyBetween(int(minX), int(maxX), font)
+				}
+			}
+			d.G.Labels = append(d.G.Labels, textObject)
+		}
+	}
+	fmt.Println(d.G.Labels)
+
+	if DEBUG {
+		fmt.Println("Positioned text")
+	}
+
+	//correct the color of the text objects according
+	//to the underlying color
+	//[MC] TODO
+
+	//set outline to true for test within custom shapes
 	//[MC] TODO
 
 	return &d

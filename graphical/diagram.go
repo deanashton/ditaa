@@ -1,15 +1,18 @@
 package graphical
 
 import (
-	"code.google.com/p/freetype-go/freetype"
-	"code.google.com/p/freetype-go/freetype/truetype"
-	"code.google.com/p/graphics-go/graphics"
-	"code.google.com/p/graphics-go/graphics/interp"
 	"encoding/xml"
 	"image"
 	"image/color"
 	"io/ioutil"
 	"sort"
+
+	"github.com/akavel/ditaa/fontmeasure"
+
+	"code.google.com/p/graphics-go/graphics"
+	"code.google.com/p/graphics-go/graphics/interp"
+	"code.google.com/p/jamslam-freetype-go/freetype"
+	"code.google.com/p/jamslam-freetype-go/freetype/truetype"
 )
 
 const DEBUG = true
@@ -23,6 +26,29 @@ type Label struct {
 	OnLine       bool    `xml:"isTextOnLine"`
 	Outline      bool    `xml:"hasOutline"`
 	OutlineColor Color   `xml:"outlineColor"`
+}
+
+func (l *Label) CenterVerticallyBetween(minY, maxY int, font *fontmeasure.Font) {
+	sizedFont := *font
+	sizedFont.Size = l.FontSize
+	zHeight := sizedFont.ZHeight()
+	center := abs(maxY-minY) / 2
+	l.Y -= abs(center - zHeight/2)
+}
+
+func (l *Label) CenterHorizontallyBetween(minX, maxX int, font *fontmeasure.Font) {
+	sizedFont := *font
+	sizedFont.Size = l.FontSize
+	width := sizedFont.WidthFor(l.Text)
+	center := abs(maxX-minX) / 2
+	l.X += abs(center - width/2)
+}
+
+func (l *Label) AlignRightEdgeTo(x int, font *fontmeasure.Font) {
+	sizedFont := *font
+	sizedFont.Size = l.FontSize
+	width := sizedFont.WidthFor(l.Text)
+	l.X = x - width
 }
 
 type Diagram struct {
