@@ -59,7 +59,8 @@ func (f Font) ZHeight() int {
 }
 
 func prepFont(font *truetype.Font) Font {
-	const dpi = 100 // FIXME(akavel): use some appropriate value for DPI
+	// Note: that's the default value used in the truetype package
+	const dpi = 72
 	return Font{font, dpi, 12.0}
 }
 
