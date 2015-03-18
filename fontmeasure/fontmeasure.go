@@ -41,6 +41,12 @@ func (f Font) Advance() int {
 	// or use f.Font.VMetric() for some glyph?
 }
 
+func (f Font) Ascent() int {
+	// ok or not?
+	b := f.Font.Bounds(f.scale())
+	return int(b.YMax >> 6)
+}
+
 func (f Font) WidthFor(s string) int {
 	ctx := prepCtx(&f)
 	w, _, err := ctx.MeasureString(s)
@@ -65,16 +71,16 @@ func prepFont(font *truetype.Font) Font {
 }
 
 func GetFontForHeight(font *truetype.Font, h int) *Font {
-	// TODO(akavel): original code used 'ascent' (reporting that it's distance between the baseline and the tallest character), not 'advance'; change?
 	measure := prepFont(font)
-	fontH := measure.Advance()
+	// TODO(akavel): original code used 'ascent' (reporting that it's distance between the baseline and the tallest character); are we implementing it ok?
+	fontH := measure.Ascent()
 	direction := 1.0
 	if fontH > h {
 		direction = -1.0
 	}
 	measure.Size += direction
 	for measure.Size > 0 {
-		fontH = measure.Advance()
+		fontH = measure.Ascent()
 		if direction > 0 {
 			if fontH > h {
 				measure.Size -= 0.5

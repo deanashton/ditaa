@@ -324,7 +324,9 @@ func NewDiagram(grid *TextGrid) *Diagram {
 			d.G.Labels = append(d.G.Labels, textObject)
 		}
 	}
-	fmt.Println(d.G.Labels)
+	// for _, l := range d.G.Labels {
+	// 	fmt.Printf("%#v\n", l)
+	// }
 
 	if DEBUG {
 		fmt.Println("Positioned text")
