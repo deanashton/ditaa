@@ -412,6 +412,14 @@ func createClosedComponentFromBoundaryCells(grid *TextGrid, cells *CellSet, gg g
 }
 
 func removeObsoleteShapes(grid *TextGrid, sets []*CellSet) []*CellSet {
+	if DEBUG {
+		fmt.Println("******* Removing obsolete shapes *******")
+		fmt.Println("******* Sets before *******")
+		for _, set := range sets {
+			set.printAsGrid()
+		}
+	}
+
 	filleds := []*CellSet{}
 
 	//make filled versions of all the boundary sets
@@ -485,24 +493,27 @@ func getFilledEquivalent(cells *CellSet, grid *TextGrid) *CellSet {
 	FillCellsWith(grid.Rows, cells, '*')
 
 	//find a cell that has a blank both on the east and the west
+	// NOTE(akavel): or bottom-right cell, apparently - bug?
+	c := Cell{0, 0}
+outer:
 	for y := 0; y < grid.Height(); y++ {
 		for x := 0; x < grid.Width(); x++ {
-			c := Cell{x, y}
+			c = Cell{x, y}
 			if grid.IsBlank(c) || !grid.IsBlank(c.East()) || !grid.IsBlank(c.West()) {
 				continue
 			}
-			// found
-			c = c.East()
-			if grid.IsOutOfBounds(c) {
-				newcells := NewCellSet()
-				newcells.AddAll(cells)
-				return newcells
-			}
-			grid.fillContinuousArea(c.X, c.Y, '*')
-			return grid.GetAllNonBlank()
+			break outer
 		}
 	}
-	panic("Unexpected error, cannot find the filled equivalent of CellSet")
+	// found
+	c = c.East()
+	if grid.IsOutOfBounds(c) {
+		newcells := NewCellSet()
+		newcells.AddAll(cells)
+		return newcells
+	}
+	grid.fillContinuousArea(c.X, c.Y, '*')
+	return grid.GetAllNonBlank()
 }
 
 func indexof(vec []*CellSet, elem *CellSet) int {
