@@ -69,7 +69,7 @@ func NewDiagram(grid *TextGrid) *Diagram {
 
 	workGrid := CopyTextGrid(grid)
 	workGrid.ReplaceTypeOnLine()
-	//TODO: workGrid.replacePointMarkersOnLine()
+	workGrid.ReplacePointMarkersOnLine()
 
 	if DEBUG {
 		fmt.Print(workGrid.DEBUG())

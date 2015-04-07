@@ -500,6 +500,41 @@ func (t *TextGrid) ReplaceTypeOnLine() {
 	}
 }
 
+func (t *TextGrid) ReplacePointMarkersOnLine() {
+	for yi := 0; yi < t.Height(); yi++ {
+		for xi := 0; xi < t.Width(); xi++ {
+			cell := Cell{xi, yi}
+			c := t.GetCell(cell)
+			if !isOneOf(c, text_pointMarkers) || !t.IsStarOnLine(cell) {
+				continue
+			}
+			isOnHorizontalLine :=
+				isOneOf(t.GetCell(cell.East()), text_horizontalLines) ||
+					isOneOf(t.GetCell(cell.West()), text_horizontalLines)
+			isOnVerticalLine :=
+				isOneOf(t.GetCell(cell.North()), text_verticalLines) ||
+					isOneOf(t.GetCell(cell.South()), text_verticalLines)
+			switch {
+			case isOnHorizontalLine && isOnVerticalLine:
+				t.Set(xi, yi, '+')
+				// if DEBUG {
+				// 	fmt.Printf("replaced marker on line '%v' with +\n", c)
+				// }
+			case isOnHorizontalLine:
+				t.Set(xi, yi, '-')
+				// if DEBUG {
+				// 	fmt.Printf("replaced marker on line '%v' with -\n", c)
+				// }
+			case isOnVerticalLine:
+				t.Set(xi, yi, '|')
+				// if DEBUG {
+				// 	fmt.Printf("replaced marker on line '%v' with |\n", c)
+				// }
+			}
+		}
+	}
+}
+
 func (t *TextGrid) FindArrowheads() []Cell {
 	result := []Cell{}
 	w, h := t.Width(), t.Height()
