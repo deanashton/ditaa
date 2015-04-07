@@ -1,1 +1,3 @@
 ditaa is a small command-line utility that can convert diagrams drawn using ascii art ('drawings' that contain characters that resemble lines like | / - ), into proper bitmap graphics. See http://www.ditaa.org
+
+results from the current version of the Go port (in progress) can be compared visually side-by-side with results from the original at: http://akavel.github.io/ditaa
