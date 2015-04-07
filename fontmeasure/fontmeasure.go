@@ -119,6 +119,7 @@ func GetFontForWidth(font *truetype.Font, w int, s string) *Font {
 	}
 	measure.Size += direction
 	for measure.Size > 0 {
+		ctx.SetFontSize(measure.Size)
 		fontW, _, err = ctx.MeasureString(s)
 		// FIXME(akavel): panic? return error?
 		if err != nil {
