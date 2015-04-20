@@ -1,8 +1,6 @@
 package fontmeasure
 
 import (
-	"fmt"
-
 	"code.google.com/p/jamslam-freetype-go/freetype"
 	"code.google.com/p/jamslam-freetype-go/freetype/truetype"
 )
@@ -105,7 +103,7 @@ func prepCtx(font *Font) *freetype.Context {
 }
 
 func GetFontForWidth(font *truetype.Font, w int, s string) *Font {
-	fmt.Println("MCDBG GetFontForWidth w=", w, "s=", s)
+	// fmt.Println("MCDBG GetFontForWidth w=", w, "s=", s)
 	measure := prepFont(font)
 	ctx := prepCtx(&measure)
 	fontW, _, err := ctx.MeasureString(s)
