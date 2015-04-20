@@ -201,6 +201,10 @@ func NewDiagram(grid *TextGrid) *Diagram {
 	if true { // TODO: enabled by default, disabled if opt.performSeparationOfCommonEdges != default true
 		// FIXME(akavel): as of now, we have only closed shapes here, but this might change with compositeShapes
 		d.G.Shapes = separateCommonEdges(d.G.Grid, d.G.Shapes)
+		if DEBUG {
+			fmt.Println("closed shapes:")
+			fmt.Printf("%#v\n", d.G.Shapes)
+		}
 	}
 
 	//make open shapes

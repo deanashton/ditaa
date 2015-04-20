@@ -21,6 +21,10 @@ type edge struct {
 	owner      *graphical.Shape
 }
 
+func (e edge) String() string {
+	return fmt.Sprintf("(%v, %v) -> (%v, %v)", e.start.X, e.start.Y, e.end.X, e.end.Y)
+}
+
 func separateCommonEdges(gg graphical.Grid, shapes []graphical.Shape) []graphical.Shape {
 	offset := gg.MinimumOfCellDimensions() / 5
 	edges := []edge{}
@@ -58,6 +62,9 @@ func separateCommonEdges(gg graphical.Grid, shapes []graphical.Shape) []graphica
 		for _, edge2 := range edges[startIndex:] {
 			if edge1.TouchesWith(edge2) {
 				pairs = append(pairs, [2]edge{edge1, edge2})
+				if DEBUG {
+					fmt.Println(edge1, "touches with", edge2)
+				}
 			}
 		}
 		startIndex++
@@ -243,6 +250,9 @@ func (e *edge) MoveInwardsBy(offset float64) {
 		}
 	}
 
+	if DEBUG {
+		fmt.Printf("Moved edge %v by %v, %v\n", e, xoff, yoff)
+	}
 	e.start.X += xoff
 	e.start.Y += yoff
 	e.end.X += xoff

@@ -28,7 +28,7 @@ import java.awt.geom.GeneralPath;
  */
 public class ShapeEdge {
 
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = true;
 
 	private static final int TYPE_HORIZONTAL = 0;
 	private static final int TYPE_VERTICAL = 1;

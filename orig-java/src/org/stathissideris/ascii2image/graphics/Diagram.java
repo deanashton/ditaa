@@ -683,6 +683,9 @@ public class Diagram {
 	}
 
 	private void separateCommonEdges(ArrayList<DiagramComponent> shapes) {
+		if (DEBUG) {
+			System.out.println("**** MCDBG separateCommonEdges ****");
+		}
 
 		float offset = ggrid.getMinimumOfCellDimension() / 5;
 
@@ -706,6 +709,9 @@ public class Diagram {
 
 				if (edge1.touchesWith(edge2)) {
 					listOfPairs.add(new Pair<ShapeEdge, ShapeEdge>(edge1, edge2));
+					if (DEBUG) {
+						System.out.println(edge1 + " touches with " + edge2);
+					}
 				}
 			}
 			startIndex++;
