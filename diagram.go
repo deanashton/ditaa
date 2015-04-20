@@ -237,7 +237,14 @@ func NewDiagram(grid *TextGrid) *Diagram {
 	//assign color codes to shapes
 	//TODO: text on line should not change its color
 
-	//[MC] TODO: colors
+	for _, pair := range grid.FindColorCodes() {
+		c := graphical.Cell(pair.Cell)
+		p := graphical.Point{X: d.G.Grid.CellMidX(c), Y: d.G.Grid.CellMidY(c)}
+		containingShape := FindSmallestShapeContaining(p, d.G.Shapes)
+		if containingShape != nil {
+			containingShape.FillColor = &pair.Color
+		}
+	}
 
 	//assign markup to shapes
 
@@ -750,4 +757,22 @@ func getAllBoundaries(g *TextGrid) *CellSet {
 		}
 	}
 	return set
+}
+
+func FindSmallestShapeContaining(p graphical.Point, shapes []graphical.Shape) *graphical.Shape {
+	var containingShape *graphical.Shape
+	for i := range shapes {
+		shape := &shapes[i]
+		if !shape.Contains(p) {
+			continue
+		}
+		if containingShape == nil {
+			containingShape = shape
+			continue
+		}
+		if shape.SmallerThan(containingShape) {
+			containingShape = shape
+		}
+	}
+	return containingShape
 }

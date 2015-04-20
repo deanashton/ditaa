@@ -225,7 +225,7 @@ func (e *edge) MoveInwardsBy(offset float64) {
 		X: (e.start.X + e.end.X) / 2,
 		Y: (e.start.Y + e.end.Y) / 2,
 	}
-	path := shapeToPath(e.owner)
+	path := e.owner.MakeIntoPath()
 	if path == nil {
 		return
 	}
@@ -257,16 +257,4 @@ func (e *edge) MoveInwardsBy(offset float64) {
 	e.start.Y += yoff
 	e.end.X += xoff
 	e.end.Y += yoff
-}
-
-func shapeToPath(s *graphical.Shape) polyclip.Contour {
-	if len(s.Points) < 2 {
-		return nil
-	}
-
-	c := polyclip.Contour{}
-	for _, p := range s.Points {
-		c.Add(polyclip.Point{X: p.X, Y: p.Y})
-	}
-	return c
 }

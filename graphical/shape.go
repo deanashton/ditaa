@@ -1,9 +1,11 @@
 package graphical
 
 import (
-	"code.google.com/p/jamslam-freetype-go/freetype/raster"
 	"fmt"
 	"math"
+
+	"code.google.com/p/jamslam-freetype-go/freetype/raster"
+	"github.com/akavel/polyclip-go"
 )
 
 type Grid struct {
@@ -90,6 +92,26 @@ func (s *Shape) MakeMarkerPaths(g Grid) (outer, inner raster.Path) {
 		Circle(float64(center.X), float64(center.Y), (diameter-STROKE_WIDTH)*0.5)
 }
 
+func (s *Shape) MakeIntoPath() polyclip.Contour {
+	if len(s.Points) < 2 {
+		return nil
+	}
+
+	c := polyclip.Contour{}
+	for _, p := range s.Points {
+		c.Add(polyclip.Point{X: p.X, Y: p.Y})
+	}
+	return c
+}
+
+func (s Shape) Contains(p Point) bool {
+	path := s.MakeIntoPath()
+	if path == nil {
+		return false
+	}
+	return path.Contains(polyclip.Point{p.X, p.Y})
+}
+
 func (s1 Shape) Equals(s2 Shape) bool {
 	if len(s1.Points) != len(s2.Points) {
 		return false
@@ -106,7 +128,18 @@ func (s1 Shape) Equals(s2 Shape) bool {
 	return true
 }
 
+func (s *Shape) SmallerThan(s2 *Shape) bool {
+	bounds := Bounds(s.Points)
+	bounds2 := Bounds(s2.Points)
+
+	return bounds.Area() < bounds2.Area()
+}
+
 type Rect struct{ Min, Max Point }
+
+func (r Rect) Area() float64 {
+	return (r.Max.Y - r.Min.Y) * (r.Max.X - r.Min.X)
+}
 
 func Bounds(pp []Point) Rect {
 	if len(pp) == 0 {

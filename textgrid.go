@@ -452,6 +452,7 @@ func (t *TextGrid) FindColorCodes() []CellColorPair {
 						R: unhex(cR) * 17,
 						G: unhex(cG) * 17,
 						B: unhex(cB) * 17,
+						A: 255,
 					},
 				})
 			}
