@@ -4,7 +4,6 @@ import (
 	"encoding/xml"
 	"image"
 	"image/color"
-	"io/ioutil"
 	"sort"
 
 	"github.com/akavel/ditaa/fontmeasure"
@@ -51,6 +50,18 @@ func (l *Label) AlignRightEdgeTo(x int, font *fontmeasure.Font) {
 	l.X = x - width
 }
 
+func (l *Label) BoundsFor(font *fontmeasure.Font) Rect {
+	tmpFont := *font
+	font = &tmpFont
+	font.Size = l.FontSize
+	ascent, advance := font.Ascent(), font.Advance()
+	r := Rect{
+		Min: Point{X: float64(l.X), Y: float64(l.Y - ascent)},
+		Max: Point{X: float64(l.X + font.WidthFor(l.Text)), Y: float64(l.Y - ascent + advance)},
+	}
+	return r
+}
+
 type Diagram struct {
 	XMLName xml.Name `xml:"diagram"`
 	Grid    Grid     `xml:"grid"`
@@ -92,12 +103,12 @@ func blurShadows(img *image.RGBA) {
 	radius += 2
 	for y := bb.Min.Y; y <= bb.Min.Y+radius; y++ {
 		for x := bb.Min.X; x <= bb.Max.X; x++ {
-			img.SetRGBA(x, y, WHITE)
+			img.SetRGBA(x, y, WHITE.RGBA())
 		}
 	}
 	for y := bb.Min.Y + radius + 1; y <= bb.Max.Y; y++ {
 		for x := bb.Min.X; x <= bb.Min.X+radius; x++ {
-			img.SetRGBA(x, y, WHITE)
+			img.SetRGBA(x, y, WHITE.RGBA())
 		}
 	}
 }
@@ -112,20 +123,10 @@ func (t LargeFirst) Swap(i, j int) {
 	t[j] = tmp
 }
 
-func RenderDiagram(img *image.RGBA, diagram *Diagram, opt Options, fontpath string) error {
-	fontfile, err := ioutil.ReadFile(fontpath)
-	if err != nil {
-		return err
-	}
-	font, err := truetype.Parse(fontfile)
-	if err != nil {
-		return err
-	}
-	_ = font
-
+func RenderDiagram(img *image.RGBA, diagram *Diagram, opt Options, font *truetype.Font) error {
 	for y := 0; y < diagram.Grid.H; y++ {
 		for x := 0; x < diagram.Grid.W; x++ {
-			img.SetRGBA(x, y, WHITE)
+			img.SetRGBA(x, y, WHITE.RGBA())
 		}
 	}
 
@@ -159,9 +160,9 @@ func RenderDiagram(img *image.RGBA, diagram *Diagram, opt Options, fontpath stri
 		//TODO: handle dashed
 		color := WHITE
 		if shape.FillColor != nil {
-			color = shape.FillColor.RGBA()
+			color = *shape.FillColor
 		}
-		Fill(img, path, color)
+		Fill(img, path, color.RGBA())
 		Stroke(img, path, shape.StrokeColor.RGBA())
 	}
 
@@ -190,9 +191,9 @@ func RenderDiagram(img *image.RGBA, diagram *Diagram, opt Options, fontpath stri
 		if path != nil && shape.Closed && !shape.Dashed {
 			color := WHITE
 			if shape.FillColor != nil {
-				color = shape.FillColor.RGBA()
+				color = *shape.FillColor
 			}
-			Fill(img, path, color)
+			Fill(img, path, color.RGBA())
 		}
 
 		// draw
@@ -206,7 +207,7 @@ func RenderDiagram(img *image.RGBA, diagram *Diagram, opt Options, fontpath stri
 	for _, shape := range pointMarkers {
 		outer, inner := shape.MakeMarkerPaths(diagram.Grid)
 		Fill(img, outer, shape.StrokeColor.RGBA())
-		Fill(img, inner, WHITE)
+		Fill(img, inner, WHITE.RGBA())
 	}
 
 	// handle text

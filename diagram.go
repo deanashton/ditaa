@@ -5,11 +5,20 @@ import (
 	"os"
 
 	"code.google.com/p/jamslam-freetype-go/freetype"
+	"code.google.com/p/jamslam-freetype-go/freetype/truetype"
 
 	"github.com/akavel/ditaa/embd"
 	"github.com/akavel/ditaa/fontmeasure"
 	"github.com/akavel/ditaa/graphical"
 )
+
+var baseFont = func() *truetype.Font {
+	f, err := freetype.ParseFont(embd.File_font_ttf)
+	if err != nil {
+		panic(err)
+	}
+	return f
+}()
 
 type Diagram struct {
 	G graphical.Diagram
@@ -62,10 +71,6 @@ Finally, the text processing occurs: [pending]
 
 */
 func NewDiagram(grid *TextGrid) *Diagram {
-	baseFont, err := freetype.ParseFont(embd.File_font_ttf)
-	if err != nil {
-		panic(err)
-	}
 
 	workGrid := CopyTextGrid(grid)
 	workGrid.ReplaceTypeOnLine()
@@ -242,7 +247,8 @@ func NewDiagram(grid *TextGrid) *Diagram {
 		p := graphical.Point{X: d.G.Grid.CellMidX(c), Y: d.G.Grid.CellMidY(c)}
 		containingShape := FindSmallestShapeContaining(p, d.G.Shapes)
 		if containingShape != nil {
-			containingShape.FillColor = &pair.Color
+			color := pair.Color
+			containingShape.FillColor = &color
 		}
 	}
 
@@ -346,6 +352,17 @@ func NewDiagram(grid *TextGrid) *Diagram {
 	//correct the color of the text objects according
 	//to the underlying color
 	//[MC] TODO
+
+	for i := range d.G.Labels {
+		label := &d.G.Labels[i]
+		// FIXME(akavel): fix all usages of DPI/dpi
+		tmpFont := &fontmeasure.Font{Font: baseFont, DPI: 72}
+		shape := FindSmallestShapeIntersecting(label.BoundsFor(tmpFont), d.G.Shapes)
+		if shape == nil || shape.FillColor == nil || !IsDark(*shape.FillColor) {
+			continue
+		}
+		label.Color = graphical.WHITE
+	}
 
 	//set outline to true for test within custom shapes
 	//[MC] TODO
@@ -775,4 +792,33 @@ func FindSmallestShapeContaining(p graphical.Point, shapes []graphical.Shape) *g
 		}
 	}
 	return containingShape
+}
+
+func FindSmallestShapeIntersecting(rect graphical.Rect, shapes []graphical.Shape) *graphical.Shape {
+	var intersectingShape *graphical.Shape
+	for i := range shapes {
+		shape := &shapes[i]
+		if !shape.Intersects(rect) {
+			continue
+		}
+		if intersectingShape == nil {
+			intersectingShape = shape
+			continue
+		}
+		if shape.SmallerThan(intersectingShape) {
+			intersectingShape = shape
+		}
+	}
+	return intersectingShape
+}
+
+func IsDark(c graphical.Color) bool {
+	brightness := c.R
+	if c.G > brightness {
+		brightness = c.G
+	}
+	if c.B > brightness {
+		brightness = c.B
+	}
+	return brightness < 200
 }

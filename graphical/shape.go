@@ -112,6 +112,26 @@ func (s Shape) Contains(p Point) bool {
 	return path.Contains(polyclip.Point{p.X, p.Y})
 }
 
+// FIXME(akavel): buggy, fix this... use full polyclip.Construct()
+func (s Shape) Intersects(rect Rect) bool {
+	for _, p := range s.Points {
+		if rect.Contains(p) {
+			return true
+		}
+	}
+	for _, p := range []Point{
+		rect.Min,
+		{X: rect.Min.X, Y: rect.Max.Y},
+		rect.Max,
+		{X: rect.Max.X, Y: rect.Min.Y},
+	} {
+		if s.Contains(p) {
+			return true
+		}
+	}
+	return false
+}
+
 func (s1 Shape) Equals(s2 Shape) bool {
 	if len(s1.Points) != len(s2.Points) {
 		return false
@@ -139,6 +159,10 @@ type Rect struct{ Min, Max Point }
 
 func (r Rect) Area() float64 {
 	return (r.Max.Y - r.Min.Y) * (r.Max.X - r.Min.X)
+}
+
+func (r Rect) Contains(p Point) bool {
+	return p.X >= r.Min.X && p.X <= r.Max.X && p.Y >= r.Min.Y && p.Y <= r.Max.Y
 }
 
 func Bounds(pp []Point) Rect {

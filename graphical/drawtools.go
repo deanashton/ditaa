@@ -1,10 +1,11 @@
 package graphical
 
 import (
-	"code.google.com/p/jamslam-freetype-go/freetype/raster"
 	"image"
 	"image/color"
 	"math"
+
+	"code.google.com/p/jamslam-freetype-go/freetype/raster"
 )
 
 const (
@@ -23,7 +24,7 @@ func (c Color) RGBA() color.RGBA {
 	return color.RGBA{c.R, c.G, c.B, c.A}
 }
 
-var WHITE = color.RGBA{255, 255, 255, 255}
+var WHITE = Color{255, 255, 255, 255}
 
 type PointType int
 

@@ -47,7 +47,7 @@ func run(infile, outfile string) error {
 	diagram := NewDiagram(grid)
 
 	img := image.NewRGBA(image.Rect(0, 0, diagram.G.Grid.W, diagram.G.Grid.H))
-	err = graphical.RenderDiagram(img, &diagram.G, graphical.Options{DropShadows: true}, "orig-java/src/org/stathissideris/ascii2image/graphics/font.ttf")
+	err = graphical.RenderDiagram(img, &diagram.G, graphical.Options{DropShadows: true}, baseFont)
 	if err != nil {
 		return err
 	}
