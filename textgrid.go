@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"regexp"
+	"strconv"
 	"strings"
 	"unicode"
 
@@ -15,12 +16,12 @@ import (
 const blankBorderSize = 2
 
 var humanColorCodes = map[string]string{
-	"GRE": "9D9",
-	"BLU": "55B",
-	"PNK": "FAA",
-	"RED": "E32",
-	"YEL": "FF3",
-	"BLK": "000",
+	"GRE": "99DD99",
+	"BLU": "5555BB",
+	"PNK": "FFAAAA",
+	"RED": "EE3322",
+	"YEL": "FFFF33",
+	"BLK": "000000",
 }
 
 var markupTags = map[string]struct{}{
@@ -346,6 +347,12 @@ func (t *TextGrid) RemoveNonText() {
 		t.SetCell(c, ' ')
 		c = c.East()
 		t.SetCell(c, ' ')
+		c = c.East()
+		t.SetCell(c, ' ')
+		c = c.East()
+		t.SetCell(c, ' ')
+		c = c.East()
+		t.SetCell(c, ' ')
 	}
 
 	// remove boundaries
@@ -427,7 +434,7 @@ type CellColorPair struct {
 }
 
 var (
-	colorCodePattern = regexp.MustCompile(`c[A-F0-9]{3}`)
+	colorCodePattern = regexp.MustCompile(`c[A-F0-9]{6}`)
 )
 
 func unhex(c byte) uint8 {
@@ -437,21 +444,25 @@ func unhex(c byte) uint8 {
 	return 10 + c - 'A'
 }
 
+func unhexs(s string) uint8 {
+	i, _ := strconv.ParseUint(s, 16, 8)
+	return uint8(i)
+}
+
 func (t *TextGrid) FindColorCodes() []CellColorPair {
 	result := []CellColorPair{}
 	w, h := t.Width(), t.Height()
 	for yi := 0; yi < h; yi++ {
-		for xi := 0; xi < w-3; xi++ {
+		for xi := 0; xi < w-6; xi++ {
 			c := Cell{xi, yi}
-			s := t.GetStringAt(c, 4)
+			s := t.GetStringAt(c, 7)
 			if colorCodePattern.MatchString(s) {
-				cR, cG, cB := s[1], s[2], s[3]
 				result = append(result, CellColorPair{
 					Cell: c,
 					Color: graphical.Color{
-						R: unhex(cR) * 17,
-						G: unhex(cG) * 17,
-						B: unhex(cB) * 17,
+						R: unhexs(s[1:3]),
+						G: unhexs(s[3:5]),
+						B: unhexs(s[5:7]),
 						A: 255,
 					},
 				})
